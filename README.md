@@ -1,8 +1,12 @@
-# ux-sniffer
+# UXSniffer
 
 ![Build](https://github.com/NouniTheodora/ux-sniffer/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
+
+UXSniffer is a WebStorm plugin that detects UX-related code smells in Vue.js 3 (Composition API) applications and provides research-based refactoring suggestions to help developers reduce UX debt.
+
+The plugin performs static analysis directly inside the IDE, presenting findings as inspections with clear explanations and improvement proposals. UXSniffer is designed with a modular architecture that allows future support for additional frontend frameworks and automated refactoring capabilities.
 
 ## Template ToDo list
 - [x] Create a new [IntelliJ Platform Plugin Template][template] project.
@@ -44,6 +48,16 @@ To keep everything working, do not remove `<!-- ... -->` sections.
   Download the [latest release](https://github.com/NouniTheodora/ux-sniffer/releases/latest) and install it manually using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
+## Development Requirements
+
+- IntelliJ IDEA (Community or Ultimate)
+- Java Development Kit (JDK) **17**
+- IntelliJ Platform SDK (via Gradle)
+- Target IDE: **WebStorm**
+
+> ℹ️ Important:  
+> The project must be built with **JDK 17** and **language level 17**.  
+> Using newer language levels (e.g. Java 21 features) may cause incompatibilities with the IntelliJ Platform.
 
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].

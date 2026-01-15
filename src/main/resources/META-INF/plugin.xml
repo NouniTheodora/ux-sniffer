@@ -1,15 +1,19 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.nounitheodora.uxsniffer</id>
-    <name>ux-sniffer</name>
-    <vendor>nounitheodora</vendor>
+    <name>UXSniffer</name>
+    <vendor>Nouni Theodora</vendor>
 
+    <!-- Base IntelliJ Platform -->
     <depends>com.intellij.modules.platform</depends>
+
+    <!-- Required for JS / Vue support -->
+    <depends>JavaScript</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.nounitheodora.uxsniffer.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <toolWindow id="UXSniffer" factoryClass="com.github.nounitheodora.uxsniffer.toolWindow.MyToolWindowFactory" />
         <postStartupActivity implementation="com.github.nounitheodora.uxsniffer.startup.MyProjectActivity" />
     </extensions>
 </idea-plugin>
