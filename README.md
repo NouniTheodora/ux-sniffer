@@ -1,66 +1,92 @@
 # UXSniffer
 
 ![Build](https://github.com/NouniTheodora/ux-sniffer/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
 
-UXSniffer is a WebStorm plugin that detects UX-related code smells in Vue.js 3 (Composition API) applications and provides research-based refactoring suggestions to help developers reduce UX debt.
+UXSniffer is a WebStorm / IntelliJ IDEA plugin that detects UX-related code smells in Vue.js 3 (Composition API) applications. It performs static analysis directly inside the IDE, presenting findings as inspections with clear explanations to help developers reduce UX debt.
 
-The plugin performs static analysis directly inside the IDE, presenting findings as inspections with clear explanations and improvement proposals. UXSniffer is designed with a modular architecture that allows future support for additional frontend frameworks and automated refactoring capabilities.
-
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Adjust the [pluginGroup](./gradle.properties) and [pluginName](./gradle.properties), as well as the [id](./src/main/resources/META-INF/plugin.xml) and [sources package](./src/main/kotlin).
-- [ ] Adjust the plugin description in `README` (see [Tips][docs:plugin-description])
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the `MARKETPLACE_ID` in the above README badges. You can obtain it once the plugin is published to JetBrains Marketplace.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
-- [ ] Configure the [CODECOV_TOKEN](https://docs.codecov.com/docs/quick-start) secret for automated test coverage reports on PRs
+Thresholds are based on empirical research (95th percentile metrics from ReactSniffer) and are fully configurable per project through the IDE's inspection settings.
 
 <!-- Plugin description -->
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
+UXSniffer detects UX-related code smells in Vue.js 3 (Composition API) projects and surfaces them as IDE inspections with research-based thresholds.
 
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file which will be extracted by the [Gradle](/build.gradle.kts) during the build process.
+**Currently detected smells:**
 
-To keep everything working, do not remove `<!-- ... -->` sections. 
+- **Large Vue.js file** — flags `.vue` files that exceed configurable limits on lines of code (default: 218) or number of import statements (default: 20).
+- **Large Vue.js component** — flags components whose `<script setup>` block exceeds configurable limits on lines of code (default: 128) or number of functions (default: 4). Suggests extracting logic into composables.
+- **Too many props** — flags components that define more than 13 props via `defineProps()`. Supports object, array, and TypeScript generic syntax.
+
+Thresholds for all smells can be adjusted in _Settings → Editor → Inspections → Vue.js UX Smells_.
 <!-- Plugin description end -->
+
+## Detected UX Smells
+
+| # | Smell | What it checks | Status |
+|---|---|---|---|
+| 1 | **Large File** | `.vue` file LOC > 218 or imports > 20 | ✅ Implemented |
+| 2 | **Large Component** | Script block LOC > 128 or functions > 4 | ✅ Implemented |
+| 3 | **Too Many Props** | `defineProps()` with > 13 props | ✅ Implemented |
+| 4 | Direct DOM Manipulation | `document.*` calls instead of template refs | 🔲 Planned |
+| 5 | Force Update | `$forceUpdate()` or `location.reload()` | 🔲 Planned |
+| 6 | Props in Initial State | `ref(props.x)` instead of `computed()` | 🔲 Planned |
+| 7 | Uncontrolled Component | `<input ref="x">` without `v-model` or `:value` | 🔲 Planned |
+| 8 | Inheritance Instead of Composition | `extends:` in component options | 🔲 Planned |
+
+All thresholds are configurable via **Settings → Editor → Inspections → Vue.js UX Smells**.
 
 ## Installation
 
 - Using the IDE built-in plugin system:
 
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "ux-sniffer"</kbd> >
+  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "UXSniffer"</kbd> >
   <kbd>Install</kbd>
-
-- Using JetBrains Marketplace:
-
-  Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
-
-  You can also download the [latest release](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID/versions) from JetBrains Marketplace and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
 - Manually:
 
-  Download the [latest release](https://github.com/NouniTheodora/ux-sniffer/releases/latest) and install it manually using
+  Download the [latest release](https://github.com/NouniTheodora/ux-sniffer/releases/latest) and install it using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
 ## Development Requirements
 
 - IntelliJ IDEA (Community or Ultimate)
-- Java Development Kit (JDK) **17**
+- Java Development Kit (JDK) **21**
 - IntelliJ Platform SDK (via Gradle)
-- Target IDE: **WebStorm**
+- Target IDE: **WebStorm 2025.2+**
 
-> ℹ️ Important:  
-> The project must be built with **JDK 17** and **language level 17**.  
-> Using newer language levels (e.g. Java 21 features) may cause incompatibilities with the IntelliJ Platform.
+## Running Tests
+
+### Unit tests
+
+```bash
+./gradlew test
+```
+
+Runs all JUnit tests and produces a report at `build/reports/tests/test/index.html`.
+
+> **First run:** Gradle downloads IntelliJ IDEA 2025.2.5 as a compile dependency (~800 MB). This is cached after the first run.
+
+If the build fails with a message about a missing `Core` plugin or an invalid IDE path, the cached download is corrupt. Fix it by deleting the bad cache entry and retrying:
+
+```bash
+rm -rf ~/.gradle/caches/9.2.1/transforms
+rm -rf .gradle/configuration-cache
+./gradlew test
+```
+
+### Run a single test class
+
+```bash
+./gradlew test --tests "com.github.nounitheodora.uxsniffer.inspections.LargeFileInspectionTest"
+```
+
+### Run the plugin in a sandbox IDE
+
+```bash
+./gradlew runIde
+```
+
+Launches a sandboxed IntelliJ IDEA instance with the plugin loaded. Open any `.vue` file to trigger the UX smell inspections live in the editor. Sample test files are available under `src/test/testData/vue/`.
 
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].
 
 [template]: https://github.com/JetBrains/intellij-platform-plugin-template
-[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation

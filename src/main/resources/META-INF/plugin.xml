@@ -1,19 +1,44 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<!-- The plugin's manifest — the single most important config file. It tells IntelliJ: -->
+<!--  - What the plugin is (id, name, vendor)-->
+<!--  - What it depends on (com.intellij.modules.platform = core IDE APIs; JavaScript = JS/Vue PSI support) -->
+<!--  - What it contributes to the IDE (right now: one tool window) -->
 <idea-plugin>
     <id>com.github.nounitheodora.uxsniffer</id>
     <name>UXSniffer</name>
     <vendor>Nouni Theodora</vendor>
 
-    <!-- Base IntelliJ Platform -->
     <depends>com.intellij.modules.platform</depends>
-
-    <!-- Required for JS / Vue support -->
     <depends>JavaScript</depends>
 
-    <resource-bundle>messages.MyBundle</resource-bundle>
+    <resource-bundle>messages.UxSnifferBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="UXSniffer" factoryClass="com.github.nounitheodora.uxsniffer.toolWindow.MyToolWindowFactory" />
-        <postStartupActivity implementation="com.github.nounitheodora.uxsniffer.startup.MyProjectActivity" />
+
+        <toolWindow
+            id="UXSniffer"
+            anchor="bottom"
+            factoryClass="com.github.nounitheodora.uxsniffer.toolWindow.UxToolWindowFactory"/>
+
+        <!-- Vue.js UX smell inspections -->
+        <localInspection
+            language="HTML"
+            displayName="Large Vue.js file"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.github.nounitheodora.uxsniffer.inspections.LargeFileInspection"/>
+        <localInspection
+            language="HTML"
+            displayName="Large Vue.js component"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.github.nounitheodora.uxsniffer.inspections.LargeComponentInspection"/>
+        <localInspection
+            language="HTML"
+            displayName="Too many props"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.github.nounitheodora.uxsniffer.inspections.TooManyPropsInspection"/>
+
     </extensions>
 </idea-plugin>

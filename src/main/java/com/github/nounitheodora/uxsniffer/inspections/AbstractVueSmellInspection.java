@@ -1,0 +1,62 @@
+package com.github.nounitheodora.uxsniffer.inspections;
+
+import com.intellij.codeInspection.LocalInspectionTool;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+public abstract class AbstractVueSmellInspection extends LocalInspectionTool {
+
+    @Override
+    public @NotNull String getGroupDisplayName() {
+        return "Vue.js UX Smells";
+    }
+
+    @Override
+    public boolean isEnabledByDefault() {
+        return true;
+    }
+
+    protected boolean isVueFile(@NotNull PsiFile file) {
+        VirtualFile vFile = file.getVirtualFile();
+        if (vFile == null) vFile = file.getOriginalFile().getVirtualFile();
+        return vFile != null && "vue".equalsIgnoreCase(vFile.getExtension());
+    }
+
+    protected int countLines(@NotNull String text) {
+        String[] lines = text.split("\n", -1);
+        if (lines.length > 0 && lines[lines.length - 1].isEmpty()) {
+            return lines.length - 1;
+        }
+        return lines.length;
+    }
+
+    protected @NotNull String extractScriptContent(@NotNull String text) {
+        int scriptStart = text.indexOf("<script");
+        if (scriptStart < 0) return "";
+        int contentStart = text.indexOf('>', scriptStart);
+        if (contentStart < 0) return "";
+        int scriptEnd = text.indexOf("</script>", contentStart);
+        if (scriptEnd < 0) return "";
+        return text.substring(contentStart + 1, scriptEnd);
+    }
+
+    /**
+     * Extracts the content between a matched pair of open/close characters
+     * starting at the given index. Returns null if not found.
+     */
+    protected @Nullable String extractBlock(@NotNull String text, int start, char open, char close) {
+        if (start >= text.length() || text.charAt(start) != open) return null;
+        int depth = 0;
+        for (int i = start; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c == open) depth++;
+            else if (c == close) {
+                depth--;
+                if (depth == 0) return text.substring(start + 1, i);
+            }
+        }
+        return null;
+    }
+}
