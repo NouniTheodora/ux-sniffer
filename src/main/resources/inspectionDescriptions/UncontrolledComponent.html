@@ -1,0 +1,11 @@
+<html>
+<body>
+<p>Reports <code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code>, and <code>&lt;select&gt;</code>
+elements that use a <code>ref</code> attribute but have no <code>v-model</code> or
+<code>:value</code> binding.</p>
+<p>Without a reactive binding, the element's value is only accessible imperatively
+through the ref, which bypasses Vue's reactivity system and makes the form state
+harder to track and validate.</p>
+<p>Bind the value reactively with <code>v-model</code> or <code>:value</code> instead.</p>
+</body>
+</html>

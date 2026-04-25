@@ -301,25 +301,40 @@ Both patterns are detected. Using `computed(() => props.x)` is the correct alter
 
 ---
 
-## Smell 7 — Uncontrolled Component 🔲 Not yet implemented
+## Smell 7 — Uncontrolled Component ✅ Implemented
 
-**What it will detect:** An `<input>` element that uses a `ref` attribute but has no `v-model` or `:value` binding, meaning the input value is read imperatively rather than reactively.
+**What it detects:** Form elements (`<input>`, `<textarea>`, `<select>`) that use a `ref` attribute but have no `v-model` or `:value` binding, meaning the value is only accessible imperatively.
 
-### Planned test file: `UncontrolledComponent_clean.vue`
-A form with `v-model` on all inputs. Expected: no warning.
+| Detected elements | Recognised bindings |
+|---|---|
+| `<input>`, `<textarea>`, `<select>` | `v-model`, `:value`, `v-bind:value` |
 
-### Planned test file: `UncontrolledComponent_trigger.vue`
-```vue
-<template>
-  <input ref="nameInput" type="text" />  <!-- triggers warning — no v-model or :value -->
-</template>
+An element is only flagged if it has a `ref` **and** lacks any reactive value binding. Elements without a `ref` are not flagged (they may be plain HTML with no JS interaction). When multiple uncontrolled elements are found, they are reported in a single combined message.
 
-<script setup>
-import { ref } from 'vue'
-const nameInput = ref(null)
-</script>
-```
-Expected warning: *"Uncontrolled input: uses a ref but has no v-model or :value binding. Bind the value reactively instead."*
+### Test file: `UncontrolledComponent_clean.vue`
+- **Expected result:** No warnings.
+- **Why:** All inputs use `v-model` or `:value`.
+
+### Test file: `UncontrolledComponent_trigger.vue`
+- **Expected result:** Warning — *"Uncontrolled &lt;input&gt;: uses a ref but has no v-model or :value binding. Bind the value reactively instead."*
+- **Why:** `<input ref="nameInput">` has no value binding.
+
+### Test file: `UncontrolledComponent_multiple.vue`
+- **Expected result:** Warning — *"2 uncontrolled form elements use a ref but have no v-model or :value binding. Bind values reactively instead."*
+- **Why:** Both `<input>` and `<textarea>` use refs without value bindings.
+
+### Steps
+1. Run `./gradlew runIde`.
+2. Inside the sandbox, open the folder `src/test/testData/vue/`.
+3. Open each file above and confirm the expected result.
+
+### Test case — disabling the inspection:
+
+1. Open `Settings → Editor → Inspections → Vue.js UX Smells → Uncontrolled form component`.
+2. Uncheck the checkbox to disable.
+3. Open `UncontrolledComponent_trigger.vue`.
+4. Expected: no warning.
+5. Re-enable to restore default behaviour.
 
 ---
 

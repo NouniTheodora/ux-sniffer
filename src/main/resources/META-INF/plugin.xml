@@ -57,6 +57,12 @@
             enabledByDefault="true"
             level="WARNING"
             implementationClass="com.github.nounitheodora.uxsniffer.inspections.PropsInInitialStateInspection"/>
+        <localInspection
+            language="HTML"
+            displayName="Uncontrolled form component"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.github.nounitheodora.uxsniffer.inspections.UncontrolledComponentInspection"/>
 
     </extensions>
 </idea-plugin>
