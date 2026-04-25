@@ -19,22 +19,32 @@ UXSniffer detects UX-related code smells in Vue.js 3 (Composition API) projects 
 - **Props used in initial state** — flags `ref(props.x)` and `reactive({ ... props.x })` patterns where a prop is copied into local state, breaking one-way data flow. Suggests using `computed()` instead.
 - **Uncontrolled form component** — flags `<input>`, `<textarea>`, and `<select>` elements that use a `ref` but have no `v-model` or `:value` binding. Suggests binding the value reactively.
 - **Inheritance instead of composition** — flags components that use `extends:` in their options object. Suggests refactoring to composables.
+- **Any type usage** — flags `: any` type annotations in TypeScript Vue components. Disabling type checking hides errors. _(TypeScript only)_
+- **Non-null assertion** — flags `!.` non-null assertion operators that may hide null/undefined runtime errors. _(TypeScript only)_
+- **Multiple booleans for state** — flags components with too many `ref(true)`/`ref(false)` declarations (default: > 4). Suggests using an enum or union type instead.
+- **Enum with implicit values** — flags TypeScript enums without explicit value assignments, which can break when members are reordered. _(TypeScript only)_
 
 Thresholds for all smells can be adjusted in _Settings → Editor → Inspections → Vue.js UX Smells_.
 <!-- Plugin description end -->
 
 ## Detected UX Smells
 
-| # | Smell | What it checks | Status |
+| # | Smell | What it checks |
 |---|---|---|---|
-| 1 | **Large File** | `.vue` file LOC > 218 or imports > 20 | ✅ Implemented |
-| 2 | **Large Component** | Script block LOC > 128 or functions > 4 | ✅ Implemented |
-| 3 | **Too Many Props** | `defineProps()` with > 13 props | ✅ Implemented |
-| 4 | **Direct DOM Manipulation** | `document.*` calls instead of template refs | ✅ Implemented |
-| 5 | **Force Update** | `$forceUpdate()` or `location.reload()` | ✅ Implemented |
-| 6 | **Props in Initial State** | `ref(props.x)` instead of `computed()` | ✅ Implemented |
-| 7 | **Uncontrolled Component** | `<input ref="x">` without `v-model` or `:value` | ✅ Implemented |
-| 8 | **Inheritance Instead of Composition** | `extends:` in component options | ✅ Implemented |
+| 1 | **Large File** | `.vue` file LOC > 218 or imports > 20 |
+| 2 | **Large Component** | Script block LOC > 128 or functions > 4 |
+| 3 | **Too Many Props** | `defineProps()` with > 13 props |
+| 4 | **Direct DOM Manipulation** | `document.*` calls instead of template refs |
+| 5 | **Force Update** | `$forceUpdate()` or `location.reload()` |
+| 6 | **Props in Initial State** | `ref(props.x)` instead of `computed()` |
+| 7 | **Uncontrolled Component** | `<input ref="x">` without `v-model` or `:value` |
+| 8 | **Inheritance Instead of Composition** | `extends:` in component options |
+| 9 | **Any Type** | `: any` type annotations in TypeScript |
+| 10 | **Non-Null Assertions** | `!.` operator bypassing null checks |
+| 11 | **Multiple Booleans for State** | > 4 boolean `ref()` declarations |
+| 12 | **Enum Implicit Values** | `enum` without explicit values |
+
+Smells 1–8 are based on Ferreira & Valente (2022). Smells 9–12 are based on Nunes et al. (2025).
 
 All thresholds are configurable via **Settings → Editor → Inspections → Vue.js UX Smells**.
 

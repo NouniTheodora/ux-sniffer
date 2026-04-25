@@ -42,6 +42,16 @@ public abstract class AbstractVueSmellInspection extends LocalInspectionTool {
         return text.substring(contentStart + 1, scriptEnd);
     }
 
+    protected boolean isTypeScriptSetup(@NotNull String text) {
+        int scriptStart = text.indexOf("<script");
+        if (scriptStart < 0) return false;
+        int tagEnd = text.indexOf('>', scriptStart);
+        if (tagEnd < 0) return false;
+        String tag = text.substring(scriptStart, tagEnd);
+        return tag.contains("setup") &&
+               (tag.contains("lang=\"ts\"") || tag.contains("lang=\"typescript\""));
+    }
+
     /**
      * Extracts the content between a matched pair of open/close characters
      * starting at the given index. Returns null if not found.

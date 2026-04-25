@@ -69,6 +69,30 @@
             enabledByDefault="true"
             level="WARNING"
             implementationClass="com.github.nounitheodora.uxsniffer.inspections.InheritanceInspection"/>
+        <localInspection
+            language="HTML"
+            displayName="Any type usage"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.github.nounitheodora.uxsniffer.inspections.AnyTypeInspection"/>
+        <localInspection
+            language="HTML"
+            displayName="Non-null assertion"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.github.nounitheodora.uxsniffer.inspections.NonNullAssertionInspection"/>
+        <localInspection
+            language="HTML"
+            displayName="Multiple booleans for state"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.github.nounitheodora.uxsniffer.inspections.MultipleBooleansForStateInspection"/>
+        <localInspection
+            language="HTML"
+            displayName="Enum with implicit values"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.github.nounitheodora.uxsniffer.inspections.EnumImplicitValuesInspection"/>
 
     </extensions>
 </idea-plugin>

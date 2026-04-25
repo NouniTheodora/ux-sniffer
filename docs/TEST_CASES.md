@@ -14,7 +14,7 @@ To verify a smell is registered: **Settings → Editor → Inspections → Vue.j
 
 ---
 
-## Smell 1 — Large File ✅ Implemented
+## Smell 1 — Large File
 
 **What it detects:** A `.vue` file that has too many lines of code or too many imports.
 
@@ -95,7 +95,7 @@ The two checks are independent (`if` / `if`, not `if` / `else if`), so all viola
 
 ---
 
-## Smell 2 — Large Component ✅ Implemented
+## Smell 2 — Large Component
 
 **What it detects:** A `.vue` component whose `<script setup>` block is too long or defines too many functions.
 
@@ -141,7 +141,7 @@ Max functions:           [   4 ]
 
 ---
 
-## Smell 3 — Too Many Props ✅ Implemented
+## Smell 3 — Too Many Props
 
 **What it detects:** A component that defines more than 13 props via `defineProps()`.
 
@@ -179,7 +179,7 @@ Max props:  [ 13 ]
 
 ---
 
-## Smell 4 — Direct DOM Manipulation ✅ Implemented
+## Smell 4 — Direct DOM Manipulation
 
 **What it detects:** Calls to DOM manipulation APIs inside a Vue component's `<script setup>` block. Vue's reactivity system and template refs should be used instead.
 
@@ -221,7 +221,7 @@ When multiple APIs are found in the same file, they are reported in a single com
 
 ---
 
-## Smell 5 — Force Update ✅ Implemented
+## Smell 5 — Force Update
 
 **What it detects:** Calls to `$forceUpdate()` or `location.reload()` inside a Vue component's `<script setup>` block, which bypass Vue's reactivity system.
 
@@ -263,7 +263,7 @@ Both `location.reload()` and `window.location.reload()` are detected. Comments a
 
 ---
 
-## Smell 6 — Props in Initial State ✅ Implemented
+## Smell 6 — Props in Initial State
 
 **What it detects:** Reactive state initialised directly from a prop value, which breaks the one-way data flow and causes the state to go out of sync when the prop changes.
 
@@ -301,7 +301,7 @@ Both patterns are detected. Using `computed(() => props.x)` is the correct alter
 
 ---
 
-## Smell 7 — Uncontrolled Component ✅ Implemented
+## Smell 7 — Uncontrolled Component
 
 **What it detects:** Form elements (`<input>`, `<textarea>`, `<select>`) that use a `ref` attribute but have no `v-model` or `:value` binding, meaning the value is only accessible imperatively.
 
@@ -338,7 +338,7 @@ An element is only flagged if it has a `ref` **and** lacks any reactive value bi
 
 ---
 
-## Smell 8 — Inheritance Instead of Composition ✅ Implemented
+## Smell 8 — Inheritance Instead of Composition
 
 **What it detects:** A component that uses `extends: SomeComponent` in its options object, preferring inheritance over Vue's composition model.
 
@@ -367,17 +367,104 @@ The warning message includes the name of the extended component, extracted dynam
 
 ---
 
+## Smell 9 — Any Type
+
+**What it detects:** Usage of the `any` type in TypeScript Vue components (`<script setup lang="ts">`). Applies to type annotations (`: any`), generic parameters (`<any>`), and composite types (`, any`).
+
+### Test file: `AnyType_clean.vue`
+- **Expected result:** No warnings.
+- **Why:** All types are explicitly defined (`string`, `ref<string>`).
+
+### Test file: `AnyType_trigger.vue`
+- **Expected result:** Warning — *"TypeScript 'any' type used 3 times. This disables type checking and may hide errors. Define explicit types instead."*
+- **Why:** Uses `ref<any>(null)` and `function process(input: any): any`.
+
+### Steps
+1. Run `./gradlew runIde`.
+2. Open a `.vue` file with `<script setup lang="ts">` containing `: any`.
+3. Confirm warning appears. Files without `lang="ts"` should not trigger.
+
+---
+
+## Smell 10 — Non-Null Assertions
+
+**What it detects:** Usage of the non-null assertion operator (`!.`) in TypeScript Vue components (`<script setup lang="ts">`). This operator tells TypeScript a value is not null/undefined without performing a runtime check.
+
+### Test file: `NonNullAssertion_clean.vue`
+- **Expected result:** No warnings.
+- **Why:** Uses optional chaining (`?.`) and nullish coalescing (`??`) instead.
+
+### Test file: `NonNullAssertion_trigger.vue`
+- **Expected result:** Warning — *"Non-null assertion operator ('!') used. This may hide null/undefined errors at runtime. Use proper null checks instead."*
+- **Why:** Uses `found!.value` to access a potentially undefined result.
+
+### Steps
+1. Run `./gradlew runIde`.
+2. Open a `.vue` file with `<script setup lang="ts">` containing `!.` patterns.
+3. Confirm warning appears. Logical NOT (`!isHidden`) and not-equal (`!==`) are not flagged.
+
+---
+
+## Smell 11 — Multiple Booleans for State
+
+**What it detects:** Components that define too many boolean `ref()` values to manage state, making it easy to set contradictory combinations.
+
+| Metric | Threshold | Condition |
+|---|---|---|
+| Boolean refs | 4 | `booleanRefs > 4` |
+
+### Test file: `MultipleBooleans_clean.vue`
+- **Expected result:** No warnings.
+- **Why:** Uses a union type (`CountdownState`) instead of multiple booleans.
+
+### Test file: `MultipleBooleans_trigger.vue`
+- **Expected result:** Warning — *"Multiple booleans for state: 5 boolean refs defined (threshold: 4). Consider using an enum or union type to manage state transitions instead."*
+- **Why:** Defines 5 boolean refs (`isLoading`, `isRunning`, `isPaused`, `isFinished`, `hasError`).
+
+### Configuring thresholds
+
+`Settings → Editor → Inspections → Vue.js UX Smells → Multiple booleans for state`
+
+```
+Max boolean refs:  [ 4 ]
+```
+
+---
+
+## Smell 12 — Enum Implicit Values
+
+**What it detects:** TypeScript enums whose members do not have explicit values assigned. When members are reordered, all auto-generated values shift, causing silent runtime inconsistencies.
+
+### Test file: `EnumImplicit_clean.vue`
+- **Expected result:** No warnings.
+- **Why:** Enum `Color` has explicit string values (`Red = 'Red'`, etc.).
+
+### Test file: `EnumImplicit_trigger.vue`
+- **Expected result:** Warning — *"Enum 'Color' has implicit values. Assign explicit values to prevent reordering issues."*
+- **Why:** Enum `Color` members have no `=` assignments.
+
+### Steps
+1. Run `./gradlew runIde`.
+2. Open a `.vue` file with `<script setup lang="ts">` containing an enum without explicit values.
+3. Confirm warning appears. Enums with all explicit values should not trigger.
+
+---
+
 ## Thresholds reference
 
 | Smell | Metric | Threshold | Source |
 |---|---|---|---|
-| Large File | Lines of code | 218 | ReactSniffer (95th percentile) |
-| Large File | Import count | 20 | ReactSniffer (95th percentile) |
-| Large Component | Script LOC | 128 | ReactSniffer (95th percentile) |
-| Large Component | Function count | 4 | ReactSniffer (95th percentile) |
-| Too Many Props | Prop count | 13 | ReactSniffer (95th percentile) |
+| Large File | Lines of code | 218 | Ferreira & Valente, 2022 (95th percentile) |
+| Large File | Import count | 20 | Ferreira & Valente, 2022 (95th percentile) |
+| Large Component | Script LOC | 128 | Ferreira & Valente, 2022 (95th percentile) |
+| Large Component | Function count | 4 | Ferreira & Valente, 2022 (95th percentile) |
+| Too Many Props | Prop count | 13 | Ferreira & Valente, 2022 (95th percentile) |
 | Direct DOM Manipulation | Any DOM API call | 1 | Any occurrence |
 | Force Update | Any forceUpdate/reload call | 1 | Any occurrence |
 | Props in Initial State | ref(props.x) pattern | 1 | Any occurrence |
 | Uncontrolled Component | input with ref, no v-model | 1 | Any occurrence |
 | Inheritance | extends: in options | 1 | Any occurrence |
+| Any Type | `: any` annotation | 1 | Nunes et al., 2025 (any occurrence) |
+| Non-Null Assertions | `!.` operator | 1 | Nunes et al., 2025 (any occurrence) |
+| Multiple Booleans for State | Boolean ref count | 4 | Nunes et al., 2025 |
+| Enum Implicit Values | Enum without explicit values | 1 | Nunes et al., 2025 (any occurrence) |
