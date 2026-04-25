@@ -221,25 +221,45 @@ When multiple APIs are found in the same file, they are reported in a single com
 
 ---
 
-## Smell 5 — Force Update 🔲 Not yet implemented
+## Smell 5 — Force Update ✅ Implemented
 
-**What it will detect:** Calls to `$forceUpdate()` or `location.reload()`, which bypass Vue's reactivity system.
+**What it detects:** Calls to `$forceUpdate()` or `location.reload()` inside a Vue component's `<script setup>` block, which bypass Vue's reactivity system.
 
-### Planned test file: `ForceUpdate_clean.vue`
-A component that reacts to state changes via `ref()` and `computed()`. Expected: no warning.
+| Pattern | What it catches |
+|---|---|
+| `$forceUpdate()` | Forcing a re-render instead of relying on reactive state |
+| `location.reload()` | Full page reload instead of reactive updates or router navigation |
 
-### Planned test file: `ForceUpdate_trigger.vue`
-```vue
-<script setup>
-import { getCurrentInstance } from 'vue'
-const instance = getCurrentInstance()
+Both `location.reload()` and `window.location.reload()` are detected. Comments are skipped. When both patterns appear in the same file, they are reported in a single combined message.
 
-function refresh() {
-  instance.proxy.$forceUpdate()  // triggers warning
-}
-</script>
-```
-Expected warning: *"Avoid '$forceUpdate()'. Redesign state so Vue's reactivity handles updates automatically."*
+### Test file: `ForceUpdate_clean.vue`
+- **Expected result:** No warnings.
+- **Why:** Uses `ref()` and `computed()` — proper Vue reactivity.
+
+### Test file: `ForceUpdate_forceUpdate.vue`
+- **Expected result:** Warning — *"Avoid '$forceUpdate()'. Redesign state so Vue's reactivity handles updates automatically."*
+- **Why:** Calls `instance.proxy.$forceUpdate()`.
+
+### Test file: `ForceUpdate_reload.vue`
+- **Expected result:** Warning — *"Avoid 'location.reload()'. Use Vue's reactivity or router navigation instead of full page reloads."*
+- **Why:** Calls `location.reload()`.
+
+### Test file: `ForceUpdate_both.vue`
+- **Expected result:** Warning — *"Avoid '$forceUpdate()' and 'location.reload()'. Redesign state so Vue's reactivity handles updates automatically."*
+- **Why:** Uses both `$forceUpdate()` and `location.reload()` in the same component.
+
+### Steps
+1. Run `./gradlew runIde`.
+2. Inside the sandbox, open the folder `src/test/testData/vue/`.
+3. Open each file above and confirm the expected result.
+
+### Test case — disabling the inspection:
+
+1. Open `Settings → Editor → Inspections → Vue.js UX Smells → Force update / page reload`.
+2. Uncheck the checkbox to disable.
+3. Open `ForceUpdate_forceUpdate.vue`.
+4. Expected: no warning.
+5. Re-enable to restore default behaviour.
 
 ---
 

@@ -45,6 +45,12 @@
             enabledByDefault="true"
             level="WARNING"
             implementationClass="com.github.nounitheodora.uxsniffer.inspections.DirectDomInspection"/>
+        <localInspection
+            language="HTML"
+            displayName="Force update / page reload"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.github.nounitheodora.uxsniffer.inspections.ForceUpdateInspection"/>
 
     </extensions>
 </idea-plugin>

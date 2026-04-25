@@ -15,6 +15,7 @@ UXSniffer detects UX-related code smells in Vue.js 3 (Composition API) projects 
 - **Large Vue.js component** — flags components whose `<script setup>` block exceeds configurable limits on lines of code (default: 128) or number of functions (default: 4). Suggests extracting logic into composables.
 - **Too many props** — flags components that define more than 13 props via `defineProps()`. Supports object, array, and TypeScript generic syntax.
 - **Direct DOM manipulation** — flags calls to `document.getElementById`, `querySelector`, `createElement`, `appendChild`, `innerHTML`, and other DOM APIs inside Vue components. Suggests using Vue template refs instead.
+- **Force update / page reload** — flags `$forceUpdate()` and `location.reload()` calls that bypass Vue's reactivity system. Suggests redesigning state to let reactivity handle updates.
 
 Thresholds for all smells can be adjusted in _Settings → Editor → Inspections → Vue.js UX Smells_.
 <!-- Plugin description end -->
@@ -27,7 +28,7 @@ Thresholds for all smells can be adjusted in _Settings → Editor → Inspection
 | 2 | **Large Component** | Script block LOC > 128 or functions > 4 | ✅ Implemented |
 | 3 | **Too Many Props** | `defineProps()` with > 13 props | ✅ Implemented |
 | 4 | **Direct DOM Manipulation** | `document.*` calls instead of template refs | ✅ Implemented |
-| 5 | Force Update | `$forceUpdate()` or `location.reload()` | 🔲 Planned |
+| 5 | **Force Update** | `$forceUpdate()` or `location.reload()` | ✅ Implemented |
 | 6 | Props in Initial State | `ref(props.x)` instead of `computed()` | 🔲 Planned |
 | 7 | Uncontrolled Component | `<input ref="x">` without `v-model` or `:value` | 🔲 Planned |
 | 8 | Inheritance Instead of Composition | `extends:` in component options | 🔲 Planned |
