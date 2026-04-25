@@ -263,22 +263,41 @@ Both `location.reload()` and `window.location.reload()` are detected. Comments a
 
 ---
 
-## Smell 6 — Props in Initial State 🔲 Not yet implemented
+## Smell 6 — Props in Initial State ✅ Implemented
 
-**What it will detect:** Reactive state initialised directly from a prop value (`ref(props.x)`), which breaks the one-way data flow and causes the state to go out of sync when the prop changes.
+**What it detects:** Reactive state initialised directly from a prop value, which breaks the one-way data flow and causes the state to go out of sync when the prop changes.
 
-### Planned test file: `PropsInInitialState_clean.vue`
-A component that derives values from props using `computed()`. Expected: no warning.
+| Pattern | Example |
+|---|---|
+| `ref(props.x)` | `const name = ref(props.initialName)` |
+| `reactive({ ... props.x })` | `const state = reactive({ name: props.userName })` |
 
-### Planned test file: `PropsInInitialState_trigger.vue`
-```vue
-<script setup>
-const props = defineProps({ initialName: String })
+Both patterns are detected. Using `computed(() => props.x)` is the correct alternative — it stays in sync when the prop changes. Comments are skipped. When multiple props are copied into state, all are reported in a single combined message.
 
-const name = ref(props.initialName)  // triggers warning — use computed() instead
-</script>
-```
-Expected warning: *"Prop 'initialName' used to initialise reactive state. Use computed(() => props.initialName) to stay in sync."*
+### Test file: `PropsInInitialState_clean.vue`
+- **Expected result:** No warnings.
+- **Why:** Uses `computed()` to derive values from props — stays in sync.
+
+### Test file: `PropsInInitialState_trigger.vue`
+- **Expected result:** Warning — *"Prop 'initialName' used to initialise reactive state. Use computed(() => props.initialName) to stay in sync."*
+- **Why:** Copies `props.initialName` into a `ref()`.
+
+### Test file: `PropsInInitialState_multiple.vue`
+- **Expected result:** Warning — *"Props 'initialName' and 'initialCount' used to initialise reactive state. Use computed() to stay in sync with prop changes."*
+- **Why:** Two props are copied into separate `ref()` calls.
+
+### Steps
+1. Run `./gradlew runIde`.
+2. Inside the sandbox, open the folder `src/test/testData/vue/`.
+3. Open each file above and confirm the expected result.
+
+### Test case — disabling the inspection:
+
+1. Open `Settings → Editor → Inspections → Vue.js UX Smells → Props used in initial state`.
+2. Uncheck the checkbox to disable.
+3. Open `PropsInInitialState_trigger.vue`.
+4. Expected: no warning.
+5. Re-enable to restore default behaviour.
 
 ---
 

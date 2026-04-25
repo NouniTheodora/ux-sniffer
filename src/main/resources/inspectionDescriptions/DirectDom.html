@@ -1,0 +1,15 @@
+<html>
+<body>
+<p>Reports calls to browser DOM APIs inside a Vue component's <code>&lt;script setup&gt;</code> block.</p>
+<p>Vue manages the DOM through its reactivity system and virtual DOM.
+Direct manipulation bypasses this, causing inconsistencies between Vue's state and the actual DOM.</p>
+<p><b>Detected APIs:</b></p>
+<ul>
+  <li><code>document.getElementById</code>, <code>querySelector</code>, <code>querySelectorAll</code>,
+      <code>getElementsByTagName</code>, <code>getElementsByClassName</code>, <code>createElement</code></li>
+  <li><code>appendChild</code>, <code>removeChild</code>, <code>replaceChild</code>, <code>setAttribute</code></li>
+  <li><code>innerHTML</code>, <code>innerText</code>, <code>textContent</code></li>
+</ul>
+<p>Use Vue template refs and reactive bindings instead.</p>
+</body>
+</html>

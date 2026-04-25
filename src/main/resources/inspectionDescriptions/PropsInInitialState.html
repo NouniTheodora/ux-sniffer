@@ -1,0 +1,10 @@
+<html>
+<body>
+<p>Reports reactive state initialised directly from a prop value,
+such as <code>ref(props.x)</code> or <code>reactive({ key: props.x })</code>.</p>
+<p>This breaks Vue's one-way data flow: the local copy is set once at creation time
+and goes out of sync when the parent updates the prop.</p>
+<p>Use <code>computed(() =&gt; props.x)</code> instead &mdash; it stays in sync automatically
+whenever the prop changes.</p>
+</body>
+</html>

@@ -5,9 +5,17 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+/**
+ * DirectDomInspection:
+ * This class scans the <script setup> block for 14 DOM APIs across 3 categories:
+ * document.* methods (getElementById, querySelector, etc.), DOM mutation methods (appendChild, removeChild, etc.),
+ * and DOM properties (innerHTML, innerText, textContent).
+ * It skips commented-out lines. Reports all detected APIs in a single combined message.
+ */
 public class DirectDomInspection extends AbstractVueSmellInspection {
 
     static final String[] DOCUMENT_METHODS = {

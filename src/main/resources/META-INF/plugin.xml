@@ -51,6 +51,12 @@
             enabledByDefault="true"
             level="WARNING"
             implementationClass="com.github.nounitheodora.uxsniffer.inspections.ForceUpdateInspection"/>
+        <localInspection
+            language="HTML"
+            displayName="Props used in initial state"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.github.nounitheodora.uxsniffer.inspections.PropsInInitialStateInspection"/>
 
     </extensions>
 </idea-plugin>

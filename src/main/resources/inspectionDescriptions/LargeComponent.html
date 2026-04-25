@@ -1,0 +1,15 @@
+<html>
+<body>
+<p>Reports Vue components whose <code>&lt;script setup&gt;</code> block is too long
+or defines too many functions.</p>
+<p>Oversized components are a sign of mixed responsibilities.
+Extracting logic into composables makes the component easier to understand and test.</p>
+<p><b>Default thresholds</b> (based on ReactSniffer 95th-percentile data):</p>
+<ul>
+  <li>Script block lines: <b>128</b></li>
+  <li>Functions: <b>4</b></li>
+</ul>
+<p>Vue reactivity primitives (<code>computed</code>, <code>watch</code>, <code>watchEffect</code>)
+are not counted as functions.</p>
+</body>
+</html>
