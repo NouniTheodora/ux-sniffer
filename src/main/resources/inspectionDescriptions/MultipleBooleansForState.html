@@ -1,0 +1,12 @@
+<html>
+<body>
+<p>Reports components that define too many boolean <code>ref()</code> values
+to manage state (e.g. <code>isLoading</code>, <code>isRunning</code>, <code>isPaused</code>).</p>
+<p>Multiple boolean states make it easy to accidentally set contradictory combinations
+(e.g. both <code>isRunning</code> and <code>isFinished</code> set to <code>true</code>).
+TypeScript cannot enforce valid state transitions with separate booleans.</p>
+<p>Use an enum or union type to restrict the component to one state at a time,
+ensuring only valid transitions are possible.</p>
+<p><b>Default threshold:</b> <b>4</b> boolean refs (based on Nunes et al., 2025).</p>
+</body>
+</html>
