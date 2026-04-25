@@ -1,0 +1,12 @@
+<html>
+<body>
+<p>Reports TypeScript enums whose members do not have explicit values assigned.</p>
+<p>When enum members have no explicit values, TypeScript assigns sequential numbers
+starting from zero. If a new member is added or existing members are reordered,
+all values shift silently. This can cause runtime inconsistencies when values are
+persisted (e.g. in <code>localStorage</code>) or transmitted over a network.</p>
+<p>Assign explicit string or number literals to each enum member to prevent
+unexpected behavior from reordering.</p>
+<p><b>Applies to:</b> <code>&lt;script setup lang="ts"&gt;</code> blocks only.</p>
+</body>
+</html>

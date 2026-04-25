@@ -1,0 +1,89 @@
+package com.github.nounitheodora.uxsniffer.inspections;
+
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.psi.PsiElementVisitor;
+import com.intellij.psi.PsiFile;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class EnumImplicitValuesInspection extends AbstractVueSmellInspection {
+
+    static final Pattern ENUM_DECLARATION = Pattern.compile(
+            "\\benum\\s+(\\w+)\\s*\\{");
+
+    @Override
+    public @NotNull String getDisplayName() {
+        return "Enum with implicit values";
+    }
+
+    @Override
+    public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
+        return new PsiElementVisitor() {
+            @Override
+            public void visitFile(@NotNull PsiFile file) {
+                if (!isVueFile(file)) return;
+
+                String text = file.getText();
+                if (!isTypeScriptSetup(text)) return;
+
+                String script = extractScriptContent(text);
+                if (script.isEmpty()) return;
+
+                List<String> found = detectImplicitEnums(script);
+                if (found.isEmpty()) return;
+
+                holder.registerProblem(file, buildMessage(found), ProblemHighlightType.WARNING);
+            }
+        };
+    }
+
+    @NotNull List<String> detectImplicitEnums(@NotNull String scriptContent) {
+        List<String> found = new ArrayList<>();
+        Matcher matcher = ENUM_DECLARATION.matcher(scriptContent);
+
+        while (matcher.find()) {
+            String enumName = matcher.group(1);
+            int braceStart = matcher.end() - 1;
+            String block = extractBlock(scriptContent, braceStart, '{', '}');
+            if (block != null && hasImplicitValues(block)) {
+                found.add(enumName);
+            }
+        }
+
+        return found;
+    }
+
+    boolean hasImplicitValues(@NotNull String enumBlock) {
+        for (String line : enumBlock.split("\n")) {
+            String trimmed = line.trim();
+            if (trimmed.isEmpty() || trimmed.startsWith("//") || trimmed.startsWith("*")) continue;
+            String member = trimmed.replace(",", "").trim();
+            if (member.isEmpty()) continue;
+            if (member.matches("\\w+") && !member.contains("=")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @NotNull String buildMessage(@NotNull List<String> enumNames) {
+        if (enumNames.size() == 1) {
+            return String.format(
+                    "Enum '%s' has implicit values. Assign explicit values to prevent reordering issues.",
+                    enumNames.get(0));
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < enumNames.size(); i++) {
+            if (i > 0 && i == enumNames.size() - 1) sb.append(" and ");
+            else if (i > 0) sb.append(", ");
+            sb.append("'").append(enumNames.get(i)).append("'");
+        }
+        return String.format(
+                "Enums %s have implicit values. Assign explicit values to prevent reordering issues.",
+                sb);
+    }
+}
