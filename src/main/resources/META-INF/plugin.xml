@@ -39,6 +39,12 @@
             enabledByDefault="true"
             level="WARNING"
             implementationClass="com.github.nounitheodora.uxsniffer.inspections.TooManyPropsInspection"/>
+        <localInspection
+            language="HTML"
+            displayName="Direct DOM manipulation"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.github.nounitheodora.uxsniffer.inspections.DirectDomInspection"/>
 
     </extensions>
 </idea-plugin>

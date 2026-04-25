@@ -179,24 +179,45 @@ Max props:  [ 13 ]
 
 ---
 
-## Smell 4 — Direct DOM Manipulation 🔲 Not yet implemented
+## Smell 4 — Direct DOM Manipulation ✅ Implemented
 
-**What it will detect:** Calls to DOM manipulation APIs (`document.getElementById`, `document.querySelector`, etc.) inside a Vue component. Vue's reactivity system and template refs should be used instead.
+**What it detects:** Calls to DOM manipulation APIs inside a Vue component's `<script setup>` block. Vue's reactivity system and template refs should be used instead.
 
-### Planned test file: `DirectDom_clean.vue`
-A component that uses `ref()` to access DOM elements. Expected: no warning.
+Detected APIs:
 
-### Planned test file: `DirectDom_trigger.vue`
-```vue
-<script setup>
-function updateTitle() {
-  document.getElementById('title').innerText = 'New Title'  // triggers warning
-}
-</script>
-```
-Expected warning: *"Direct DOM manipulation via 'getElementById'. Use Vue template refs instead."*
+| Category | APIs |
+|---|---|
+| Document methods | `getElementById`, `getElementsByTagName`, `getElementsByClassName`, `querySelector`, `querySelectorAll`, `createElement` |
+| DOM mutation methods | `appendChild`, `removeChild`, `replaceChild`, `setAttribute` |
+| DOM properties | `innerHTML`, `innerText`, `textContent` |
 
-Detected methods include: `getElementById`, `getElementsByTagName`, `getElementsByClassName`, `querySelector`, `querySelectorAll`, `createElement`, `appendChild`, `removeChild`, `replaceChild`, `setAttribute`, `innerHTML`, `innerText`, `textContent`.
+When multiple APIs are found in the same file, they are reported in a single combined warning message. Comments (`//`, `/*`, `*`) are skipped during detection.
+
+### Test file: `DirectDom_clean.vue`
+- **Expected result:** No warnings.
+- **Why:** Uses Vue `ref()` to access DOM elements — no direct DOM calls.
+
+### Test file: `DirectDom_trigger.vue`
+- **Expected result:** Warning — *"Direct DOM manipulation via 'getElementById'. Use Vue template refs instead."*
+- **Why:** Calls `document.getElementById('title')` inside a function.
+
+### Test file: `DirectDom_multiple.vue`
+- **Expected result:** Warning listing multiple APIs — *"Direct DOM manipulation via 'getElementById', 'createElement', 'textContent' and 'appendChild'. Use Vue template refs instead."*
+- **Why:** Uses `document.getElementById`, `document.createElement`, `.textContent` assignment, and `.appendChild` — all in one component.
+
+### Steps
+1. Run `./gradlew runIde`.
+2. Inside the sandbox, open the folder `src/test/testData/vue/`.
+3. Open each file above and confirm the expected result.
+4. The warning appears as a box at the top of the file.
+
+### Test case — disabling the inspection:
+
+1. Open `Settings → Editor → Inspections → Vue.js UX Smells → Direct DOM manipulation`.
+2. Uncheck the checkbox to disable.
+3. Open `DirectDom_trigger.vue`.
+4. Expected: no warning.
+5. Re-enable to restore default behaviour.
 
 ---
 
