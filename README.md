@@ -18,6 +18,7 @@ UXSniffer detects UX-related code smells in Vue.js 3 (Composition API) projects 
 - **Force update / page reload** — flags `$forceUpdate()` and `location.reload()` calls that bypass Vue's reactivity system. Suggests redesigning state to let reactivity handle updates.
 - **Props used in initial state** — flags `ref(props.x)` and `reactive({ ... props.x })` patterns where a prop is copied into local state, breaking one-way data flow. Suggests using `computed()` instead.
 - **Uncontrolled form component** — flags `<input>`, `<textarea>`, and `<select>` elements that use a `ref` but have no `v-model` or `:value` binding. Suggests binding the value reactively.
+- **Inheritance instead of composition** — flags components that use `extends:` in their options object. Suggests refactoring to composables.
 
 Thresholds for all smells can be adjusted in _Settings → Editor → Inspections → Vue.js UX Smells_.
 <!-- Plugin description end -->
@@ -33,7 +34,7 @@ Thresholds for all smells can be adjusted in _Settings → Editor → Inspection
 | 5 | **Force Update** | `$forceUpdate()` or `location.reload()` | ✅ Implemented |
 | 6 | **Props in Initial State** | `ref(props.x)` instead of `computed()` | ✅ Implemented |
 | 7 | **Uncontrolled Component** | `<input ref="x">` without `v-model` or `:value` | ✅ Implemented |
-| 8 | Inheritance Instead of Composition | `extends:` in component options | 🔲 Planned |
+| 8 | **Inheritance Instead of Composition** | `extends:` in component options | ✅ Implemented |
 
 All thresholds are configurable via **Settings → Editor → Inspections → Vue.js UX Smells**.
 

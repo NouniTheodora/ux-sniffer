@@ -63,6 +63,12 @@
             enabledByDefault="true"
             level="WARNING"
             implementationClass="com.github.nounitheodora.uxsniffer.inspections.UncontrolledComponentInspection"/>
+        <localInspection
+            language="HTML"
+            displayName="Inheritance instead of composition"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.github.nounitheodora.uxsniffer.inspections.InheritanceInspection"/>
 
     </extensions>
 </idea-plugin>

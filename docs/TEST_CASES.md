@@ -338,27 +338,32 @@ An element is only flagged if it has a `ref` **and** lacks any reactive value bi
 
 ---
 
-## Smell 8 — Inheritance Instead of Composition 🔲 Not yet implemented
+## Smell 8 — Inheritance Instead of Composition ✅ Implemented
 
-**What it will detect:** A component that uses `extends: SomeComponent` in its options object, preferring inheritance over Vue's composition model.
+**What it detects:** A component that uses `extends: SomeComponent` in its options object, preferring inheritance over Vue's composition model.
 
-### Planned test file: `Inheritance_clean.vue`
-A component that uses `composables` or `mixins` with intent. Expected: no warning.
+The warning message includes the name of the extended component, extracted dynamically from the code.
 
-### Planned test file: `Inheritance_trigger.vue`
-```vue
-<script>
-import BaseComponent from './BaseComponent.vue'
+### Test file: `Inheritance_clean.vue`
+- **Expected result:** No warnings.
+- **Why:** Uses a composable (`useFormatter`) instead of inheritance.
 
-export default {
-  extends: BaseComponent,  // triggers warning
-  data() {
-    return { extra: true }
-  }
-}
-</script>
-```
-Expected warning: *"Inheritance via 'extends' detected. Prefer composables or component composition over class-style inheritance."*
+### Test file: `Inheritance_trigger.vue`
+- **Expected result:** Warning — *"Inheritance via 'extends: BaseComponent' detected. Prefer composables or component composition over class-style inheritance."*
+- **Why:** Uses `extends: BaseComponent` in the options object.
+
+### Steps
+1. Run `./gradlew runIde`.
+2. Inside the sandbox, open the folder `src/test/testData/vue/`.
+3. Open each file above and confirm the expected result.
+
+### Test case — disabling the inspection:
+
+1. Open `Settings → Editor → Inspections → Vue.js UX Smells → Inheritance instead of composition`.
+2. Uncheck the checkbox to disable.
+3. Open `Inheritance_trigger.vue`.
+4. Expected: no warning.
+5. Re-enable to restore default behaviour.
 
 ---
 
