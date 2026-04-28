@@ -34,6 +34,15 @@ public class TooManyPropsInspection extends AbstractVueSmellInspection {
     }
 
     @Override
+    public @Nullable String analyze(@NotNull String fileText) {
+        String script = extractScriptContent(fileText);
+        if (script.isEmpty()) return null;
+        int props = countProps(script);
+        if (props <= propsThreshold) return null;
+        return buildMessage(props);
+    }
+
+    @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
         return new PsiElementVisitor() {
             @Override
@@ -46,12 +55,15 @@ public class TooManyPropsInspection extends AbstractVueSmellInspection {
                 int props = countProps(script);
                 if (props <= propsThreshold) return;
 
-                holder.registerProblem(file,
-                        String.format("Too many props: %d defined (threshold: %d). Consider grouping related props into objects or splitting the component.",
-                                props, propsThreshold),
-                        ProblemHighlightType.WARNING);
+                holder.registerProblem(file, buildMessage(props), ProblemHighlightType.WARNING);
             }
         };
+    }
+
+    @NotNull String buildMessage(int props) {
+        return String.format(
+                "Too many props: %d defined (threshold: %d). Consider grouping related props into objects or splitting the component.",
+                props, propsThreshold);
     }
 
     int countProps(@NotNull String scriptContent) {

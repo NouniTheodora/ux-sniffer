@@ -14,6 +14,62 @@ To verify a smell is registered: **Settings → Editor → Inspections → Vue.j
 
 ---
 
+## Tool Window — Project-Wide Scan
+
+**What it does:** The UXSniffer tool window provides a one-click scan of the entire project. It finds all `.vue` files and runs every enabled inspection against them, displaying the results in a sortable table.
+
+### How to open
+
+The tool window appears in the **bottom panel** of the IDE with the tab label **UXSniffer**. If the tab is not visible, open it via `View → Tool Windows → UXSniffer`.
+
+### Test case — basic scan
+
+1. Run `./gradlew runIde`.
+2. In the sandbox IDE, open the `src/test/testData/vue/` folder as a project (or create a project and copy the `.vue` files into it).
+3. Open the **UXSniffer** tool window from the bottom panel.
+4. Expected initial state: summary label reads *"Click 'Scan Project' to analyze all .vue files."* and the table is empty.
+5. Click **Scan Project**.
+6. Expected: the summary label briefly shows *"Scanning..."*, then updates to show a summary like *"X smell(s) found across Y file(s). Z distinct smell type(s) detected."*
+7. The table populates with rows. Each row has three columns: **Smell** (inspection name), **File** (file name), **Message** (the smell description).
+
+### Test case — navigate to file on double-click
+
+1. After a scan completes and the table has results, double-click any row.
+2. Expected: the corresponding `.vue` file opens in the editor.
+
+### Test case — column sorting
+
+1. After a scan, click the **Smell** column header.
+2. Expected: rows sort alphabetically by smell name. Click again to reverse.
+3. Repeat for the **File** and **Message** columns.
+
+### Test case — scan with no Vue files
+
+1. Open or create an empty project (no `.vue` files).
+2. Open the **UXSniffer** tool window and click **Scan Project**.
+3. Expected: summary reads *"No UX smells found."* and the table remains empty.
+
+### Test case — scan with clean files only
+
+1. Create a project containing only clean test data files (e.g. `LargeFile_clean.vue`, `DirectDom_clean.vue`, etc.).
+2. Click **Scan Project**.
+3. Expected: summary reads *"No UX smells found."*
+
+### Test case — re-scan after changes
+
+1. Run a scan — note the results.
+2. Modify a `.vue` file to introduce or remove a smell (e.g. add `document.getElementById` or remove it).
+3. Click **Scan Project** again.
+4. Expected: the table clears and repopulates with updated results reflecting the change.
+
+### Test case — button disabled during scan
+
+1. Click **Scan Project**.
+2. Immediately try to click it again while the scan is running.
+3. Expected: the button is greyed out (disabled) during the scan and re-enables after results appear.
+
+---
+
 ## Smell 1 — Large File
 
 **What it detects:** A `.vue` file that has too many lines of code or too many imports.

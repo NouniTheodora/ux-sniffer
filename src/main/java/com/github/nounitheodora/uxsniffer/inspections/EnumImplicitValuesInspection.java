@@ -5,6 +5,7 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -18,6 +19,16 @@ public class EnumImplicitValuesInspection extends AbstractVueSmellInspection {
     @Override
     public @NotNull String getDisplayName() {
         return "Enum with implicit values";
+    }
+
+    @Override
+    public @Nullable String analyze(@NotNull String fileText) {
+        if (!isTypeScriptSetup(fileText)) return null;
+        String script = extractScriptContent(fileText);
+        if (script.isEmpty()) return null;
+        List<String> found = detectImplicitEnums(script);
+        if (found.isEmpty()) return null;
+        return buildMessage(found);
     }
 
     @Override

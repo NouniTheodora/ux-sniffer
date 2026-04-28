@@ -43,6 +43,16 @@ public class LargeComponentInspection extends AbstractVueSmellInspection {
     }
 
     @Override
+    public @Nullable String analyze(@NotNull String fileText) {
+        String script = extractScriptContent(fileText);
+        if (script.isEmpty()) return null;
+        boolean locExceeded = countLines(script) > scriptLocThreshold;
+        boolean fnExceeded = countFunctions(script) > functionsThreshold;
+        if (!locExceeded && !fnExceeded) return null;
+        return buildMessage(script, locExceeded, fnExceeded);
+    }
+
+    @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
         return new PsiElementVisitor() {
             @Override

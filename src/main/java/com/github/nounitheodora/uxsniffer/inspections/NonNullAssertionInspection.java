@@ -5,6 +5,7 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +18,16 @@ public class NonNullAssertionInspection extends AbstractVueSmellInspection {
     @Override
     public @NotNull String getDisplayName() {
         return "Non-null assertion";
+    }
+
+    @Override
+    public @Nullable String analyze(@NotNull String fileText) {
+        if (!isTypeScriptSetup(fileText)) return null;
+        String script = extractScriptContent(fileText);
+        if (script.isEmpty()) return null;
+        int count = countNonNullAssertions(script);
+        if (count == 0) return null;
+        return buildMessage(count);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -18,6 +19,15 @@ public class UncontrolledComponentInspection extends AbstractVueSmellInspection 
     @Override
     public @NotNull String getDisplayName() {
         return "Uncontrolled form component";
+    }
+
+    @Override
+    public @Nullable String analyze(@NotNull String fileText) {
+        String template = extractTemplateContent(fileText);
+        if (template.isEmpty()) return null;
+        List<String> found = detectUncontrolled(template);
+        if (found.isEmpty()) return null;
+        return buildMessage(found);
     }
 
     @Override

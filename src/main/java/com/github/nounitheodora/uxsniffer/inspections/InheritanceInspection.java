@@ -5,6 +5,7 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +18,15 @@ public class InheritanceInspection extends AbstractVueSmellInspection {
     @Override
     public @NotNull String getDisplayName() {
         return "Inheritance instead of composition";
+    }
+
+    @Override
+    public @Nullable String analyze(@NotNull String fileText) {
+        String script = extractScriptContent(fileText);
+        if (script.isEmpty()) return null;
+        String component = detectExtends(script);
+        if (component == null) return null;
+        return buildMessage(component);
     }
 
     @Override

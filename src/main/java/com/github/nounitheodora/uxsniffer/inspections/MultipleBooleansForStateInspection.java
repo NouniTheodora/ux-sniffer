@@ -38,6 +38,15 @@ public class MultipleBooleansForStateInspection extends AbstractVueSmellInspecti
     }
 
     @Override
+    public @Nullable String analyze(@NotNull String fileText) {
+        String script = extractScriptContent(fileText);
+        if (script.isEmpty()) return null;
+        int count = countBooleanRefs(script);
+        if (count <= booleanThreshold) return null;
+        return buildMessage(count);
+    }
+
+    @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
         return new PsiElementVisitor() {
             @Override

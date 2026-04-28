@@ -43,6 +43,14 @@ public class LargeFileInspection extends AbstractVueSmellInspection {
     }
 
     @Override
+    public @Nullable String analyze(@NotNull String fileText) {
+        boolean locExceeded = countLines(fileText) > locThreshold;
+        boolean importsExceeded = countImports(fileText) > importsThreshold;
+        if (!locExceeded && !importsExceeded) return null;
+        return buildMessage(fileText, locExceeded, importsExceeded);
+    }
+
+    @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
         return new PsiElementVisitor() {
             @Override

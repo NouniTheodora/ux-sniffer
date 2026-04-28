@@ -8,6 +8,17 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractVueSmellInspection extends LocalInspectionTool {
 
+    public abstract @NotNull String getDisplayName();
+
+    /**
+     * Analyzes raw .vue file text and returns a warning message if the smell
+     * is detected, or null if the file is clean. Used by the project scanner
+     * to collect findings without needing PSI.
+     */
+    public @Nullable String analyze(@NotNull String fileText) {
+        return null;
+    }
+
     @Override
     public @NotNull String getGroupDisplayName() {
         return "Vue.js UX Smells";

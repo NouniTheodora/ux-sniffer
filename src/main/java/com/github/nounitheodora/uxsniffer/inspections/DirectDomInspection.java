@@ -5,6 +5,7 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -42,6 +43,15 @@ public class DirectDomInspection extends AbstractVueSmellInspection {
     @Override
     public @NotNull String getDisplayName() {
         return "Direct DOM manipulation";
+    }
+
+    @Override
+    public @Nullable String analyze(@NotNull String fileText) {
+        String script = extractScriptContent(fileText);
+        if (script.isEmpty()) return null;
+        List<String> found = detectDomApis(script);
+        if (found.isEmpty()) return null;
+        return buildMessage(found);
     }
 
     @Override

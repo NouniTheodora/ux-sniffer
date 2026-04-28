@@ -31,6 +31,36 @@ UXSniffer detects UX-related code smells in Vue.js 3 (Composition API) projects 
 Thresholds for all smells can be adjusted in _Settings → Editor → Inspections → Vue.js UX Smells_.
 <!-- Plugin description end -->
 
+## UXSniffer Tool Window
+
+The plugin includes a dedicated **tool window** (bottom panel, tab labelled "UXSniffer") that scans the entire project in one click and presents all findings in a sortable table.
+
+### How to use
+
+1. Open any Vue.js project in WebStorm.
+2. Open the **UXSniffer** tool window from the bottom panel (or via `View → Tool Windows → UXSniffer`).
+3. Click **Scan Project**. The plugin scans every `.vue` file in the project for all 12 UX smells.
+4. Results appear in a table with three columns: **Smell**, **File**, and **Message**.
+5. A summary line above the table shows the total number of findings, affected files, and distinct smell types.
+6. **Double-click** any row to navigate directly to the affected file in the editor.
+
+The table is sortable — click any column header to sort by smell name, file name, or message.
+
+### How it works (architecture)
+
+The tool window uses `UxAnalysisService` (a Facade over the analysis subsystem) to trigger a project-wide scan. Internally, `ProjectScanner` walks all `.vue` files and runs each of the 12 inspections' `analyze()` methods against the file content. The scan runs on a background thread to keep the IDE responsive, then results are displayed on the EDT.
+
+```
+[Scan Project button]
+  → UxAnalysisService.scanProject()        (Facade)
+    → ProjectScanner.scan()                 (walks .vue files)
+      → each AbstractVueSmellInspection.analyze(fileText)
+        → SmellFinding(smellName, filePath, fileName, message)
+  → findings displayed in JBTable
+```
+
+> **Note:** The tool window scan and the IDE's built-in inspection system are independent. The tool window provides a project-wide overview, while inspections highlight smells inline as you edit individual files.
+
 ## Detected UX Smells
 
 | # | Smell | What it checks |
