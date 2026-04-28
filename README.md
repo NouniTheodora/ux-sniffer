@@ -1,6 +1,10 @@
+<img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgCiAgPGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNjAiIGZpbGw9IiMwZDExMTciPjwvY2lyY2xlPgogIAogIDxlbGxpcHNlIGN4PSIzMSIgY3k9IjU1IiByeD0iMTUiIHJ5PSIyMiIgZmlsbD0iIzQyYjg4MyIgdHJhbnNmb3JtPSJyb3RhdGUoLTEyIDMxIDU1KSI+PC9lbGxpcHNlPgogIDxlbGxpcHNlIGN4PSIzMSIgY3k9IjU3IiByeD0iOSIgcnk9IjE0IiBmaWxsPSIjMmQ5NjY4IiB0cmFuc2Zvcm09InJvdGF0ZSgtMTIgMzEgNTcpIj48L2VsbGlwc2U+CiAgCiAgPGVsbGlwc2UgY3g9Ijg5IiBjeT0iNTUiIHJ4PSIxNSIgcnk9IjIyIiBmaWxsPSIjNDJiODgzIiB0cmFuc2Zvcm09InJvdGF0ZSgxMiA4OSA1NSkiPjwvZWxsaXBzZT4KICA8ZWxsaXBzZSBjeD0iODkiIGN5PSI1NyIgcng9IjkiIHJ5PSIxNCIgZmlsbD0iIzJkOTY2OCIgdHJhbnNmb3JtPSJyb3RhdGUoMTIgODkgNTcpIj48L2VsbGlwc2U+CiAgCiAgPGVsbGlwc2UgY3g9IjYwIiBjeT0iNjAiIHJ4PSIzMCIgcnk9IjI4IiBmaWxsPSIjZmZmZmZmIj48L2VsbGlwc2U+CiAgCiAgPGVsbGlwc2UgY3g9IjYwIiBjeT0iNzMiIHJ4PSIxNyIgcnk9IjExIiBmaWxsPSIjZWRlOGUwIj48L2VsbGlwc2U+CiAgCiAgPGNpcmNsZSBjeD0iNDciIGN5PSI1NyIgcj0iNS41IiBmaWxsPSIjMGQxMTE3Ij48L2NpcmNsZT4KICA8Y2lyY2xlIGN4PSI0NyIgY3k9IjU3IiByPSIyLjUiIGZpbGw9IiMwZDExMTciPjwvY2lyY2xlPgogIDxjaXJjbGUgY3g9IjQ4LjgiIGN5PSI1NS40IiByPSIxLjQiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9IjAuNiI+PC9jaXJjbGU+CiAgCiAgPGNpcmNsZSBjeD0iNzMiIGN5PSI1NyIgcj0iNS41IiBmaWxsPSIjMGQxMTE3Ij48L2NpcmNsZT4KICA8Y2lyY2xlIGN4PSI3MyIgY3k9IjU3IiByPSIyLjUiIGZpbGw9IiMwZDExMTciPjwvY2lyY2xlPgogIDxjaXJjbGUgY3g9Ijc0LjgiIGN5PSI1NS40IiByPSIxLjQiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9IjAuNiI+PC9jaXJjbGU+CiAgCiAgPHBhdGggZD0iTTQyIDUxIFE0NyA0OSA1MiA1MSIgc3Ryb2tlPSIjMGQxMTE3IiBzdHJva2Utd2lkdGg9IjEuOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWxsPSJub25lIiBvcGFjaXR5PSIwLjI1Ij48L3BhdGg+CiAgPHBhdGggZD0iTTY4IDUxIFE3MyA0OSA3OCA1MSIgc3Ryb2tlPSIjMGQxMTE3IiBzdHJva2Utd2lkdGg9IjEuOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWxsPSJub25lIiBvcGFjaXR5PSIwLjI1Ij48L3BhdGg+CiAgCiAgPGVsbGlwc2UgY3g9IjYwIiBjeT0iNjguNSIgcng9IjkuNSIgcnk9IjYuNSIgZmlsbD0iIzBkMTExNyI+PC9lbGxpcHNlPgogIAogIDxlbGxpcHNlIGN4PSI1NS41IiBjeT0iNzAiIHJ4PSIyLjgiIHJ5PSIyIiBmaWxsPSIjNDJiODgzIj48L2VsbGlwc2U+CiAgPGVsbGlwc2UgY3g9IjY0LjUiIGN5PSI3MCIgcng9IjIuOCIgcnk9IjIiIGZpbGw9IiM0MmI4ODMiPjwvZWxsaXBzZT4KICAKICA8ZWxsaXBzZSBjeD0iNTcuNSIgY3k9IjY3IiByeD0iMS41IiByeT0iMC45IiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIwLjQ1Ij48L2VsbGlwc2U+CiAgCiAgPGxpbmUgeDE9IjYwIiB5MT0iNjIuNSIgeDI9IjYwIiB5Mj0iNjgiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iMC4yNSI+PC9saW5lPgogIAogIDxwYXRoIGQ9Ik01MyA3NiBRNjAgODAgNjcgNzYiIHN0cm9rZT0iIzBkMTExNyIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsbD0ibm9uZSIgb3BhY2l0eT0iMC4xOCI+PC9wYXRoPgo8L3N2Zz4=" width="100" height="100" alt="UXSniffer">
+
 # UXSniffer
 
-![Build](https://github.com/NouniTheodora/ux-sniffer/workflows/Build/badge.svg)
+![WebStorm](https://img.shields.io/badge/WebStorm-2025.2+-000000?style=flat-square&logo=webstorm&logoColor=white)
+![Vue 3](https://img.shields.io/badge/Vue.js-3-42b883?style=flat-square&logo=vue.js&logoColor=white)
+![Build](https://img.shields.io/github/actions/workflow/status/NouniTheodora/ux-sniffer/build.yml?style=flat-square&label=build)
 
 UXSniffer is a WebStorm / IntelliJ IDEA plugin that detects UX-related code smells in Vue.js 3 (Composition API) applications. It performs static analysis directly inside the IDE, presenting findings as inspections with clear explanations to help developers reduce UX debt.
 
@@ -30,7 +34,7 @@ Thresholds for all smells can be adjusted in _Settings → Editor → Inspection
 ## Detected UX Smells
 
 | # | Smell | What it checks |
-|---|---|---|---|
+|---|---|---|
 | 1 | **Large File** | `.vue` file LOC > 218 or imports > 20 |
 | 2 | **Large Component** | Script block LOC > 128 or functions > 4 |
 | 3 | **Too Many Props** | `defineProps()` with > 13 props |
