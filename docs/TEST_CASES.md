@@ -70,6 +70,51 @@ The tool window appears in the **bottom panel** of the IDE with the tab label **
 
 ---
 
+## PAF Cost Detail Panel
+
+**What it shows:** When you select a finding in the Findings table, a detail panel below displays the associated PAF (Prevention-Appraisal-Failure) quality costs — showing which cost categories are impacted by the detected smell.
+
+### Test case — cost panel appears on row selection
+
+1. Run `./gradlew runIde`.
+2. Open a project with `.vue` files that trigger smells.
+3. Open the **UXSniffer** tool window and click **Scan Project**.
+4. Click on any row in the findings table (single click).
+5. Expected: the bottom panel shows a title like *"PAF Cost Impact: Large Vue.js component (S17) — 6 cost(s)"* followed by cost cards grouped into **Primary Costs** and **Secondary Costs**.
+
+### Test case — cost card content
+
+1. Select a finding for "Large Vue.js component" (S17).
+2. Expected: the Primary Costs section shows 3 cards:
+   - **Necessary Rework** [C01] — Internal Failure (red left border)
+   - **Cost for Performing Design Reviews** [C11] — Appraisal (blue left border)
+   - **Cost for Performing Metrics-Based Quality Assurance** [C16] — Appraisal (blue left border)
+3. Each card shows the relationship type (e.g., "Causes" or "Triggers appraisal for"), a causation logic explanation, and a trigger condition.
+
+### Test case — color coding
+
+1. Select any finding with both Internal Failure and Appraisal costs (e.g., any smell — they all have C01 + appraisal costs).
+2. Expected: C01 cards have a **red** left border. All other costs (C10, C11, C12, C16, C17, etc.) have a **blue** left border.
+
+### Test case — deselection clears panel
+
+1. After selecting a row, click on a different area so no row is selected (or clear the selection).
+2. Expected: the cost panel returns to showing *"Select a finding to view associated PAF quality costs."*
+
+### Test case — Multiple Booleans smell (S33) has costs
+
+1. Ensure a `.vue` file triggers the "Multiple booleans for state" smell.
+2. Run scan, select the finding.
+3. Expected: 5 cost mappings appear (3 Primary: C01, C11, C17; 2 Secondary: C12, C16).
+
+### Test case — switching between findings
+
+1. Select a "Large File" finding (S25 — 6 costs).
+2. Then select a "Non-Null Assertions" finding (S30 — 3 costs).
+3. Expected: the cost panel updates immediately to show the costs for the newly selected smell. No mixing of data from the previous selection.
+
+---
+
 ## Statistics Tab
 
 **What it shows:** After a scan, the Statistics tab displays a visual summary of all findings: summary cards, a horizontal bar chart of smell distribution, and a ranked table of top affected files.

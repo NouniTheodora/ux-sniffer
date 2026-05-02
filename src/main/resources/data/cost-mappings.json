@@ -1,0 +1,672 @@
+{
+  "metadata": {
+    "version": "1.1.0",
+    "source": "Mapping between PAF model costs & UX smells",
+    "lastUpdated": "2026-05-02",
+    "description": "PAF (Prevention-Appraisal-Failure) quality cost mappings for UX code smells detected by UXSniffer"
+  },
+  "pafCosts": [
+    {
+      "costId": "C01",
+      "costName": "Necessary Rework",
+      "pafCategory": "Internal Failure",
+      "definition": "Rework of specs, design, code, plans, or documentation after deficiencies are found before release"
+    },
+    {
+      "costId": "C10",
+      "costName": "Cost for Performing Code Inspection",
+      "pafCategory": "Appraisal",
+      "definition": "Effort spent reviewing code to detect defects, smells, or standard violations"
+    },
+    {
+      "costId": "C11",
+      "costName": "Cost for Performing Design Reviews",
+      "pafCategory": "Appraisal",
+      "definition": "Effort spent reviewing architecture and design decisions to detect structural problems"
+    },
+    {
+      "costId": "C12",
+      "costName": "Cost for Performing Unit Testing",
+      "pafCategory": "Appraisal",
+      "definition": "Effort spent writing and running unit tests to verify component correctness"
+    },
+    {
+      "costId": "C15",
+      "costName": "Cost for Performing Acceptance / Integration Testing",
+      "pafCategory": "Appraisal",
+      "definition": "Effort spent verifying that components work together correctly in user flows"
+    },
+    {
+      "costId": "C16",
+      "costName": "Cost for Performing Metrics-Based Quality Assurance",
+      "pafCategory": "Appraisal",
+      "definition": "Effort spent collecting and analyzing code metrics to assess quality"
+    },
+    {
+      "costId": "C17",
+      "costName": "Cost for Performing Regression Testing",
+      "pafCategory": "Appraisal",
+      "definition": "Effort spent re-testing after changes to ensure no new defects were introduced"
+    },
+    {
+      "costId": "C18",
+      "costName": "Cost of Producing Documentation",
+      "pafCategory": "Appraisal",
+      "definition": "Effort spent updating documentation to reflect structural or API changes"
+    },
+    {
+      "costId": "C20",
+      "costName": "Cost for Performing Process Quality Appraisal",
+      "pafCategory": "Appraisal",
+      "definition": "Effort spent reviewing development processes to identify why quality issues recur"
+    },
+    {
+      "costId": "C24",
+      "costName": "Costs for Performing System Testing",
+      "pafCategory": "Appraisal",
+      "definition": "Effort spent on end-to-end system testing to verify integrated application behavior"
+    },
+    {
+      "costId": "C25",
+      "costName": "Costs for Enabling Test Automation",
+      "pafCategory": "Appraisal",
+      "definition": "Effort spent setting up and maintaining automated test infrastructure"
+    }
+  ],
+  "smellCostMappings": [
+    {
+      "mappingId": "M049",
+      "smellId": "S17",
+      "smellName": "Large Component",
+      "costId": "C01",
+      "costName": "Necessary Rework",
+      "relationshipType": "Causes",
+      "causationLogic": "When a UI component becomes too large and complex, the team usually needs to split it into smaller components or reorganize responsibilities, which creates redesign, refactoring, and retesting work.",
+      "triggerCondition": "After the component exceeds acceptable size/complexity thresholds",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M050",
+      "smellId": "S17",
+      "smellName": "Large Component",
+      "costId": "C11",
+      "costName": "Cost for Performing Design Reviews",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "A large component signals poor modularization and responsibility allocation, so teams need a design review to decide how to decompose the component and separate concerns.",
+      "triggerCondition": "During refactoring or architecture/UI code review",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M051",
+      "smellId": "S17",
+      "smellName": "Large Component",
+      "costId": "C16",
+      "costName": "Cost for Performing Metrics-Based Quality Assurance",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Detecting this smell relies on metrics such as LOC, number of props, and number of methods, so metric collection and analysis are central to identifying and reassessing the issue.",
+      "triggerCondition": "When component-level metrics are monitored",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M152",
+      "smellId": "S17",
+      "smellName": "Large Component",
+      "costId": "C10",
+      "costName": "Cost for Performing Code Inspection",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "The presence of oversized UI components with too many responsibilities increases the effort needed during code inspections, as reviewers must identify the smell, assess its impact, and verify that it has been addressed correctly.",
+      "triggerCondition": "During code review or inspection sessions",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M153",
+      "smellId": "S17",
+      "smellName": "Large Component",
+      "costId": "C17",
+      "costName": "Cost for Performing Regression Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Because fixing oversized UI components with too many responsibilities may change component behavior or interaction flow, regression testing is needed to ensure that the fix does not introduce new issues elsewhere.",
+      "triggerCondition": "After refactoring or fixing the smell",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M154",
+      "smellId": "S17",
+      "smellName": "Large Component",
+      "costId": "C25",
+      "costName": "Costs for Enabling Test Automation",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "The presence of oversized UI components with too many responsibilities increases the effort needed to set up and maintain automated tests, as the complexity of the affected component makes test automation harder.",
+      "triggerCondition": "When setting up or maintaining automated tests for the affected area",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M052",
+      "smellId": "S18",
+      "smellName": "Too Many Props",
+      "costId": "C11",
+      "costName": "Cost for Performing Design Reviews",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "A component with too many props signals poor interface and responsibility boundaries, so teams need a design review to decide how to group data and decompose the component.",
+      "triggerCondition": "When the component exceeds acceptable props thresholds",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M053",
+      "smellId": "S18",
+      "smellName": "Too Many Props",
+      "costId": "C01",
+      "costName": "Necessary Rework",
+      "relationshipType": "Causes",
+      "causationLogic": "When a component has too many props, the team usually restructures the interface, extracts subcomponents, and retests the affected UI behavior.",
+      "triggerCondition": "After the component is identified as overly parameterized",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M054",
+      "smellId": "S18",
+      "smellName": "Too Many Props",
+      "costId": "C16",
+      "costName": "Cost for Performing Metrics-Based Quality Assurance",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Detecting this smell depends on measuring the number of props and flagging outliers, so metric collection and threshold-based analysis are central to identifying and reassessing the issue.",
+      "triggerCondition": "When component-level metrics are monitored",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M155",
+      "smellId": "S18",
+      "smellName": "Too Many Props",
+      "costId": "C10",
+      "costName": "Cost for Performing Code Inspection",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "The presence of components with an excessive number of props increases the effort needed during code inspections, as reviewers must identify the smell, assess its impact, and verify that it has been addressed correctly.",
+      "triggerCondition": "During code review or inspection sessions",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M156",
+      "smellId": "S18",
+      "smellName": "Too Many Props",
+      "costId": "C17",
+      "costName": "Cost for Performing Regression Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Because fixing components with an excessive number of props may change component behavior or interaction flow, regression testing is needed to ensure that the fix does not introduce new issues elsewhere.",
+      "triggerCondition": "After refactoring or fixing the smell",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M055",
+      "smellId": "S19",
+      "smellName": "Inheritance Instead of Composition",
+      "costId": "C11",
+      "costName": "Cost for Performing Design Reviews",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Using inheritance for component reuse signals a poor structural design choice, so teams need a design review to reconsider component boundaries and replace inheritance with composition where appropriate.",
+      "triggerCondition": "When inheritance-based reuse is identified in UI components",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M056",
+      "smellId": "S19",
+      "smellName": "Inheritance Instead of Composition",
+      "costId": "C01",
+      "costName": "Necessary Rework",
+      "relationshipType": "Causes",
+      "causationLogic": "Replacing inheritance with composition requires refactoring the involved components, moving shared behavior, and adjusting dependent code.",
+      "triggerCondition": "After the inheritance hierarchy is identified as problematic",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M057",
+      "smellId": "S19",
+      "smellName": "Inheritance Instead of Composition",
+      "costId": "C17",
+      "costName": "Cost for Performing Regression Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Because changing a base component or removing an inheritance hierarchy can affect multiple child components, the refactoring should be followed by regression testing to ensure behavior is preserved.",
+      "triggerCondition": "After refactoring inheritance into composition",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M157",
+      "smellId": "S19",
+      "smellName": "Inheritance Instead of Composition",
+      "costId": "C20",
+      "costName": "Cost for Performing Process Quality Appraisal",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "The recurrence of component reuse through inheritance rather than composition may trigger a process-level review to determine why the pattern emerged and define corrective actions to prevent it in future development.",
+      "triggerCondition": "When the team analyzes process quality and defines corrective actions",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M058",
+      "smellId": "S20",
+      "smellName": "Props in Initial State",
+      "costId": "C01",
+      "costName": "Necessary Rework",
+      "relationshipType": "Causes",
+      "causationLogic": "When state is initialized from props and later updates are ignored, the team must redesign the component’s state/data-flow logic and refactor the implementation.",
+      "triggerCondition": "After the stale-state pattern is identified",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M059",
+      "smellId": "S20",
+      "smellName": "Props in Initial State",
+      "costId": "C11",
+      "costName": "Cost for Performing Design Reviews",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "The smell indicates a poor data-flow and state-management design choice, so teams need a design review to re-evaluate where the source of truth should live.",
+      "triggerCondition": "During component architecture or refactoring review",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M060",
+      "smellId": "S20",
+      "smellName": "Props in Initial State",
+      "costId": "C17",
+      "costName": "Cost for Performing Regression Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Refactoring the component to remove duplicated state can affect rendering behavior when props change, so regression testing is needed to confirm correct updates across scenarios.",
+      "triggerCondition": "After refactoring state/props handling",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M158",
+      "smellId": "S20",
+      "smellName": "Props in Initial State",
+      "costId": "C12",
+      "costName": "Cost for Performing Unit Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "The presence of props copied into local state, ignoring later updates increases unit testing effort, as the team must cover more edge cases, validate additional input paths, or test state combinations that the smell introduces.",
+      "triggerCondition": "When writing or updating unit tests for the affected component",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M159",
+      "smellId": "S20",
+      "smellName": "Props in Initial State",
+      "costId": "C20",
+      "costName": "Cost for Performing Process Quality Appraisal",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "The recurrence of props copied into local state, ignoring later updates may trigger a process-level review to determine why the pattern emerged and define corrective actions to prevent it in future development.",
+      "triggerCondition": "When the team analyzes process quality and defines corrective actions",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M061",
+      "smellId": "S21",
+      "smellName": "Direct DOM Manipulation",
+      "costId": "C11",
+      "costName": "Cost for Performing Design Reviews",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Direct DOM manipulation signals a poor React design choice because UI updates bypass the intended state/props flow, so teams need a design review to decide how the interaction should be reimplemented in React terms.",
+      "triggerCondition": "When direct DOM calls are identified in React components",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M062",
+      "smellId": "S21",
+      "smellName": "Direct DOM Manipulation",
+      "costId": "C01",
+      "costName": "Necessary Rework",
+      "relationshipType": "Causes",
+      "causationLogic": "Replacing direct DOM access with React-based state, props, or refs usually requires restructuring component logic and rewriting update behavior.",
+      "triggerCondition": "After the smell is identified in component code",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M063",
+      "smellId": "S21",
+      "smellName": "Direct DOM Manipulation",
+      "costId": "C17",
+      "costName": "Cost for Performing Regression Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Because removing direct DOM manipulation can change how the UI updates and reacts to events, regression testing is needed to verify that the refactored component still behaves correctly.",
+      "triggerCondition": "After refactoring DOM manipulation into React-based logic",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M160",
+      "smellId": "S21",
+      "smellName": "Direct DOM Manipulation",
+      "costId": "C12",
+      "costName": "Cost for Performing Unit Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "The presence of direct DOM API calls instead of framework-managed rendering increases unit testing effort, as the team must cover more edge cases, validate additional input paths, or test state combinations that the smell introduces.",
+      "triggerCondition": "When writing or updating unit tests for the affected component",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M161",
+      "smellId": "S21",
+      "smellName": "Direct DOM Manipulation",
+      "costId": "C24",
+      "costName": "Costs for Performing System Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Because direct DOM API calls instead of framework-managed rendering can affect the integrated system behavior, end-to-end system testing is needed to verify that the fix works correctly in the full application context.",
+      "triggerCondition": "During end-to-end system testing of the integrated application",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M064",
+      "smellId": "S22",
+      "smellName": "Force Update",
+      "costId": "C11",
+      "costName": "Cost for Performing Design Reviews",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Forcing updates signals a poor update-flow design choice, so teams need a design review to decide how the component should react to state/props changes without hacks.",
+      "triggerCondition": "When forceUpdate() or similar forced refresh logic is identified",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M065",
+      "smellId": "S22",
+      "smellName": "Force Update",
+      "costId": "C01",
+      "costName": "Necessary Rework",
+      "relationshipType": "Causes",
+      "causationLogic": "Replacing forced updates usually requires restructuring component state/update logic and removing hacky refresh mechanisms.",
+      "triggerCondition": "After the forced-update pattern is identified as problematic",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M066",
+      "smellId": "S22",
+      "smellName": "Force Update",
+      "costId": "C17",
+      "costName": "Cost for Performing Regression Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Because removing forced updates can change rendering timing and UI state transitions, regression testing is needed to confirm that the refactored component still updates correctly.",
+      "triggerCondition": "After refactoring forced-update logic",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M162",
+      "smellId": "S22",
+      "smellName": "Force Update",
+      "costId": "C24",
+      "costName": "Costs for Performing System Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Because forced component or page updates bypassing reactivity can affect the integrated system behavior, end-to-end system testing is needed to verify that the fix works correctly in the full application context.",
+      "triggerCondition": "During end-to-end system testing of the integrated application",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M070",
+      "smellId": "S24",
+      "smellName": "Uncontrolled Components",
+      "costId": "C11",
+      "costName": "Cost for Performing Design Reviews",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Uncontrolled form handling signals a poor design choice about where form state should live, so teams need a design review to decide how to move the form to a controlled state/props-based design.",
+      "triggerCondition": "When ref-driven or DOM-driven form handling is identified",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M071",
+      "smellId": "S24",
+      "smellName": "Uncontrolled Components",
+      "costId": "C01",
+      "costName": "Necessary Rework",
+      "relationshipType": "Causes",
+      "causationLogic": "Replacing uncontrolled forms with controlled components requires refactoring event handling, state updates, and possibly validation/rendering logic.",
+      "triggerCondition": "After uncontrolled form handling is identified as problematic",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M072",
+      "smellId": "S24",
+      "smellName": "Uncontrolled Components",
+      "costId": "C17",
+      "costName": "Cost for Performing Regression Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Because converting an uncontrolled form to a controlled one can affect submission behavior, validation timing, and rendering, regression testing is needed to verify correct behavior after refactoring.",
+      "triggerCondition": "After refactoring DOM-driven form logic",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M165",
+      "smellId": "S24",
+      "smellName": "Uncontrolled Components",
+      "costId": "C12",
+      "costName": "Cost for Performing Unit Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "The presence of form components managed through DOM refs instead of state increases unit testing effort, as the team must cover more edge cases, validate additional input paths, or test state combinations that the smell introduces.",
+      "triggerCondition": "When writing or updating unit tests for the affected component",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M166",
+      "smellId": "S24",
+      "smellName": "Uncontrolled Components",
+      "costId": "C15",
+      "costName": "Cost for Performing Acceptance / Integration Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Because form components managed through DOM refs instead of state can affect end-to-end user flows, additional acceptance and integration testing effort is needed to verify that the affected interaction works correctly across scenarios.",
+      "triggerCondition": "During acceptance or integration testing of the affected user flow",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M073",
+      "smellId": "S25",
+      "smellName": "Large File",
+      "costId": "C11",
+      "costName": "Cost for Performing Design Reviews",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "A very large front-end file signals poor decomposition and file-level modularization, so teams need a design review to decide how to split components and responsibilities across files.",
+      "triggerCondition": "When file-level thresholds are exceeded",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M074",
+      "smellId": "S25",
+      "smellName": "Large File",
+      "costId": "C01",
+      "costName": "Necessary Rework",
+      "relationshipType": "Causes",
+      "causationLogic": "Fixing a large file usually requires splitting it into smaller files/components, reorganizing imports, and retesting the affected code paths.",
+      "triggerCondition": "After the file is identified as too large or hard to maintain",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M075",
+      "smellId": "S25",
+      "smellName": "Large File",
+      "costId": "C16",
+      "costName": "Cost for Performing Metrics-Based Quality Assurance",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Detecting this smell depends on metrics such as LOC, number of components, and number of imports, so metric collection and threshold-based analysis are central to identifying and reassessing the issue.",
+      "triggerCondition": "When file-level metrics are monitored",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M167",
+      "smellId": "S25",
+      "smellName": "Large File",
+      "costId": "C10",
+      "costName": "Cost for Performing Code Inspection",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "The presence of excessively large front-end files increases the effort needed during code inspections, as reviewers must identify the smell, assess its impact, and verify that it has been addressed correctly.",
+      "triggerCondition": "During code review or inspection sessions",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M168",
+      "smellId": "S25",
+      "smellName": "Large File",
+      "costId": "C18",
+      "costName": "Cost of Producing Documentation",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "When excessively large front-end files is addressed, the team may need to update internal documentation, component API references, or developer guidelines to reflect the structural changes.",
+      "triggerCondition": "After refactoring, when documentation must be updated",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M169",
+      "smellId": "S25",
+      "smellName": "Large File",
+      "costId": "C17",
+      "costName": "Cost for Performing Regression Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Because fixing excessively large front-end files may change component behavior or interaction flow, regression testing is needed to ensure that the fix does not introduce new issues elsewhere.",
+      "triggerCondition": "After refactoring or fixing the smell",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M085",
+      "smellId": "S29",
+      "smellName": "Any Type",
+      "costId": "C01",
+      "costName": "Necessary Rework",
+      "relationshipType": "Causes",
+      "causationLogic": "When any types hide type errors that surface later in testing or production, the team must locate the untyped code, define proper types, and fix all downstream breakages.",
+      "triggerCondition": "After type-related bugs are traced back to any usage",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M086",
+      "smellId": "S29",
+      "smellName": "Any Type",
+      "costId": "C11",
+      "costName": "Cost for Performing Design Reviews",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Widespread any usage signals that the component's data contracts are undefined, so teams need a design review to establish proper type interfaces and data-flow contracts.",
+      "triggerCondition": "When type coverage analysis reveals high any density",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M087",
+      "smellId": "S29",
+      "smellName": "Any Type",
+      "costId": "C17",
+      "costName": "Cost for Performing Regression Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Because replacing any with strict types may expose previously hidden type mismatches throughout the call chain, regression testing is needed to confirm that the refactored code still behaves correctly.",
+      "triggerCondition": "After replacing any with explicit types",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M088",
+      "smellId": "S30",
+      "smellName": "Non-Null Assertions",
+      "costId": "C01",
+      "costName": "Necessary Rework",
+      "relationshipType": "Causes",
+      "causationLogic": "When a non-null assertion hides a nullable value that turns out to be undefined at runtime, the team must add null checks, redesign the data flow, and fix the resulting crashes.",
+      "triggerCondition": "After runtime errors are traced to !. assertions",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M089",
+      "smellId": "S30",
+      "smellName": "Non-Null Assertions",
+      "costId": "C11",
+      "costName": "Cost for Performing Design Reviews",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Non-null assertions signal that the component's nullability contracts are unclear, so teams need a design review to clarify which values can be null and redesign optional data handling.",
+      "triggerCondition": "When null-related runtime errors accumulate",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M090",
+      "smellId": "S30",
+      "smellName": "Non-Null Assertions",
+      "costId": "C17",
+      "costName": "Cost for Performing Regression Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Because replacing !. with proper null guards may change control flow and introduce early returns or fallback behavior, regression testing is needed to verify correctness.",
+      "triggerCondition": "After refactoring non-null assertions into safe access patterns",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M091",
+      "smellId": "S31",
+      "smellName": "Enum Implicit Values",
+      "costId": "C01",
+      "costName": "Necessary Rework",
+      "relationshipType": "Causes",
+      "causationLogic": "When an enum member is added or reordered and implicit values shift, data persisted under the old numbering becomes inconsistent, requiring the team to migrate data and assign explicit values.",
+      "triggerCondition": "After a reordering or insertion causes value mismatch with persisted data",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M092",
+      "smellId": "S31",
+      "smellName": "Enum Implicit Values",
+      "costId": "C11",
+      "costName": "Cost for Performing Design Reviews",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Implicit enum values signal a fragile data-contract design, so teams need a design review to decide on value assignment strategy across the codebase.",
+      "triggerCondition": "When enum-related data inconsistencies are reported",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M093",
+      "smellId": "S31",
+      "smellName": "Enum Implicit Values",
+      "costId": "C17",
+      "costName": "Cost for Performing Regression Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Because assigning explicit values to an enum that was previously implicit can change serialized representations, regression testing is needed to verify that persisted data, API contracts, and comparisons still work correctly.",
+      "triggerCondition": "After migrating from implicit to explicit enum values",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M170",
+      "smellId": "S33",
+      "smellName": "Multiple Booleans for State",
+      "costId": "C01",
+      "costName": "Necessary Rework",
+      "relationshipType": "Causes",
+      "causationLogic": "When multiple booleans create impossible or contradictory state combinations that lead to bugs, the team must refactor the state model into an enum or union type, rewrite transition logic, and fix all dependent conditions.",
+      "triggerCondition": "After impossible state combinations cause bugs or UI inconsistencies",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M171",
+      "smellId": "S33",
+      "smellName": "Multiple Booleans for State",
+      "costId": "C11",
+      "costName": "Cost for Performing Design Reviews",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Multiple booleans for state signals poor state modeling and unclear state transitions, so teams need a design review to decide on a proper state representation (enum, union type, or state machine).",
+      "triggerCondition": "When the number of boolean refs exceeds acceptable thresholds",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M172",
+      "smellId": "S33",
+      "smellName": "Multiple Booleans for State",
+      "costId": "C17",
+      "costName": "Cost for Performing Regression Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Because refactoring multiple boolean flags into an enum or union type changes how state transitions are expressed and evaluated, regression testing is needed to verify that all state-dependent behavior still works correctly.",
+      "triggerCondition": "After refactoring boolean flags into an enum or state machine",
+      "priority": "Primary"
+    },
+    {
+      "mappingId": "M173",
+      "smellId": "S33",
+      "smellName": "Multiple Booleans for State",
+      "costId": "C12",
+      "costName": "Cost for Performing Unit Testing",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "The presence of multiple boolean flags for state increases unit testing effort exponentially, as the number of possible state combinations grows with each additional boolean (2^n), requiring the team to cover more scenarios.",
+      "triggerCondition": "When writing or updating unit tests for the affected component",
+      "priority": "Secondary"
+    },
+    {
+      "mappingId": "M174",
+      "smellId": "S33",
+      "smellName": "Multiple Booleans for State",
+      "costId": "C16",
+      "costName": "Cost for Performing Metrics-Based Quality Assurance",
+      "relationshipType": "Triggers appraisal for",
+      "causationLogic": "Detecting this smell depends on counting the number of boolean refs in a component and flagging outliers, so metric collection and threshold-based analysis are central to identifying and reassessing the issue.",
+      "triggerCondition": "When component-level metrics are monitored",
+      "priority": "Secondary"
+    }
+  ]
+}

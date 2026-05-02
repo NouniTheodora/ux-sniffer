@@ -1,12 +1,16 @@
 package com.github.nounitheodora.uxsniffer.services;
 
+import com.github.nounitheodora.uxsniffer.costs.CostMapper;
+import com.github.nounitheodora.uxsniffer.costs.CostMapping;
 import com.github.nounitheodora.uxsniffer.scanner.ProjectScanner;
 import com.github.nounitheodora.uxsniffer.scanner.SmellFinding;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Facade (GoF design pattern) for the UXSniffer analysis subsystem.
@@ -43,5 +47,23 @@ public final class UxAnalysisService {
 
     public @NotNull Project getProject() {
         return project;
+    }
+
+    public @NotNull CostMapper getCostMapper() {
+        return CostMapper.getInstance();
+    }
+
+    public @NotNull List<CostMapping> getCostsForFinding(@NotNull SmellFinding finding) {
+        return CostMapper.getInstance().getMappingsForSmellByDisplayName(finding.smellName());
+    }
+
+    public @NotNull Set<String> getAffectedCostIdsForFinding(@NotNull SmellFinding finding) {
+        String smellId = CostMapper.getInstance().getSmellIdForDisplayName(finding.smellName());
+        if (smellId == null) return Set.of();
+        return CostMapper.getInstance().getAffectedCostIds(smellId);
+    }
+
+    public @Nullable String getSmellIdForFinding(@NotNull SmellFinding finding) {
+        return CostMapper.getInstance().getSmellIdForDisplayName(finding.smellName());
     }
 }

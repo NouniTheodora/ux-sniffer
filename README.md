@@ -55,7 +55,8 @@ The tool window uses `UxAnalysisService` (a Facade over the analysis subsystem) 
     → ProjectScanner.scan()                 (walks .vue files)
       → each AbstractVueSmellInspection.analyze(fileText)
         → SmellFinding(smellName, filePath, fileName, message)
-  → FindingsPanel: sortable table of all findings
+  → FindingsPanel: sortable table + PAF cost detail panel
+    → CostMapper: loads cost-mappings.json, resolves smell → costs
   → StatisticsPanel: summary cards + bar chart + top files
 
 [Export Report button]
@@ -63,6 +64,17 @@ The tool window uses `UxAnalysisService` (a Facade over the analysis subsystem) 
     → Self-contained HTML with Chart.js doughnut + bar charts
     → Opens in default browser
 ```
+
+### PAF Cost Impact
+
+Each finding in the Findings tab is linked to PAF (Prevention-Appraisal-Failure) quality cost categories. When you select a finding row, a **cost detail panel** appears below the table showing:
+
+- **Primary Costs** — direct cost consequences (e.g., "Necessary Rework", "Design Reviews")
+- **Secondary Costs** — indirect appraisal costs (e.g., "Regression Testing", "Unit Testing")
+
+Each cost card displays the relationship type, causation logic, and trigger condition from the research-based mapping. Costs are color-coded: red for Internal Failure, blue for Appraisal.
+
+The mappings are stored in `src/main/resources/data/cost-mappings.json` and loaded by the `CostMapper` service at runtime.
 
 > **Note:** The tool window scan and the IDE's built-in inspection system are independent. The tool window provides a project-wide overview, while inspections highlight smells inline as you edit individual files.
 
