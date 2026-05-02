@@ -5,6 +5,92 @@
     "lastUpdated": "2026-05-02",
     "description": "PAF (Prevention-Appraisal-Failure) quality cost mappings for UX code smells detected by UXSniffer"
   },
+  "smells": [
+    {
+      "smellId": "S17",
+      "smellName": "Large Component",
+      "definition": "This smell appears when a component grows too large in terms of size and complexity, such as having too many props, attributes, methods, and/or lines of code. Small and clean components are better for readability and maintainability; extracting complex UI parts into separate components is recommended.",
+      "severity": "Context dependent",
+      "refactoring": "Extract logic into Vue composables (use* functions). Split the component into smaller, focused child components. Move utility functions to separate helper files. Each component should have a single, clear responsibility."
+    },
+    {
+      "smellId": "S18",
+      "smellName": "Too Many Props",
+      "definition": "This smell appears when too many properties are passed to a single component, making it harder to understand and evolve. It relates to traditional smells such as Long Parameter List / Large Class. Frequent prop changes can worsen the problem because each change may trigger a view update.",
+      "severity": "Medium",
+      "refactoring": "Group related props into a single object prop (e.g. replace individual address fields with an 'address' object). Split the component into smaller ones with fewer, more focused props. Use provide/inject for deeply-passed data."
+    },
+    {
+      "smellId": "S19",
+      "smellName": "Inheritance Instead of Composition",
+      "definition": "This smell appears when inheritance is used to reuse code among components, especially for containment or specialization cases where composition would be more appropriate. Inheritance creates tight coupling between base and child components, whereas composition allows reuse of UI behavior with less coupling.",
+      "severity": "Context dependent",
+      "refactoring": "Replace 'extends' with a composable function that encapsulates the shared logic. Use slots for layout variation. Use component composition (wrapper/container patterns) instead of class-style inheritance."
+    },
+    {
+      "smellId": "S20",
+      "smellName": "Props in Initial State",
+      "definition": "This smell appears when a component initializes state with props, creating a duplicated source of truth and making the component ignore subsequent prop updates. The component may continue rendering stale initial values even when the props change.",
+      "severity": "Context dependent",
+      "refactoring": "Replace ref(props.x) with computed(() => props.x) to keep the value in sync with the parent. If local mutation is needed, use a computed getter with a watcher that updates local state on prop change, or emit events to let the parent own the state."
+    },
+    {
+      "smellId": "S21",
+      "smellName": "Direct DOM Manipulation",
+      "definition": "This smell appears when a component manipulates the real DOM directly instead of relying on the framework's virtual DOM and state/props update mechanisms. This can cause inconsistencies between the virtual DOM and the real DOM.",
+      "severity": "Context dependent",
+      "refactoring": "Use template refs (ref=\"myEl\") to access DOM elements when necessary. Replace imperative DOM updates with reactive data binding in the template. Use Vue directives (v-show, v-if, :class, :style) instead of manual DOM manipulation."
+    },
+    {
+      "smellId": "S22",
+      "smellName": "Force Update",
+      "definition": "This smell appears when developers force a component or the page to update, bypassing the framework's intended reactivity mechanism. forceUpdate() is typically used as a hack when the component's state design does not properly track the data it depends on.",
+      "severity": "Context dependent",
+      "refactoring": "Redesign the component's state so that Vue's reactivity system tracks all dependencies automatically. Use ref() or reactive() for all data that affects the view. Replace location.reload() with router.push() or programmatic state reset."
+    },
+    {
+      "smellId": "S24",
+      "smellName": "Uncontrolled Components",
+      "definition": "This smell appears when a form component does not use props or state to manage form data, but instead relies on the DOM itself, often through ref-based access. Controlled components, where the framework fully handles form data, make validation and conditional rendering easier.",
+      "severity": "Context dependent",
+      "refactoring": "Add v-model to form elements to bind their value to reactive state. Replace ref-based DOM reads (e.g. inputRef.value.value) with reactive data that the template binds to directly. This enables easier validation, reset, and conditional logic."
+    },
+    {
+      "smellId": "S25",
+      "smellName": "Large File",
+      "definition": "This smell appears when a file grows too large in terms of lines of code, number of components, and/or number of imports. Large files reduce readability, increase cognitive load, and make it harder to locate and modify specific functionality.",
+      "severity": "Medium",
+      "refactoring": "Split the file into multiple smaller files, each with a single responsibility. Extract reusable logic into composables. Move types/interfaces into separate .ts files. Move child components into their own .vue files."
+    },
+    {
+      "smellId": "S29",
+      "smellName": "Any Type",
+      "definition": "This smell appears when developers use the 'any' type, disabling TypeScript's type checking. This allows the element to receive any data type, preventing a clear understanding of what types are expected. Type safety helps detect errors at development time during compilation and provides documentation to the code.",
+      "severity": "High",
+      "refactoring": "Define explicit interfaces or type aliases for all data structures. Use 'unknown' instead of 'any' when the type is truly dynamic, then narrow with type guards. For third-party data, define a response type and validate at the boundary."
+    },
+    {
+      "smellId": "S30",
+      "smellName": "Non-Null Assertions",
+      "definition": "This smell appears when the non-null assertion operator (!) is used to tell TypeScript a value is not null or undefined. However, non-null assertions do not eliminate potential runtime errors. If the expression returns undefined and code attempts to read a property of it, a runtime error will occur.",
+      "severity": "High",
+      "refactoring": "Use optional chaining (?.) and nullish coalescing (??) to safely access potentially null values. Add proper null checks (if/guard clauses) before accessing properties. Design APIs to return non-nullable types where possible."
+    },
+    {
+      "smellId": "S31",
+      "smellName": "Enum Implicit Values",
+      "definition": "This smell appears when enums are defined without explicit constant values. TypeScript infers sequential numbers starting from zero. When a new member is added, all subsequent values shift, causing inconsistencies at runtime if something depends on these values (e.g. persisted data). The solution is to assign explicit values to enum members.",
+      "severity": "High",
+      "refactoring": "Assign explicit string literal values to all enum members (e.g. Status.Active = 'active'). String enums are immune to reordering issues and produce readable serialized values. Alternatively, use a const object with 'as const' for even more control."
+    },
+    {
+      "smellId": "S33",
+      "smellName": "Multiple Booleans for State",
+      "definition": "This smell appears when a component uses several boolean states (e.g. isLoading, isRunning, isPaused, isFinished, hasError) to manage its state. It is possible to accidentally set contradictory states simultaneously. The solution is to use an enum or union type to restrict the component to a single valid state at a time.",
+      "severity": "Medium",
+      "refactoring": "Replace multiple boolean refs with a single state ref using a union type (e.g. type State = 'idle' | 'loading' | 'success' | 'error'). This makes impossible states unrepresentable and simplifies conditional rendering with a single v-if/switch."
+    }
+  ],
   "pafCosts": [
     {
       "costId": "C01",

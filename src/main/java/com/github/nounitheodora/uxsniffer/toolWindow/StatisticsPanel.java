@@ -1,5 +1,8 @@
 package com.github.nounitheodora.uxsniffer.toolWindow;
 
+import com.github.nounitheodora.uxsniffer.costs.CostMapper;
+import com.github.nounitheodora.uxsniffer.costs.CostMapping;
+import com.github.nounitheodora.uxsniffer.costs.PafCost;
 import com.github.nounitheodora.uxsniffer.scanner.SmellFinding;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
@@ -29,6 +32,9 @@ class StatisticsPanel extends JPanel {
             new Color(255, 202, 40),
             new Color(120, 144, 156),
     };
+
+    private static final Color INTERNAL_FAILURE_COLOR = new Color(220, 80, 60);
+    private static final Color APPRAISAL_COLOR = new Color(60, 130, 200);
 
     private final JBLabel emptyLabel;
 
@@ -68,57 +74,25 @@ class StatisticsPanel extends JPanel {
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                 .collect(Collectors.toList());
 
-        JPanel content = new JPanel(new BorderLayout(0, 16));
-        content.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
-
-        // Summary cards
+        // Summary cards at the top (always visible)
         JPanel summaryPanel = new JPanel(new GridLayout(1, 3, 12, 0));
+        summaryPanel.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
+        summaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
         summaryPanel.add(createSummaryCard("Total Smells", String.valueOf(findings.size())));
         summaryPanel.add(createSummaryCard("Files Affected", String.valueOf(uniqueFiles.size())));
         summaryPanel.add(createSummaryCard("Smell Types", String.valueOf(smellCounts.size())));
-        content.add(summaryPanel, BorderLayout.NORTH);
 
-        // Split: bar chart on top, files table on bottom
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setResizeWeight(0.55);
-        splitPane.setBorder(null);
+        // Tabbed content
+        JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP);
+        tabs.addTab("Smell Distribution", buildSmellDistributionTab(sortedSmells));
+        tabs.addTab("Quality Costs", buildCostAnalysisTab(findings, smellCounts));
+        tabs.addTab("Files (" + sortedFiles.size() + ")", buildFilesTab(findings, sortedFiles));
 
-        // Bar chart
-        JPanel chartSection = new JPanel(new BorderLayout(0, 6));
-        JBLabel chartTitle = new JBLabel("Smell Distribution");
-        chartTitle.setFont(chartTitle.getFont().deriveFont(Font.BOLD, 13f));
-        chartSection.add(chartTitle, BorderLayout.NORTH);
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(summaryPanel, BorderLayout.NORTH);
+        mainPanel.add(tabs, BorderLayout.CENTER);
 
-        BarChartPanel barChart = new BarChartPanel(sortedSmells);
-        chartSection.add(new JBScrollPane(barChart), BorderLayout.CENTER);
-        splitPane.setTopComponent(chartSection);
-
-        // Top files table
-        JPanel filesSection = new JPanel(new BorderLayout(0, 6));
-        JBLabel filesTitle = new JBLabel("Top Affected Files");
-        filesTitle.setFont(filesTitle.getFont().deriveFont(Font.BOLD, 13f));
-        filesSection.add(filesTitle, BorderLayout.NORTH);
-
-        String[] columns = {"#", "File", "Smells"};
-        DefaultTableModel filesModel = new DefaultTableModel(columns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) { return false; }
-        };
-        int rank = 1;
-        for (Map.Entry<String, Integer> entry : sortedFiles) {
-            filesModel.addRow(new Object[]{rank++, entry.getKey(), entry.getValue()});
-        }
-        JBTable filesTable = new JBTable(filesModel);
-        filesTable.getColumnModel().getColumn(0).setPreferredWidth(40);
-        filesTable.getColumnModel().getColumn(0).setMaxWidth(50);
-        filesTable.getColumnModel().getColumn(1).setPreferredWidth(300);
-        filesTable.getColumnModel().getColumn(2).setPreferredWidth(80);
-        filesTable.getColumnModel().getColumn(2).setMaxWidth(100);
-        filesSection.add(new JBScrollPane(filesTable), BorderLayout.CENTER);
-        splitPane.setBottomComponent(filesSection);
-
-        content.add(splitPane, BorderLayout.CENTER);
-        add(content, BorderLayout.CENTER);
+        add(mainPanel, BorderLayout.CENTER);
         revalidate();
         repaint();
     }
@@ -129,6 +103,216 @@ class StatisticsPanel extends JPanel {
         revalidate();
         repaint();
     }
+
+    // ─── Tab 1: Smell Distribution ───────────────────────────────────────────────
+
+    private @NotNull JPanel buildSmellDistributionTab(@NotNull List<Map.Entry<String, Integer>> sortedSmells) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+        JBLabel description = new JBLabel(
+                "<html><font color='#555555'>This chart shows how many times each smell type was " +
+                "detected across the project. Smells that appear more often may indicate " +
+                "systemic issues in the codebase.</font></html>");
+        description.setFont(description.getFont().deriveFont(Font.PLAIN, 11f));
+        description.setAlignmentX(Component.LEFT_ALIGNMENT);
+        description.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
+        panel.add(description);
+
+        BarChartPanel barChart = new BarChartPanel(sortedSmells, CHART_COLORS);
+        JBScrollPane chartScroll = new JBScrollPane(barChart);
+        chartScroll.setAlignmentX(Component.LEFT_ALIGNMENT);
+        chartScroll.setBorder(BorderFactory.createEmptyBorder());
+        panel.add(chartScroll);
+
+        panel.add(Box.createVerticalGlue());
+
+        JPanel wrapper = new JPanel(new BorderLayout());
+        JBScrollPane scroll = new JBScrollPane(panel);
+        scroll.setBorder(null);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        wrapper.add(scroll, BorderLayout.CENTER);
+        return wrapper;
+    }
+
+    // ─── Tab 2: Quality Costs ────────────────────────────────────────────────────
+
+    private @NotNull JPanel buildCostAnalysisTab(@NotNull List<SmellFinding> findings,
+                                                  @NotNull Map<String, Integer> smellCounts) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+        // Explanation
+        JBLabel description = new JBLabel(
+                "<html><font color='#555555'>Each detected smell triggers quality costs based on the " +
+                "PAF (Prevention-Appraisal-Failure) model. <b>Internal Failure</b> costs represent " +
+                "rework needed before release. <b>Appraisal</b> costs represent the effort for " +
+                "reviews, testing, and verification that the smell demands.</font></html>");
+        description.setFont(description.getFont().deriveFont(Font.PLAIN, 11f));
+        description.setAlignmentX(Component.LEFT_ALIGNMENT);
+        description.setBorder(BorderFactory.createEmptyBorder(0, 0, 14, 0));
+        panel.add(description);
+
+        CostMapper mapper = CostMapper.getInstance();
+
+        // Calculate cost hits
+        Map<String, Integer> costHits = new LinkedHashMap<>();
+        int internalFailureHits = 0;
+        int appraisalHits = 0;
+
+        for (Map.Entry<String, Integer> smellEntry : smellCounts.entrySet()) {
+            String displayName = smellEntry.getKey();
+            int occurrences = smellEntry.getValue();
+            List<CostMapping> mappings = mapper.getMappingsForSmellByDisplayName(displayName);
+
+            for (CostMapping m : mappings) {
+                costHits.merge(m.costId(), occurrences, Integer::sum);
+                PafCost cost = mapper.getCost(m.costId());
+                if (cost != null) {
+                    if ("Internal Failure".equals(cost.pafCategory())) {
+                        internalFailureHits += occurrences;
+                    } else {
+                        appraisalHits += occurrences;
+                    }
+                }
+            }
+        }
+
+        // PAF category cards
+        JPanel pafSummary = new JPanel(new GridLayout(1, 2, 12, 0));
+        pafSummary.setMaximumSize(new Dimension(Integer.MAX_VALUE, 75));
+        pafSummary.setAlignmentX(Component.LEFT_ALIGNMENT);
+        pafSummary.add(createColoredCard("Internal Failure",
+                internalFailureHits + " occurrence(s) require rework", INTERNAL_FAILURE_COLOR));
+        pafSummary.add(createColoredCard("Appraisal",
+                appraisalHits + " occurrence(s) require reviews/testing", APPRAISAL_COLOR));
+        panel.add(pafSummary);
+        panel.add(Box.createRigidArea(new Dimension(0, 16)));
+
+        // Cost breakdown chart
+        JBLabel chartLabel = new JBLabel("Cost breakdown by category");
+        chartLabel.setFont(chartLabel.getFont().deriveFont(Font.BOLD, 12f));
+        chartLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        chartLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 6, 0));
+        panel.add(chartLabel);
+
+        JBLabel chartExplain = new JBLabel(
+                "<html><font color='#888888'>Each bar shows how many smell occurrences contribute " +
+                "to that specific cost. A higher bar means more smells feed into that cost area.</font></html>");
+        chartExplain.setFont(chartExplain.getFont().deriveFont(Font.PLAIN, 11f));
+        chartExplain.setAlignmentX(Component.LEFT_ALIGNMENT);
+        chartExplain.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+        panel.add(chartExplain);
+
+        List<Map.Entry<String, Integer>> sortedCosts = costHits.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .collect(Collectors.toList());
+
+        List<Map.Entry<String, Integer>> costChartData = new ArrayList<>();
+        Color[] costColors = new Color[sortedCosts.size()];
+        for (int i = 0; i < sortedCosts.size(); i++) {
+            Map.Entry<String, Integer> entry = sortedCosts.get(i);
+            PafCost cost = mapper.getCost(entry.getKey());
+            String label = cost != null
+                    ? cost.costName() + " [" + cost.costId() + "]"
+                    : entry.getKey();
+            costChartData.add(Map.entry(label, entry.getValue()));
+            costColors[i] = cost != null && "Internal Failure".equals(cost.pafCategory())
+                    ? INTERNAL_FAILURE_COLOR : APPRAISAL_COLOR;
+        }
+
+        if (!costChartData.isEmpty()) {
+            BarChartPanel costChart = new BarChartPanel(costChartData, costColors);
+            JBScrollPane costScroll = new JBScrollPane(costChart);
+            costScroll.setAlignmentX(Component.LEFT_ALIGNMENT);
+            costScroll.setBorder(BorderFactory.createEmptyBorder());
+            panel.add(costScroll);
+        }
+
+        panel.add(Box.createVerticalGlue());
+
+        JPanel wrapper = new JPanel(new BorderLayout());
+        JBScrollPane scroll = new JBScrollPane(panel);
+        scroll.setBorder(null);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        wrapper.add(scroll, BorderLayout.CENTER);
+        return wrapper;
+    }
+
+    // ─── Tab 3: Files ────────────────────────────────────────────────────────────
+
+    private @NotNull JPanel buildFilesTab(@NotNull List<SmellFinding> findings,
+                                           @NotNull List<Map.Entry<String, Integer>> sortedFiles) {
+        JPanel panel = new JPanel(new BorderLayout(0, 8));
+        panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+        JBLabel description = new JBLabel(
+                "<html><font color='#555555'>Files ranked by total quality cost exposure. " +
+                "A file with few smells can still have high cost exposure if those smells " +
+                "trigger many cost categories. Sort by any column to prioritize your refactoring effort.</font></html>");
+        description.setFont(description.getFont().deriveFont(Font.PLAIN, 11f));
+        description.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+        panel.add(description, BorderLayout.NORTH);
+
+        String[] columns = {"#", "File", "Smells", "Failure Costs", "Appraisal Costs", "Total Costs"};
+        DefaultTableModel filesModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+
+            @Override
+            public Class<?> getColumnClass(int column) {
+                if (column == 1) return String.class;
+                return Integer.class;
+            }
+        };
+
+        CostMapper costMapper = CostMapper.getInstance();
+        int rank = 1;
+        for (Map.Entry<String, Integer> entry : sortedFiles) {
+            String fileName = entry.getKey();
+            int failureCosts = 0;
+            int appraisalCosts = 0;
+
+            for (SmellFinding f : findings) {
+                if (!f.fileName().equals(fileName)) continue;
+                List<CostMapping> mappings = costMapper.getMappingsForSmellByDisplayName(f.smellName());
+                for (CostMapping m : mappings) {
+                    PafCost cost = costMapper.getCost(m.costId());
+                    if (cost != null && "Internal Failure".equals(cost.pafCategory())) {
+                        failureCosts++;
+                    } else {
+                        appraisalCosts++;
+                    }
+                }
+            }
+
+            filesModel.addRow(new Object[]{
+                    rank++, fileName, entry.getValue(),
+                    failureCosts, appraisalCosts, failureCosts + appraisalCosts
+            });
+        }
+
+        JBTable filesTable = new JBTable(filesModel);
+        filesTable.getColumnModel().getColumn(0).setPreferredWidth(30);
+        filesTable.getColumnModel().getColumn(0).setMaxWidth(40);
+        filesTable.getColumnModel().getColumn(1).setPreferredWidth(250);
+        filesTable.getColumnModel().getColumn(2).setPreferredWidth(60);
+        filesTable.getColumnModel().getColumn(2).setMaxWidth(70);
+        filesTable.getColumnModel().getColumn(3).setPreferredWidth(90);
+        filesTable.getColumnModel().getColumn(3).setMaxWidth(110);
+        filesTable.getColumnModel().getColumn(4).setPreferredWidth(100);
+        filesTable.getColumnModel().getColumn(4).setMaxWidth(120);
+        filesTable.getColumnModel().getColumn(5).setPreferredWidth(80);
+        filesTable.getColumnModel().getColumn(5).setMaxWidth(100);
+        filesTable.setAutoCreateRowSorter(true);
+
+        panel.add(new JBScrollPane(filesTable), BorderLayout.CENTER);
+        return panel;
+    }
+
+    // ─── Shared helpers ──────────────────────────────────────────────────────────
 
     private JPanel createSummaryCard(String title, String value) {
         JPanel card = new JPanel(new BorderLayout(0, 2));
@@ -148,6 +332,26 @@ class StatisticsPanel extends JPanel {
         return card;
     }
 
+    private JPanel createColoredCard(String title, String value, Color accentColor) {
+        JPanel card = new JPanel(new BorderLayout(0, 2));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 4, 0, 0, accentColor),
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(UIManager.getColor("Component.borderColor"), 1),
+                        BorderFactory.createEmptyBorder(8, 12, 8, 12))));
+
+        JBLabel titleLabel = new JBLabel(title);
+        titleLabel.setForeground(UIManager.getColor("Label.disabledForeground"));
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.PLAIN, 11f));
+        card.add(titleLabel, BorderLayout.NORTH);
+
+        JBLabel valueLabel = new JBLabel(value);
+        valueLabel.setFont(valueLabel.getFont().deriveFont(Font.BOLD, 14f));
+        card.add(valueLabel, BorderLayout.CENTER);
+
+        return card;
+    }
+
     static Color getColorForIndex(int index) {
         return CHART_COLORS[index % CHART_COLORS.length];
     }
@@ -155,13 +359,15 @@ class StatisticsPanel extends JPanel {
     static class BarChartPanel extends JPanel {
 
         private final List<Map.Entry<String, Integer>> data;
+        private final Color[] colors;
         private static final int BAR_HEIGHT = 26;
         private static final int BAR_GAP = 6;
-        private static final int LABEL_WIDTH = 220;
+        private static final int LABEL_WIDTH = 380;
 
-        BarChartPanel(@NotNull List<Map.Entry<String, Integer>> data) {
+        BarChartPanel(@NotNull List<Map.Entry<String, Integer>> data, @NotNull Color[] colors) {
             this.data = data;
-            setPreferredSize(new Dimension(400, data.size() * (BAR_HEIGHT + BAR_GAP) + BAR_GAP));
+            this.colors = colors;
+            setPreferredSize(new Dimension(700, data.size() * (BAR_HEIGHT + BAR_GAP) + BAR_GAP));
         }
 
         @Override
@@ -193,7 +399,8 @@ class StatisticsPanel extends JPanel {
                 g2.drawString(display, 5, textY);
 
                 int barWidth = Math.max((int) ((double) value / maxValue * barAreaWidth), 4);
-                g2.setColor(getColorForIndex(i));
+                Color barColor = i < colors.length ? colors[i] : getColorForIndex(i);
+                g2.setColor(barColor);
                 g2.fillRoundRect(LABEL_WIDTH, y, barWidth, BAR_HEIGHT, 6, 6);
 
                 g2.setColor(getForeground());

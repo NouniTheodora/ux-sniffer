@@ -41,9 +41,21 @@ The plugin includes a dedicated **tool window** (bottom panel, tab labelled "UXS
 2. Open the **UXSniffer** tool window from the bottom panel (or via `View → Tool Windows → UXSniffer`).
 3. Click **Scan Project**. The plugin scans every `.vue` file in the project for all 12 UX smells.
 4. The tool window has two tabs:
-   - **Findings** — sortable table with columns: Smell, File, Message. Double-click any row to navigate to the file.
-   - **Statistics** — visual dashboard with summary cards, a horizontal bar chart showing smell distribution, and a ranked table of top affected files.
-5. Click **Export Report** to generate an HTML report with interactive Chart.js charts (doughnut chart for smell distribution, bar chart for smells per file) plus full findings and top-files tables. The report opens in your browser automatically.
+   - **Findings** — sortable table with columns: Smell, File, Message. Double-click any row to navigate to the file. Selecting a row opens a **detail panel** below the table with two tabs:
+     - *Overview & Fix* — smell definition, severity, and suggested refactoring approach.
+     - *Cost Impact* — PAF quality costs triggered by the smell, grouped into Direct (Primary) and Indirect (Secondary) costs with causation logic.
+   - **Statistics** — tabbed dashboard with three views:
+     - *Smell Distribution* — horizontal bar chart showing how many times each smell type was detected.
+     - *Quality Costs* — PAF cost analysis with Internal Failure / Appraisal summary cards and a cost-by-category bar chart.
+     - *Files* — sortable table ranking files by total cost exposure (columns: Smells, Failure Costs, Appraisal Costs, Total Costs).
+5. Click **Export Report** to generate a self-contained HTML report with:
+   - Summary cards (Total Smells, Files Affected, Smell Types, Internal Failure Costs, Appraisal Costs)
+   - Interactive Chart.js charts: doughnut for smell distribution + horizontal bar for quality cost breakdown
+   - Smell details section with definitions, refactoring suggestions, and triggered costs per smell
+   - Files ranked by cost exposure table
+   - Complete findings table with smell IDs
+   
+   The report opens in your default browser automatically.
 
 ### How it works (architecture)
 
@@ -55,26 +67,41 @@ The tool window uses `UxAnalysisService` (a Facade over the analysis subsystem) 
     → ProjectScanner.scan()                 (walks .vue files)
       → each AbstractVueSmellInspection.analyze(fileText)
         → SmellFinding(smellName, filePath, fileName, message)
-  → FindingsPanel: sortable table + PAF cost detail panel
+  → FindingsPanel: sortable table + tabbed detail panel
     → CostMapper: loads cost-mappings.json, resolves smell → costs
-  → StatisticsPanel: summary cards + bar chart + top files
+    → Tab 1 "Overview & Fix": definition, severity, refactoring
+    → Tab 2 "Cost Impact": primary/secondary cost cards with causation
+  → StatisticsPanel: summary cards + 3 tabs (Distribution, Costs, Files)
+    → CostMapper: calculates cost hits per category
+    → BarChartPanel: custom Swing chart rendering
 
 [Export Report button]
   → HtmlReportExporter.generate(findings)
-    → Self-contained HTML with Chart.js doughnut + bar charts
+    → CostMapper: resolves smell definitions + cost mappings
+    → Self-contained HTML with Chart.js doughnut + horizontal bar charts
+    → Smell details cards with definitions, refactoring, cost badges
+    → Files ranked by cost exposure table
     → Opens in default browser
 ```
 
 ### PAF Cost Impact
 
-Each finding in the Findings tab is linked to PAF (Prevention-Appraisal-Failure) quality cost categories. When you select a finding row, a **cost detail panel** appears below the table showing:
+Each detected smell is linked to PAF (Prevention-Appraisal-Failure) quality cost categories. The plugin shows this relationship in three places:
 
-- **Primary Costs** — direct cost consequences (e.g., "Necessary Rework", "Design Reviews")
-- **Secondary Costs** — indirect appraisal costs (e.g., "Regression Testing", "Unit Testing")
+1. **Findings detail panel** (Cost Impact tab) — when you select a finding, see the specific costs it triggers with causation logic explaining *why* this smell causes that cost.
+2. **Statistics panel** (Quality Costs tab) — aggregated view showing total Internal Failure and Appraisal cost hits across the project, with a breakdown chart by cost category.
+3. **HTML export** — comprehensive report including per-smell cost badges and a files-by-cost-exposure ranking.
 
-Each cost card displays the relationship type, causation logic, and trigger condition from the research-based mapping. Costs are color-coded: red for Internal Failure, blue for Appraisal.
+Cost categories include:
+- **Internal Failure** (red) — rework costs incurred before release (e.g., "Necessary Rework", "Avoidable Rework")
+- **Appraisal** (blue) — verification and review costs (e.g., "Design Reviews", "Regression Testing", "Unit Testing")
 
-The mappings are stored in `src/main/resources/data/cost-mappings.json` and loaded by the `CostMapper` service at runtime.
+Each cost mapping specifies:
+- **Priority** — Primary (direct cause) or Secondary (indirect/additional effort)
+- **Causation logic** — explains how the smell triggers the cost
+- **Trigger condition** — when the cost applies
+
+The mappings are stored in `src/main/resources/data/cost-mappings.json` and loaded by the `CostMapper` singleton at runtime. The JSON contains 12 smell definitions, 11 PAF cost categories, and 54 smell-to-cost mappings.
 
 > **Note:** The tool window scan and the IDE's built-in inspection system are independent. The tool window provides a project-wide overview, while inspections highlight smells inline as you edit individual files.
 

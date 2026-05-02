@@ -3,6 +3,7 @@ package com.github.nounitheodora.uxsniffer.toolWindow;
 import com.github.nounitheodora.uxsniffer.costs.CostMapper;
 import com.github.nounitheodora.uxsniffer.costs.CostMapping;
 import com.github.nounitheodora.uxsniffer.costs.PafCost;
+import com.github.nounitheodora.uxsniffer.costs.SmellInfo;
 import com.github.nounitheodora.uxsniffer.scanner.SmellFinding;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
@@ -118,126 +119,203 @@ class FindingsPanel extends JPanel {
 
     private static class CostDetailPanel extends JPanel {
 
-        private final JBLabel titleLabel;
-        private final JPanel costsContainer;
         private final JBLabel emptyLabel;
+        private final JTabbedPane detailTabs;
 
         CostDetailPanel() {
             setLayout(new BorderLayout());
             setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
 
-            titleLabel = new JBLabel();
-            titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
-            titleLabel.setBorder(BorderFactory.createEmptyBorder(4, 0, 6, 0));
-            add(titleLabel, BorderLayout.NORTH);
-
-            costsContainer = new JPanel();
-            costsContainer.setLayout(new BoxLayout(costsContainer, BoxLayout.Y_AXIS));
-            JBScrollPane scrollPane = new JBScrollPane(costsContainer);
-            scrollPane.setBorder(BorderFactory.createEmptyBorder());
-            add(scrollPane, BorderLayout.CENTER);
-
-            emptyLabel = new JBLabel("Select a finding to view associated PAF quality costs.");
+            emptyLabel = new JBLabel("Select a finding above to see details, refactoring advice, and cost impact.");
             emptyLabel.setForeground(Color.GRAY);
-            emptyLabel.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 0));
-            costsContainer.add(emptyLabel);
+            emptyLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            emptyLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+            add(emptyLabel, BorderLayout.CENTER);
+
+            detailTabs = new JTabbedPane(JTabbedPane.TOP);
         }
 
         void clear() {
-            titleLabel.setText("");
-            costsContainer.removeAll();
-            costsContainer.add(emptyLabel);
-            costsContainer.revalidate();
-            costsContainer.repaint();
+            removeAll();
+            add(emptyLabel, BorderLayout.CENTER);
+            revalidate();
+            repaint();
         }
 
         void showCostsFor(@NotNull SmellFinding finding) {
+            removeAll();
+
             CostMapper mapper = CostMapper.getInstance();
+            String smellId = mapper.getSmellIdForDisplayName(finding.smellName());
+            SmellInfo smellInfo = smellId != null ? mapper.getSmellInfo(smellId) : null;
             List<CostMapping> mappings = mapper.getMappingsForSmellByDisplayName(finding.smellName());
 
-            costsContainer.removeAll();
+            detailTabs.removeAll();
+            detailTabs.addTab("Overview & Fix", buildOverviewTab(finding, smellInfo));
+            detailTabs.addTab("Cost Impact (" + mappings.size() + ")", buildCostTab(mapper, mappings, smellId));
+
+            add(detailTabs, BorderLayout.CENTER);
+            revalidate();
+            repaint();
+        }
+
+        private @NotNull JPanel buildOverviewTab(@NotNull SmellFinding finding, SmellInfo smellInfo) {
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            // Smell identity header
+            String smellId = smellInfo != null ? smellInfo.smellId() : "";
+            String severity = smellInfo != null ? smellInfo.severity() : "Unknown";
+            JBLabel header = new JBLabel(String.format(
+                    "<html><b style='font-size:12px'>%s</b> <font color='gray'>[%s]</font>" +
+                    " &nbsp; Severity: <b>%s</b></html>",
+                    finding.smellName(), smellId, severity));
+            header.setAlignmentX(Component.LEFT_ALIGNMENT);
+            header.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+            panel.add(header);
+
+            // What is this smell?
+            if (smellInfo != null) {
+                addSection(panel, "What is this smell?",
+                        smellInfo.definition());
+
+                // How to fix it
+                addSection(panel, "Suggested refactoring",
+                        smellInfo.refactoring());
+            }
+
+            // Detection details
+            addSection(panel, "Detected in",
+                    String.format("<b>%s</b><br><font color='gray'>%s</font>",
+                            finding.fileName(), finding.filePath()));
+
+            panel.add(Box.createVerticalGlue());
+
+            JBScrollPane scroll = new JBScrollPane(panel);
+            scroll.setBorder(BorderFactory.createEmptyBorder());
+            scroll.getVerticalScrollBar().setUnitIncrement(12);
+
+            JPanel wrapper = new JPanel(new BorderLayout());
+            wrapper.add(scroll, BorderLayout.CENTER);
+            return wrapper;
+        }
+
+        private @NotNull JPanel buildCostTab(@NotNull CostMapper mapper,
+                                              @NotNull List<CostMapping> mappings,
+                                              String smellId) {
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            // Intro explanation
+            JBLabel intro = new JBLabel(
+                    "<html><font color='#555555'>The following quality costs are triggered when this smell " +
+                    "is present in the codebase. These are based on the PAF (Prevention-Appraisal-Failure) " +
+                    "quality cost model.</font></html>");
+            intro.setFont(intro.getFont().deriveFont(Font.PLAIN, 11f));
+            intro.setAlignmentX(Component.LEFT_ALIGNMENT);
+            intro.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
+            panel.add(intro);
 
             if (mappings.isEmpty()) {
-                titleLabel.setText("PAF Cost Impact: " + finding.smellName());
-                JBLabel noData = new JBLabel("No PAF cost mappings available for this smell.");
+                JBLabel noData = new JBLabel("No PAF cost mappings available for this smell yet.");
                 noData.setForeground(Color.GRAY);
-                noData.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
-                costsContainer.add(noData);
+                noData.setAlignmentX(Component.LEFT_ALIGNMENT);
+                panel.add(noData);
             } else {
-                String smellId = mapper.getSmellIdForDisplayName(finding.smellName());
-                titleLabel.setText(String.format("PAF Cost Impact: %s (%s) — %d cost(s)",
-                        finding.smellName(), smellId, mappings.size()));
-
                 List<CostMapping> primary = mappings.stream()
                         .filter(m -> "Primary".equals(m.priority())).toList();
                 List<CostMapping> secondary = mappings.stream()
                         .filter(m -> "Secondary".equals(m.priority())).toList();
 
                 if (!primary.isEmpty()) {
-                    addSectionHeader("Primary Costs");
+                    addCostSectionHeader(panel,
+                            "Direct costs — this smell directly causes or triggers these:",
+                            new Color(220, 80, 60));
                     for (CostMapping m : primary) {
-                        addCostCard(mapper, m);
+                        addCostCard(panel, mapper, m);
                     }
                 }
                 if (!secondary.isEmpty()) {
-                    addSectionHeader("Secondary Costs");
+                    panel.add(Box.createRigidArea(new Dimension(0, 10)));
+                    addCostSectionHeader(panel,
+                            "Indirect costs — fixing this smell requires additional effort in these areas:",
+                            new Color(60, 130, 200));
                     for (CostMapping m : secondary) {
-                        addCostCard(mapper, m);
+                        addCostCard(panel, mapper, m);
                     }
                 }
             }
 
-            costsContainer.add(Box.createVerticalGlue());
-            costsContainer.revalidate();
-            costsContainer.repaint();
+            panel.add(Box.createVerticalGlue());
+
+            JBScrollPane scroll = new JBScrollPane(panel);
+            scroll.setBorder(BorderFactory.createEmptyBorder());
+            scroll.getVerticalScrollBar().setUnitIncrement(12);
+
+            JPanel wrapper = new JPanel(new BorderLayout());
+            wrapper.add(scroll, BorderLayout.CENTER);
+            return wrapper;
         }
 
-        private void addSectionHeader(@NotNull String text) {
-            JBLabel header = new JBLabel(text);
-            header.setFont(header.getFont().deriveFont(Font.BOLD, header.getFont().getSize() - 1f));
-            header.setForeground(new Color(100, 100, 100));
-            header.setBorder(BorderFactory.createEmptyBorder(8, 0, 4, 0));
+        private void addSection(@NotNull JPanel panel, @NotNull String title, @NotNull String htmlContent) {
+            JBLabel titleLabel = new JBLabel(title);
+            titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 11f));
+            titleLabel.setForeground(new Color(80, 80, 80));
+            titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 3, 0));
+            panel.add(titleLabel);
+
+            JBLabel contentLabel = new JBLabel(String.format("<html><div style='width:500px'>%s</div></html>", htmlContent));
+            contentLabel.setFont(contentLabel.getFont().deriveFont(Font.PLAIN, 12f));
+            contentLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            contentLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
+            panel.add(contentLabel);
+        }
+
+        private void addCostSectionHeader(@NotNull JPanel panel, @NotNull String text, @NotNull Color color) {
+            JBLabel header = new JBLabel(String.format("<html><font color='#555555'>%s</font></html>", text));
+            header.setFont(header.getFont().deriveFont(Font.ITALIC, 11f));
             header.setAlignmentX(Component.LEFT_ALIGNMENT);
-            costsContainer.add(header);
+            header.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, 1, 0, color),
+                    BorderFactory.createEmptyBorder(0, 0, 6, 0)));
+            panel.add(header);
+            panel.add(Box.createRigidArea(new Dimension(0, 6)));
         }
 
-        private void addCostCard(@NotNull CostMapper mapper, @NotNull CostMapping mapping) {
+        private void addCostCard(@NotNull JPanel panel, @NotNull CostMapper mapper, @NotNull CostMapping mapping) {
             JPanel card = new JPanel();
             card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
             card.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createMatteBorder(0, 3, 0, 0, getCategoryColor(mapping)),
+                    BorderFactory.createMatteBorder(0, 3, 0, 0, getCategoryColor(mapper, mapping)),
                     BorderFactory.createEmptyBorder(6, 8, 6, 8)
             ));
             card.setAlignmentX(Component.LEFT_ALIGNMENT);
-            card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
+            card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
 
             PafCost cost = mapper.getCost(mapping.costId());
             String categoryLabel = cost != null ? cost.pafCategory() : "Unknown";
 
-            JBLabel header = new JBLabel(String.format("<html><b>%s</b> [%s] <font color='gray'>— %s</font></html>",
+            JBLabel header = new JBLabel(String.format(
+                    "<html><b>%s</b> [%s] <font color='gray'>— %s</font></html>",
                     mapping.costName(), mapping.costId(), categoryLabel));
             header.setAlignmentX(Component.LEFT_ALIGNMENT);
             card.add(header);
 
-            JBLabel relationship = new JBLabel(String.format("<html><i>%s</i> — %s</html>",
-                    mapping.relationshipType(), mapping.causationLogic()));
-            relationship.setFont(relationship.getFont().deriveFont(Font.PLAIN, relationship.getFont().getSize() - 1f));
-            relationship.setAlignmentX(Component.LEFT_ALIGNMENT);
-            relationship.setBorder(BorderFactory.createEmptyBorder(3, 0, 2, 0));
-            card.add(relationship);
+            JBLabel logic = new JBLabel(String.format("<html><div style='width:480px'>%s</div></html>",
+                    mapping.causationLogic()));
+            logic.setFont(logic.getFont().deriveFont(Font.PLAIN, logic.getFont().getSize() - 1f));
+            logic.setAlignmentX(Component.LEFT_ALIGNMENT);
+            logic.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 0));
+            card.add(logic);
 
-            JBLabel trigger = new JBLabel(String.format("<html><font color='#666666'>Trigger: %s</font></html>",
-                    mapping.triggerCondition()));
-            trigger.setFont(trigger.getFont().deriveFont(Font.PLAIN, trigger.getFont().getSize() - 1f));
-            trigger.setAlignmentX(Component.LEFT_ALIGNMENT);
-            card.add(trigger);
-
-            costsContainer.add(card);
-            costsContainer.add(Box.createRigidArea(new Dimension(0, 4)));
+            panel.add(card);
+            panel.add(Box.createRigidArea(new Dimension(0, 4)));
         }
 
-        private @NotNull Color getCategoryColor(@NotNull CostMapping mapping) {
-            CostMapper mapper = CostMapper.getInstance();
+        private @NotNull Color getCategoryColor(@NotNull CostMapper mapper, @NotNull CostMapping mapping) {
             PafCost cost = mapper.getCost(mapping.costId());
             if (cost == null) return Color.GRAY;
             return switch (cost.pafCategory()) {

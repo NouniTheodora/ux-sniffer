@@ -17,6 +17,7 @@ public final class CostMapper {
 
     private static final CostMapper INSTANCE = new CostMapper();
 
+    private final Map<String, SmellInfo> smellsById = new LinkedHashMap<>();
     private final Map<String, PafCost> costsById = new LinkedHashMap<>();
     private final Map<String, List<CostMapping>> mappingsBySmellId = new LinkedHashMap<>();
     private final Map<String, String> displayNameToSmellId = new LinkedHashMap<>();
@@ -38,6 +39,16 @@ public final class CostMapper {
         String smellId = displayNameToSmellId.get(displayName);
         if (smellId == null) return List.of();
         return getMappingsForSmell(smellId);
+    }
+
+    public @Nullable SmellInfo getSmellInfo(@NotNull String smellId) {
+        return smellsById.get(smellId);
+    }
+
+    public @Nullable SmellInfo getSmellInfoByDisplayName(@NotNull String displayName) {
+        String smellId = displayNameToSmellId.get(displayName);
+        if (smellId == null) return null;
+        return smellsById.get(smellId);
     }
 
     public @Nullable PafCost getCost(@NotNull String costId) {
@@ -96,6 +107,21 @@ public final class CostMapper {
             if (is == null) return;
             JsonObject root = JsonParser.parseReader(
                     new InputStreamReader(is, StandardCharsets.UTF_8)).getAsJsonObject();
+
+            JsonArray smellsArray = root.getAsJsonArray("smells");
+            if (smellsArray != null) {
+                for (JsonElement el : smellsArray) {
+                    JsonObject obj = el.getAsJsonObject();
+                    SmellInfo info = new SmellInfo(
+                            obj.get("smellId").getAsString(),
+                            obj.get("smellName").getAsString(),
+                            obj.get("definition").getAsString(),
+                            obj.get("severity").getAsString(),
+                            obj.get("refactoring").getAsString()
+                    );
+                    smellsById.put(info.smellId(), info);
+                }
+            }
 
             JsonArray costsArray = root.getAsJsonArray("pafCosts");
             for (JsonElement el : costsArray) {

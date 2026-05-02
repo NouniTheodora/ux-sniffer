@@ -70,54 +70,64 @@ The tool window appears in the **bottom panel** of the IDE with the tab label **
 
 ---
 
-## PAF Cost Detail Panel
+## Findings Detail Panel (Tabbed)
 
-**What it shows:** When you select a finding in the Findings table, a detail panel below displays the associated PAF (Prevention-Appraisal-Failure) quality costs — showing which cost categories are impacted by the detected smell.
+**What it shows:** When you select a finding in the Findings table, a tabbed detail panel appears below the table with two tabs: "Overview & Fix" (smell definition and refactoring) and "Cost Impact" (PAF quality costs triggered by the smell).
 
-### Test case — cost panel appears on row selection
+### Test case — detail panel appears on row selection
 
 1. Run `./gradlew runIde`.
 2. Open a project with `.vue` files that trigger smells.
 3. Open the **UXSniffer** tool window and click **Scan Project**.
 4. Click on any row in the findings table (single click).
-5. Expected: the bottom panel shows a title like *"PAF Cost Impact: Large Vue.js component (S17) — 6 cost(s)"* followed by cost cards grouped into **Primary Costs** and **Secondary Costs**.
+5. Expected: the bottom panel shows two tabs: **Overview & Fix** and **Cost Impact (N)** where N is the number of cost mappings.
 
-### Test case — cost card content
+### Test case — Overview & Fix tab content
 
 1. Select a finding for "Large Vue.js component" (S17).
-2. Expected: the Primary Costs section shows 3 cards:
-   - **Necessary Rework** [C01] — Internal Failure (red left border)
-   - **Cost for Performing Design Reviews** [C11] — Appraisal (blue left border)
-   - **Cost for Performing Metrics-Based Quality Assurance** [C16] — Appraisal (blue left border)
-3. Each card shows the relationship type (e.g., "Causes" or "Triggers appraisal for"), a causation logic explanation, and a trigger condition.
+2. Expected the **Overview & Fix** tab shows:
+   - Header: smell name, smell ID [S17], and severity (e.g., "High")
+   - **What is this smell?** — a definition explaining what the smell is
+   - **Suggested refactoring** — concrete advice on how to fix the smell
+   - **Detected in** — the file name and full path
 
-### Test case — color coding
+### Test case — Cost Impact tab content
 
-1. Select any finding with both Internal Failure and Appraisal costs (e.g., any smell — they all have C01 + appraisal costs).
-2. Expected: C01 cards have a **red** left border. All other costs (C10, C11, C12, C16, C17, etc.) have a **blue** left border.
+1. Select a finding for "Large Vue.js component" (S17).
+2. Switch to the **Cost Impact** tab.
+3. Expected:
+   - Introductory text explaining the PAF model
+   - **Direct costs** section header (red underline) with Primary cost cards
+   - **Indirect costs** section header (blue underline) with Secondary cost cards
+   - Each card shows: cost name, cost ID, PAF category, and causation logic
+
+### Test case — cost card color coding
+
+1. Select any finding with both Internal Failure and Appraisal costs.
+2. Expected on the Cost Impact tab: cards have colored left borders — **red** for Internal Failure (e.g., C01 Necessary Rework), **blue** for Appraisal (e.g., C11 Design Reviews).
 
 ### Test case — deselection clears panel
 
 1. After selecting a row, click on a different area so no row is selected (or clear the selection).
-2. Expected: the cost panel returns to showing *"Select a finding to view associated PAF quality costs."*
+2. Expected: the detail panel returns to showing *"Select a finding above to see details, refactoring advice, and cost impact."*
 
 ### Test case — Multiple Booleans smell (S33) has costs
 
 1. Ensure a `.vue` file triggers the "Multiple booleans for state" smell.
 2. Run scan, select the finding.
-3. Expected: 5 cost mappings appear (3 Primary: C01, C11, C17; 2 Secondary: C12, C16).
+3. Expected: Cost Impact tab shows 5 cost mappings (3 Primary: C01, C11, C17; 2 Secondary: C12, C16).
 
 ### Test case — switching between findings
 
 1. Select a "Large File" finding (S25 — 6 costs).
 2. Then select a "Non-Null Assertions" finding (S30 — 3 costs).
-3. Expected: the cost panel updates immediately to show the costs for the newly selected smell. No mixing of data from the previous selection.
+3. Expected: the detail panel updates immediately. The Cost Impact tab badge shows the correct count for the newly selected smell. No mixing of data.
 
 ---
 
-## Statistics Tab
+## Statistics Tab (Tabbed Layout)
 
-**What it shows:** After a scan, the Statistics tab displays a visual summary of all findings: summary cards, a horizontal bar chart of smell distribution, and a ranked table of top affected files.
+**What it shows:** After a scan, the Statistics tab displays summary cards at the top (always visible) plus three sub-tabs: Smell Distribution, Quality Costs, and Files.
 
 ### Test case — statistics appear after scan
 
@@ -127,15 +137,38 @@ The tool window appears in the **bottom panel** of the IDE with the tab label **
 4. Expected initial state: message reads *"Run a scan to see statistics."*
 5. Click **Scan Project**.
 6. Expected: the Statistics tab now shows:
-   - **Summary cards** at the top: Total Smells (number), Files Affected (number), Smell Types (number).
-   - **Smell Distribution** bar chart: horizontal colored bars, one per smell type, sorted by count descending. Each bar is labelled with the smell name and count.
-   - **Top Affected Files** table: ranked list of files sorted by number of smells, with columns #, File, and Smells.
+   - **Summary cards** at the top (always visible): Total Smells, Files Affected, Smell Types.
+   - Three sub-tabs below: **Smell Distribution**, **Quality Costs**, **Files (N)**.
 
-### Test case — bar chart proportions
+### Test case — Smell Distribution sub-tab
 
-1. After a scan with mixed results (e.g. one smell type appears 8 times, another 2 times).
-2. Switch to the Statistics tab.
-3. Expected: the bar for the more frequent smell is visibly longer (proportional to count). The longest bar fills most of the available width.
+1. After a scan, switch to the **Smell Distribution** sub-tab.
+2. Expected: explanatory text about what the chart shows, followed by a horizontal bar chart with one colored bar per smell type, sorted by count descending. Each bar is labelled with the smell name and count.
+3. All label text should be fully visible (no ellipsis truncation).
+
+### Test case — Quality Costs sub-tab
+
+1. After a scan, switch to the **Quality Costs** sub-tab.
+2. Expected:
+   - Explanatory text about the PAF model
+   - Two colored summary cards: **Internal Failure** (red accent, showing "X occurrence(s) require rework") and **Appraisal** (blue accent, showing "X occurrence(s) require reviews/testing")
+   - Section header "Cost breakdown by category" with explanatory text
+   - Horizontal bar chart with red bars for Internal Failure costs and blue bars for Appraisal costs
+   - All cost names fully visible in the chart labels
+
+### Test case — Files sub-tab
+
+1. After a scan, switch to the **Files** sub-tab.
+2. Expected:
+   - Explanatory text about cost exposure ranking
+   - A sortable table with columns: #, File, Smells, Failure Costs, Appraisal Costs, Total Costs
+   - Files are ranked by smell count by default
+   - Clicking any column header sorts by that column (numeric sorting for number columns)
+
+### Test case — bar chart label visibility
+
+1. After a scan with smells that have long names (e.g., "Cost for Performing Metrics-Based Quality Assurance").
+2. Expected: the full name is visible in the chart — no "..." truncation. The chart panel is wide enough (700px preferred width, 380px label area).
 
 ### Test case — statistics reset on re-scan
 
@@ -153,7 +186,7 @@ The tool window appears in the **bottom panel** of the IDE with the tab label **
 
 ## Export Report
 
-**What it does:** Generates a self-contained HTML report with interactive Chart.js charts (doughnut and bar), summary cards, top affected files, and a full findings table. Opens in the default browser after saving.
+**What it does:** Generates a self-contained HTML report with interactive Chart.js charts, PAF cost analysis, smell definitions and refactoring suggestions, cost-per-file ranking, and full findings table. Opens in the default browser after saving.
 
 ### Test case — export button disabled before scan
 
@@ -171,17 +204,41 @@ The tool window appears in the **bottom panel** of the IDE with the tab label **
 5. Expected: the file is created and opens automatically in the default browser.
 6. Verify the report contains:
    - Title "UXSniffer Report" with the project name and generation timestamp.
-   - Three summary cards (Total Smells, Files Affected, Smell Types) matching the tool window.
-   - A doughnut chart showing smell distribution by type.
-   - A horizontal bar chart showing smells per file.
-   - A "Top Affected Files" table matching the Statistics tab.
-   - An "All Findings" table listing every finding with columns: #, Smell, File, Message.
+   - **Five summary cards**: Total Smells, Files Affected, Smell Types, Internal Failure Costs (red accent), Appraisal Costs (blue accent).
+   - **Doughnut chart** showing smell distribution by type (hover shows tooltips, legend on the right).
+   - **Horizontal bar chart** showing quality cost breakdown by category (red bars for Internal Failure, blue for Appraisal).
+   - **Smell Details & Refactoring Suggestions** section with one card per smell type containing:
+     - Smell name, ID badge, occurrence count badge, severity badge (High/Medium/Context-Dependent)
+     - "What is this?" definition
+     - "Suggested fix" in a green-tinted box
+     - "Quality costs triggered" — bulleted list with color-coded cost badges (red "INTERNAL FAILURE" / blue "APPRAISAL")
+   - **Files Ranked by Cost Exposure** table with columns: #, File, Smells, Failure Costs, Appraisal Costs, Total Costs.
+   - **All Findings** table listing every finding with columns: #, Smell (with ID badge), File, Message.
+   - Footer with "Generated by UXSniffer" attribution.
+
+### Test case — export chart interactivity
+
+1. Open the exported HTML report in a browser.
+2. Hover over a segment of the doughnut chart.
+3. Expected: a tooltip appears showing the smell name and count.
+4. Hover over a bar in the cost chart.
+5. Expected: a tooltip shows the cost name and number of smell occurrences triggering it.
+
+### Test case — export smell details completeness
+
+1. Export a report from a scan that detected multiple smell types (e.g., Large File, Large Component, Any Type).
+2. Expected: the "Smell Details" section contains one card for each distinct smell type. Each card has a definition, refactoring suggestion, and cost list. No cards show "?" for the smell ID or missing definitions.
+
+### Test case — export cost-per-file table
+
+1. Export a report from a scan where one file has multiple smells.
+2. Expected: the "Files Ranked by Cost Exposure" table shows that file with higher Total Costs than files with fewer smells. The Failure/Appraisal columns break down the costs correctly.
 
 ### Test case — export with many findings
 
 1. Open a project with 10+ `.vue` files triggering various smells.
 2. Run scan, then export.
-3. Expected: the HTML report renders all findings. Charts are interactive (hover shows tooltips). Tables are complete.
+3. Expected: the HTML report renders all findings. Charts are interactive. All tables are complete. The page is scrollable and well-styled.
 
 ### Test case — export button disabled when no findings
 
