@@ -1,5 +1,6 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
+import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
@@ -18,7 +19,7 @@ public class EnumImplicitValuesInspection extends AbstractVueSmellInspection {
 
     @Override
     public @NotNull String getDisplayName() {
-        return "Enum with implicit values";
+        return UxSnifferBundle.message("inspection.enum.implicit.name");
     }
 
     @Override
@@ -83,9 +84,7 @@ public class EnumImplicitValuesInspection extends AbstractVueSmellInspection {
 
     @NotNull String buildMessage(@NotNull List<String> enumNames) {
         if (enumNames.size() == 1) {
-            return String.format(
-                    "Enum '%s' has implicit values. Assign explicit values to prevent reordering issues.",
-                    enumNames.get(0));
+            return UxSnifferBundle.message("inspection.enum.implicit.single", enumNames.get(0));
         }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < enumNames.size(); i++) {
@@ -93,8 +92,6 @@ public class EnumImplicitValuesInspection extends AbstractVueSmellInspection {
             else if (i > 0) sb.append(", ");
             sb.append("'").append(enumNames.get(i)).append("'");
         }
-        return String.format(
-                "Enums %s have implicit values. Assign explicit values to prevent reordering issues.",
-                sb);
+        return UxSnifferBundle.message("inspection.enum.implicit.multiple", sb);
     }
 }

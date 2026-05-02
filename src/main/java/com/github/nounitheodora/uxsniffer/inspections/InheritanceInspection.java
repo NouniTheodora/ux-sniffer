@@ -1,5 +1,6 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
+import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
@@ -17,7 +18,7 @@ public class InheritanceInspection extends AbstractVueSmellInspection {
 
     @Override
     public @NotNull String getDisplayName() {
-        return "Inheritance instead of composition";
+        return UxSnifferBundle.message("inspection.inheritance.name");
     }
 
     @Override
@@ -61,8 +62,6 @@ public class InheritanceInspection extends AbstractVueSmellInspection {
     }
 
     @NotNull String buildMessage(@NotNull String componentName) {
-        return String.format(
-                "Inheritance via 'extends: %s' detected. Prefer composables or component composition over class-style inheritance.",
-                componentName);
+        return UxSnifferBundle.message("inspection.inheritance.message", componentName);
     }
 }

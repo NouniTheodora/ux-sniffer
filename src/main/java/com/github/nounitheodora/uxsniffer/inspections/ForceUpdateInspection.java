@@ -1,5 +1,6 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
+import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
@@ -16,7 +17,7 @@ public class ForceUpdateInspection extends AbstractVueSmellInspection {
 
     @Override
     public @NotNull String getDisplayName() {
-        return "Force update / page reload";
+        return UxSnifferBundle.message("inspection.force.update.name");
     }
 
     @Override
@@ -72,10 +73,10 @@ public class ForceUpdateInspection extends AbstractVueSmellInspection {
         if (apis.size() == 1) {
             String api = apis.get(0);
             if (api.equals("$forceUpdate()")) {
-                return "Avoid '$forceUpdate()'. Redesign state so Vue's reactivity handles updates automatically.";
+                return UxSnifferBundle.message("inspection.force.update.forceUpdate");
             }
-            return "Avoid 'location.reload()'. Use Vue's reactivity or router navigation instead of full page reloads.";
+            return UxSnifferBundle.message("inspection.force.update.reload");
         }
-        return "Avoid '$forceUpdate()' and 'location.reload()'. Redesign state so Vue's reactivity handles updates automatically.";
+        return UxSnifferBundle.message("inspection.force.update.both");
     }
 }

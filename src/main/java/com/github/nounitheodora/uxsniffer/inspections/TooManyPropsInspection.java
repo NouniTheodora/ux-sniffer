@@ -1,5 +1,6 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
+import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
@@ -18,7 +19,7 @@ public class TooManyPropsInspection extends AbstractVueSmellInspection {
 
     @Override
     public @NotNull String getDisplayName() {
-        return "Too many props";
+        return UxSnifferBundle.message("inspection.too.many.props.name");
     }
 
     @Override
@@ -61,9 +62,7 @@ public class TooManyPropsInspection extends AbstractVueSmellInspection {
     }
 
     @NotNull String buildMessage(int props) {
-        return String.format(
-                "Too many props: %d defined (threshold: %d). Consider grouping related props into objects or splitting the component.",
-                props, propsThreshold);
+        return UxSnifferBundle.message("inspection.too.many.props.message", props, propsThreshold);
     }
 
     int countProps(@NotNull String scriptContent) {

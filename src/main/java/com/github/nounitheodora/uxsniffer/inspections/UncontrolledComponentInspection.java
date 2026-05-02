@@ -1,5 +1,6 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
+import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
@@ -18,7 +19,7 @@ public class UncontrolledComponentInspection extends AbstractVueSmellInspection 
 
     @Override
     public @NotNull String getDisplayName() {
-        return "Uncontrolled form component";
+        return UxSnifferBundle.message("inspection.uncontrolled.component.name");
     }
 
     @Override
@@ -86,12 +87,8 @@ public class UncontrolledComponentInspection extends AbstractVueSmellInspection 
 
     @NotNull String buildMessage(@NotNull List<String> tags) {
         if (tags.size() == 1) {
-            return String.format(
-                    "Uncontrolled <%s>: uses a ref but has no v-model or :value binding. Bind the value reactively instead.",
-                    tags.get(0));
+            return UxSnifferBundle.message("inspection.uncontrolled.single", tags.get(0));
         }
-        return String.format(
-                "%d uncontrolled form elements use a ref but have no v-model or :value binding. Bind values reactively instead.",
-                tags.size());
+        return UxSnifferBundle.message("inspection.uncontrolled.multiple", tags.size());
     }
 }

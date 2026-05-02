@@ -1,5 +1,6 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
+import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
@@ -27,7 +28,7 @@ public class PropsInInitialStateInspection extends AbstractVueSmellInspection {
 
     @Override
     public @NotNull String getDisplayName() {
-        return "Props used in initial state";
+        return UxSnifferBundle.message("inspection.props.initial.state.name");
     }
 
     @Override
@@ -80,13 +81,9 @@ public class PropsInInitialStateInspection extends AbstractVueSmellInspection {
 
     @NotNull String buildMessage(@NotNull List<String> propNames) {
         if (propNames.size() == 1) {
-            return String.format(
-                    "Prop '%s' used to initialise reactive state. Use computed(() => props.%s) to stay in sync.",
-                    propNames.get(0), propNames.get(0));
+            return UxSnifferBundle.message("inspection.props.initial.state.single", propNames.get(0), propNames.get(0));
         }
-        return String.format(
-                "Props %s used to initialise reactive state. Use computed() to stay in sync with prop changes.",
-                formatPropList(propNames));
+        return UxSnifferBundle.message("inspection.props.initial.state.multiple", formatPropList(propNames));
     }
 
     private @NotNull String formatPropList(@NotNull List<String> names) {

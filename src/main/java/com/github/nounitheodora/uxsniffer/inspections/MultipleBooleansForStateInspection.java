@@ -1,5 +1,6 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
+import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
@@ -22,7 +23,7 @@ public class MultipleBooleansForStateInspection extends AbstractVueSmellInspecti
 
     @Override
     public @NotNull String getDisplayName() {
-        return "Multiple booleans for state";
+        return UxSnifferBundle.message("inspection.multiple.booleans.name");
     }
 
     @Override
@@ -79,8 +80,6 @@ public class MultipleBooleansForStateInspection extends AbstractVueSmellInspecti
     }
 
     @NotNull String buildMessage(int count) {
-        return String.format(
-                "Multiple booleans for state: %d boolean refs defined (threshold: %d). Consider using an enum or union type to manage state transitions instead.",
-                count, booleanThreshold);
+        return UxSnifferBundle.message("inspection.multiple.booleans.message", count, booleanThreshold);
     }
 }

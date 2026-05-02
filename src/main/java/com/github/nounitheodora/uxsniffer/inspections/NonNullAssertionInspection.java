@@ -1,5 +1,6 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
+import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
@@ -17,7 +18,7 @@ public class NonNullAssertionInspection extends AbstractVueSmellInspection {
 
     @Override
     public @NotNull String getDisplayName() {
-        return "Non-null assertion";
+        return UxSnifferBundle.message("inspection.non.null.assertion.name");
     }
 
     @Override
@@ -70,10 +71,8 @@ public class NonNullAssertionInspection extends AbstractVueSmellInspection {
 
     @NotNull String buildMessage(int count) {
         if (count == 1) {
-            return "Non-null assertion operator ('!') used. This may hide null/undefined errors at runtime. Use proper null checks instead.";
+            return UxSnifferBundle.message("inspection.non.null.single");
         }
-        return String.format(
-                "Non-null assertion operator ('!') used %d times. This may hide null/undefined errors at runtime. Use proper null checks instead.",
-                count);
+        return UxSnifferBundle.message("inspection.non.null.multiple", count);
     }
 }

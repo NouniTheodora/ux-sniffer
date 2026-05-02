@@ -1,5 +1,6 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
+import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
@@ -17,7 +18,7 @@ public class AnyTypeInspection extends AbstractVueSmellInspection {
 
     @Override
     public @NotNull String getDisplayName() {
-        return "Any type usage";
+        return UxSnifferBundle.message("inspection.any.type.name");
     }
 
     @Override
@@ -67,10 +68,8 @@ public class AnyTypeInspection extends AbstractVueSmellInspection {
 
     @NotNull String buildMessage(int count) {
         if (count == 1) {
-            return "TypeScript 'any' type used. This disables type checking and may hide errors. Define explicit types instead.";
+            return UxSnifferBundle.message("inspection.any.type.single");
         }
-        return String.format(
-                "TypeScript 'any' type used %d times. This disables type checking and may hide errors. Define explicit types instead.",
-                count);
+        return UxSnifferBundle.message("inspection.any.type.multiple", count);
     }
 }

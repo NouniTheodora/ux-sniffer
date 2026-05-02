@@ -1,5 +1,6 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
+import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
@@ -20,7 +21,7 @@ public class LargeFileInspection extends AbstractVueSmellInspection {
 
     @Override
     public @NotNull String getDisplayName() {
-        return "Large Vue.js file";
+        return UxSnifferBundle.message("inspection.large.file.name");
     }
 
     @Override
@@ -74,18 +75,12 @@ public class LargeFileInspection extends AbstractVueSmellInspection {
         int imports = countImports(text);
 
         if (locExceeded && importsExceeded) {
-            return String.format(
-                    "Large file: %d lines (threshold: %d) and %d imports (threshold: %d). Consider splitting into smaller components.",
-                    loc, locThreshold, imports, importsThreshold);
+            return UxSnifferBundle.message("inspection.large.file.both", loc, locThreshold, imports, importsThreshold);
         }
         if (locExceeded) {
-            return String.format(
-                    "Large file: %d lines (threshold: %d). Consider splitting into smaller components.",
-                    loc, locThreshold);
+            return UxSnifferBundle.message("inspection.large.file.loc", loc, locThreshold);
         }
-        return String.format(
-                "Too many imports: %d (threshold: %d). This file may be taking on too many responsibilities.",
-                imports, importsThreshold);
+        return UxSnifferBundle.message("inspection.large.file.imports", imports, importsThreshold);
     }
 
     int countImports(@NotNull String text) {

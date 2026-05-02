@@ -1,5 +1,6 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
+import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
@@ -20,7 +21,7 @@ public class LargeComponentInspection extends AbstractVueSmellInspection {
 
     @Override
     public @NotNull String getDisplayName() {
-        return "Large Vue.js component";
+        return UxSnifferBundle.message("inspection.large.component.name");
     }
 
     @Override
@@ -79,18 +80,12 @@ public class LargeComponentInspection extends AbstractVueSmellInspection {
         int fn = countFunctions(script);
 
         if (locExceeded && fnExceeded) {
-            return String.format(
-                    "Large component: script block has %d lines (threshold: %d) and %d functions (threshold: %d). Consider splitting logic into composables.",
-                    loc, scriptLocThreshold, fn, functionsThreshold);
+            return UxSnifferBundle.message("inspection.large.component.both", loc, scriptLocThreshold, fn, functionsThreshold);
         }
         if (locExceeded) {
-            return String.format(
-                    "Large component: script block has %d lines (threshold: %d). Consider splitting logic into composables.",
-                    loc, scriptLocThreshold);
+            return UxSnifferBundle.message("inspection.large.component.loc", loc, scriptLocThreshold);
         }
-        return String.format(
-                "Large component: %d functions defined (threshold: %d). Consider extracting logic into composables.",
-                fn, functionsThreshold);
+        return UxSnifferBundle.message("inspection.large.component.functions", fn, functionsThreshold);
     }
 
     int countFunctions(@NotNull String scriptContent) {

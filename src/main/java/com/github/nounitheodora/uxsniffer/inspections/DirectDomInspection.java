@@ -1,5 +1,6 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
+import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
@@ -42,7 +43,7 @@ public class DirectDomInspection extends AbstractVueSmellInspection {
 
     @Override
     public @NotNull String getDisplayName() {
-        return "Direct DOM manipulation";
+        return UxSnifferBundle.message("inspection.direct.dom.name");
     }
 
     @Override
@@ -104,13 +105,9 @@ public class DirectDomInspection extends AbstractVueSmellInspection {
 
     @NotNull String buildMessage(@NotNull List<String> apis) {
         if (apis.size() == 1) {
-            return String.format(
-                    "Direct DOM manipulation via '%s'. Use Vue template refs instead.",
-                    apis.get(0));
+            return UxSnifferBundle.message("inspection.direct.dom.single", apis.get(0));
         }
-        return String.format(
-                "Direct DOM manipulation via %s. Use Vue template refs instead.",
-                formatApiList(apis));
+        return UxSnifferBundle.message("inspection.direct.dom.multiple", formatApiList(apis));
     }
 
     private @NotNull String formatApiList(@NotNull List<String> apis) {
