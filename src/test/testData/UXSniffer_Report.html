@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UXSniffer Report — vue</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 1200px; margin: 0 auto; padding: 24px; color: #1a1a2e; background: #fafafa; }
+    h1 { font-size: 28px; margin-bottom: 4px; }
+    h2 { font-size: 18px; margin: 24px 0 12px; }
+    .meta { color: #666; margin-bottom: 20px; }
+    .cards { display: flex; gap: 16px; margin-bottom: 24px; }
+    .card { flex: 1; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; text-align: center; }
+    .card-value { font-size: 32px; font-weight: bold; color: #42b883; }
+    .card-label { font-size: 13px; color: #888; margin-top: 4px; }
+    .charts { display: flex; gap: 24px; margin-bottom: 24px; }
+    .chart-box { flex: 1; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+    th { background: #f5f5f5; text-align: left; padding: 10px 12px; font-size: 13px; border-bottom: 2px solid #e0e0e0; }
+    td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+    tr:hover td { background: #f9f9f9; }
+    footer { text-align: center; color: #aaa; font-size: 12px; margin-top: 32px; padding-top: 16px; border-top: 1px solid #eee; }
+  </style>
+</head>
+<body>
+  <h1>UXSniffer Report</h1>
+  <p class="meta">Project: vue &middot; Generated: 2026-05-02 17:25</p>
+
+  <div class="cards">
+    <div class="card"><div class="card-value">22</div><div class="card-label">Total Smells</div></div>
+    <div class="card"><div class="card-value">20</div><div class="card-label">Files Affected</div></div>
+    <div class="card"><div class="card-value">12</div><div class="card-label">Smell Types</div></div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-box"><h2>Smell Distribution</h2><canvas id="pieChart"></canvas></div>
+    <div class="chart-box"><h2>Smells per File</h2><canvas id="barChart"></canvas></div>
+  </div>
+
+  <h2>Top Affected Files</h2>
+  <table>
+    <thead><tr><th>#</th><th>File</th><th>Smells</th></tr></thead>
+    <tbody>
+<tr><td>1</td><td>LargeFile_bothViolations.vue</td><td>2</td></tr>
+<tr><td>2</td><td>LargeFile_tooManyLines.vue</td><td>2</td></tr>
+<tr><td>3</td><td>LargeComponent_tooManyScriptLines.vue</td><td>1</td></tr>
+<tr><td>4</td><td>DirectDom_multiple.vue</td><td>1</td></tr>
+<tr><td>5</td><td>ForceUpdate_reload.vue</td><td>1</td></tr>
+<tr><td>6</td><td>ForceUpdate_both.vue</td><td>1</td></tr>
+<tr><td>7</td><td>LargeComponent_tooManyFunctions.vue</td><td>1</td></tr>
+<tr><td>8</td><td>PropsInInitialState_multiple.vue</td><td>1</td></tr>
+<tr><td>9</td><td>AnyType_trigger.vue</td><td>1</td></tr>
+<tr><td>10</td><td>NonNullAssertion_trigger.vue</td><td>1</td></tr>
+<tr><td>11</td><td>PropsInInitialState_trigger.vue</td><td>1</td></tr>
+<tr><td>12</td><td>UncontrolledComponent_trigger.vue</td><td>1</td></tr>
+<tr><td>13</td><td>EnumImplicit_trigger.vue</td><td>1</td></tr>
+<tr><td>14</td><td>ForceUpdate_forceUpdate.vue</td><td>1</td></tr>
+<tr><td>15</td><td>UncontrolledComponent_multiple.vue</td><td>1</td></tr>
+<tr><td>16</td><td>LargeFile_tooManyImports.vue</td><td>1</td></tr>
+<tr><td>17</td><td>TooManyProps_trigger.vue</td><td>1</td></tr>
+<tr><td>18</td><td>MultipleBooleans_trigger.vue</td><td>1</td></tr>
+<tr><td>19</td><td>DirectDom_trigger.vue</td><td>1</td></tr>
+<tr><td>20</td><td>Inheritance_trigger.vue</td><td>1</td></tr>
+    </tbody>
+  </table>
+
+  <h2>All Findings (22)</h2>
+  <table>
+    <thead><tr><th>#</th><th>Smell</th><th>File</th><th>Message</th></tr></thead>
+    <tbody>
+<tr><td>1</td><td>Large Vue.js component</td><td>LargeComponent_tooManyScriptLines.vue</td><td>Large component: script block has 133 lines (threshold: 128). Consider splitting logic into composables.</td></tr>
+<tr><td>2</td><td>Direct DOM manipulation</td><td>DirectDom_multiple.vue</td><td>Direct DOM manipulation via 'getElementById', 'createElement', 'textContent' and 'appendChild'. Use Vue template refs instead.</td></tr>
+<tr><td>3</td><td>Force update / page reload</td><td>ForceUpdate_reload.vue</td><td>Avoid 'location.reload()'. Use Vue's reactivity or router navigation instead of full page reloads.</td></tr>
+<tr><td>4</td><td>Force update / page reload</td><td>ForceUpdate_both.vue</td><td>Avoid '$forceUpdate()' and 'location.reload()'. Redesign state so Vue's reactivity handles updates automatically.</td></tr>
+<tr><td>5</td><td>Large Vue.js file</td><td>LargeFile_bothViolations.vue</td><td>Too many imports: 21 (threshold: 20). This file may be taking on too many responsibilities.</td></tr>
+<tr><td>6</td><td>Large Vue.js component</td><td>LargeFile_bothViolations.vue</td><td>Large component: script block has 182 lines (threshold: 128). Consider splitting logic into composables.</td></tr>
+<tr><td>7</td><td>Large Vue.js component</td><td>LargeComponent_tooManyFunctions.vue</td><td>Large component: 5 functions defined (threshold: 4). Consider extracting logic into composables.</td></tr>
+<tr><td>8</td><td>Props used in initial state</td><td>PropsInInitialState_multiple.vue</td><td>Props 'initialName' and 'initialCount' used to initialise reactive state. Use computed() to stay in sync with prop changes.</td></tr>
+<tr><td>9</td><td>Any type usage</td><td>AnyType_trigger.vue</td><td>TypeScript 'any' type used 3 times. This disables type checking and may hide errors. Define explicit types instead.</td></tr>
+<tr><td>10</td><td>Non-null assertion</td><td>NonNullAssertion_trigger.vue</td><td>Non-null assertion operator ('!') used. This may hide null/undefined errors at runtime. Use proper null checks instead.</td></tr>
+<tr><td>11</td><td>Props used in initial state</td><td>PropsInInitialState_trigger.vue</td><td>Prop 'initialName' used to initialise reactive state. Use computed(() =&gt; props.initialName) to stay in sync.</td></tr>
+<tr><td>12</td><td>Uncontrolled form component</td><td>UncontrolledComponent_trigger.vue</td><td>Uncontrolled &lt;input&gt;: uses a ref but has no v-model or :value binding. Bind the value reactively instead.</td></tr>
+<tr><td>13</td><td>Enum with implicit values</td><td>EnumImplicit_trigger.vue</td><td>Enum 'Color' has implicit values. Assign explicit values to prevent reordering issues.</td></tr>
+<tr><td>14</td><td>Force update / page reload</td><td>ForceUpdate_forceUpdate.vue</td><td>Avoid '$forceUpdate()'. Redesign state so Vue's reactivity handles updates automatically.</td></tr>
+<tr><td>15</td><td>Uncontrolled form component</td><td>UncontrolledComponent_multiple.vue</td><td>2 uncontrolled form elements use a ref but have no v-model or :value binding. Bind values reactively instead.</td></tr>
+<tr><td>16</td><td>Large Vue.js file</td><td>LargeFile_tooManyImports.vue</td><td>Too many imports: 21 (threshold: 20). This file may be taking on too many responsibilities.</td></tr>
+<tr><td>17</td><td>Too many props</td><td>TooManyProps_trigger.vue</td><td>Too many props: 14 defined (threshold: 13). Consider grouping related props into objects or splitting the component.</td></tr>
+<tr><td>18</td><td>Large Vue.js file</td><td>LargeFile_tooManyLines.vue</td><td>Large file: 224 lines (threshold: 218). Consider splitting into smaller components.</td></tr>
+<tr><td>19</td><td>Large Vue.js component</td><td>LargeFile_tooManyLines.vue</td><td>Large component: script block has 207 lines (threshold: 128). Consider splitting logic into composables.</td></tr>
+<tr><td>20</td><td>Multiple booleans for state</td><td>MultipleBooleans_trigger.vue</td><td>Multiple booleans for state: 5 boolean refs defined (threshold: 4). Consider using an enum or union type to manage state transitions instead.</td></tr>
+<tr><td>21</td><td>Direct DOM manipulation</td><td>DirectDom_trigger.vue</td><td>Direct DOM manipulation via 'getElementById' and 'innerText'. Use Vue template refs instead.</td></tr>
+<tr><td>22</td><td>Inheritance instead of composition</td><td>Inheritance_trigger.vue</td><td>Inheritance via 'extends: BaseComponent' detected. Prefer composables or component composition over class-style inheritance.</td></tr>
+    </tbody>
+  </table>
+
+  <footer>Generated by <strong>UXSniffer</strong> — IntelliJ plugin for Vue.js UX smell detection</footer>
+
+  <script>
+    new Chart(document.getElementById('pieChart'), {
+      type: 'doughnut',
+      data: { labels: ['Large Vue.js component', 'Force update / page reload', 'Large Vue.js file', 'Direct DOM manipulation', 'Props used in initial state', 'Uncontrolled form component', 'Any type usage', 'Non-null assertion', 'Enum with implicit values', 'Too many props', 'Multiple booleans for state', 'Inheritance instead of composition'], datasets: [{ data: [4, 3, 3, 2, 2, 2, 1, 1, 1, 1, 1, 1], backgroundColor: ['rgba(66, 184, 131, 0.8)', 'rgba(100, 149, 237, 0.8)', 'rgba(239, 83, 80, 0.8)', 'rgba(255, 167, 38, 0.8)', 'rgba(171, 71, 188, 0.8)', 'rgba(38, 198, 218, 0.8)', 'rgba(255, 112, 67, 0.8)', 'rgba(102, 187, 106, 0.8)', 'rgba(141, 110, 99, 0.8)', 'rgba(236, 64, 122, 0.8)', 'rgba(255, 202, 40, 0.8)', 'rgba(120, 144, 156, 0.8)'] }] },
+      options: { responsive: true, plugins: { legend: { position: 'right' } } }
+    });
+    new Chart(document.getElementById('barChart'), {
+      type: 'bar',
+      data: { labels: ['LargeFile_bothViolations.vue', 'LargeFile_tooManyLines.vue', 'LargeComponent_tooManyScriptLines.vue', 'DirectDom_multiple.vue', 'ForceUpdate_reload.vue', 'ForceUpdate_both.vue', 'LargeComponent_tooManyFunctions.vue', 'PropsInInitialState_multiple.vue', 'AnyType_trigger.vue', 'NonNullAssertion_trigger.vue', 'PropsInInitialState_trigger.vue', 'UncontrolledComponent_trigger.vue', 'EnumImplicit_trigger.vue', 'ForceUpdate_forceUpdate.vue', 'UncontrolledComponent_multiple.vue', 'LargeFile_tooManyImports.vue', 'TooManyProps_trigger.vue', 'MultipleBooleans_trigger.vue', 'DirectDom_trigger.vue', 'Inheritance_trigger.vue'], datasets: [{ label: 'Smells', data: [2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], backgroundColor: 'rgba(66,184,131,0.7)' }] },
+      options: { responsive: true, indexAxis: 'y', plugins: { legend: { display: false } } }
+    });
+  </script>
+</body>
+</html>

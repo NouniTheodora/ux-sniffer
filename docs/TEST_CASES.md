@@ -70,6 +70,82 @@ The tool window appears in the **bottom panel** of the IDE with the tab label **
 
 ---
 
+## Statistics Tab
+
+**What it shows:** After a scan, the Statistics tab displays a visual summary of all findings: summary cards, a horizontal bar chart of smell distribution, and a ranked table of top affected files.
+
+### Test case — statistics appear after scan
+
+1. Run `./gradlew runIde`.
+2. Open a project with multiple `.vue` files that trigger smells.
+3. Open the **UXSniffer** tool window, switch to the **Statistics** tab.
+4. Expected initial state: message reads *"Run a scan to see statistics."*
+5. Click **Scan Project**.
+6. Expected: the Statistics tab now shows:
+   - **Summary cards** at the top: Total Smells (number), Files Affected (number), Smell Types (number).
+   - **Smell Distribution** bar chart: horizontal colored bars, one per smell type, sorted by count descending. Each bar is labelled with the smell name and count.
+   - **Top Affected Files** table: ranked list of files sorted by number of smells, with columns #, File, and Smells.
+
+### Test case — bar chart proportions
+
+1. After a scan with mixed results (e.g. one smell type appears 8 times, another 2 times).
+2. Switch to the Statistics tab.
+3. Expected: the bar for the more frequent smell is visibly longer (proportional to count). The longest bar fills most of the available width.
+
+### Test case — statistics reset on re-scan
+
+1. Run a scan and verify statistics appear.
+2. Click **Scan Project** again.
+3. Expected: statistics briefly show *"Run a scan to see statistics."* then update with fresh results.
+
+### Test case — empty project statistics
+
+1. Open an empty project (no `.vue` files).
+2. Click **Scan Project**.
+3. Expected: Statistics tab shows *"Run a scan to see statistics."* (no charts rendered).
+
+---
+
+## Export Report
+
+**What it does:** Generates a self-contained HTML report with interactive Chart.js charts (doughnut and bar), summary cards, top affected files, and a full findings table. Opens in the default browser after saving.
+
+### Test case — export button disabled before scan
+
+1. Open the UXSniffer tool window.
+2. Expected: the **Export Report** button is greyed out (disabled).
+3. Run a scan that finds smells.
+4. Expected: the **Export Report** button becomes enabled.
+
+### Test case — export generates valid HTML
+
+1. Run a scan with findings.
+2. Click **Export Report**.
+3. Expected: a save file dialog appears with a default filename `UXSniffer_Report.html`.
+4. Choose a location and save.
+5. Expected: the file is created and opens automatically in the default browser.
+6. Verify the report contains:
+   - Title "UXSniffer Report" with the project name and generation timestamp.
+   - Three summary cards (Total Smells, Files Affected, Smell Types) matching the tool window.
+   - A doughnut chart showing smell distribution by type.
+   - A horizontal bar chart showing smells per file.
+   - A "Top Affected Files" table matching the Statistics tab.
+   - An "All Findings" table listing every finding with columns: #, Smell, File, Message.
+
+### Test case — export with many findings
+
+1. Open a project with 10+ `.vue` files triggering various smells.
+2. Run scan, then export.
+3. Expected: the HTML report renders all findings. Charts are interactive (hover shows tooltips). Tables are complete.
+
+### Test case — export button disabled when no findings
+
+1. Open an empty project or one with only clean `.vue` files.
+2. Run scan — expect "No UX smells found."
+3. Expected: the **Export Report** button remains disabled (nothing to export).
+
+---
+
 ## Smell 1 — Large File
 
 **What it detects:** A `.vue` file that has too many lines of code or too many imports.

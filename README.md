@@ -40,11 +40,10 @@ The plugin includes a dedicated **tool window** (bottom panel, tab labelled "UXS
 1. Open any Vue.js project in WebStorm.
 2. Open the **UXSniffer** tool window from the bottom panel (or via `View → Tool Windows → UXSniffer`).
 3. Click **Scan Project**. The plugin scans every `.vue` file in the project for all 12 UX smells.
-4. Results appear in a table with three columns: **Smell**, **File**, and **Message**.
-5. A summary line above the table shows the total number of findings, affected files, and distinct smell types.
-6. **Double-click** any row to navigate directly to the affected file in the editor.
-
-The table is sortable — click any column header to sort by smell name, file name, or message.
+4. The tool window has two tabs:
+   - **Findings** — sortable table with columns: Smell, File, Message. Double-click any row to navigate to the file.
+   - **Statistics** — visual dashboard with summary cards, a horizontal bar chart showing smell distribution, and a ranked table of top affected files.
+5. Click **Export Report** to generate an HTML report with interactive Chart.js charts (doughnut chart for smell distribution, bar chart for smells per file) plus full findings and top-files tables. The report opens in your browser automatically.
 
 ### How it works (architecture)
 
@@ -56,7 +55,13 @@ The tool window uses `UxAnalysisService` (a Facade over the analysis subsystem) 
     → ProjectScanner.scan()                 (walks .vue files)
       → each AbstractVueSmellInspection.analyze(fileText)
         → SmellFinding(smellName, filePath, fileName, message)
-  → findings displayed in JBTable
+  → FindingsPanel: sortable table of all findings
+  → StatisticsPanel: summary cards + bar chart + top files
+
+[Export Report button]
+  → HtmlReportExporter.generate(findings)
+    → Self-contained HTML with Chart.js doughnut + bar charts
+    → Opens in default browser
 ```
 
 > **Note:** The tool window scan and the IDE's built-in inspection system are independent. The tool window provides a project-wide overview, while inspections highlight smells inline as you edit individual files.
