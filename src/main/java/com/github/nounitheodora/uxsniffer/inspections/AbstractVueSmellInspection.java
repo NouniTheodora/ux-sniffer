@@ -6,6 +6,13 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Template Method pattern — defines the skeleton of the smell detection algorithm
+ * (file validation, script extraction, line counting) while letting each concrete
+ * subclass override {@link #analyze(String)} with its specific detection logic.
+ *
+ * @see <a href="https://refactoring.guru/design-patterns/template-method">Template Method — Refactoring Guru</a>
+ */
 public abstract class AbstractVueSmellInspection extends LocalInspectionTool {
 
     public abstract @NotNull String getDisplayName();

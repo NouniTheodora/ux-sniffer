@@ -1,5 +1,6 @@
-package com.github.nounitheodora.uxsniffer.toolWindow;
+package com.github.nounitheodora.uxsniffer.toolwindow;
 
+import com.github.nounitheodora.uxsniffer.report.HtmlReportExporter;
 import com.github.nounitheodora.uxsniffer.scanner.SmellFinding;
 import com.github.nounitheodora.uxsniffer.services.UxAnalysisService;
 import com.intellij.ide.BrowserUtil;
@@ -17,20 +18,18 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Facade (GoF design pattern) for the UXSniffer analysis subsystem.
- *
- * Creates the tool window UI with two tabs (Findings + Statistics)
- * and delegates scanning to UxAnalysisService.
- */
 public class UxToolWindowFactory implements ToolWindowFactory {
 
     @Override

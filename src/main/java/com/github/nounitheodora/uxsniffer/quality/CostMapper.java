@@ -1,4 +1,4 @@
-package com.github.nounitheodora.uxsniffer.costs;
+package com.github.nounitheodora.uxsniffer.quality;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -8,11 +8,21 @@ import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
+/**
+ * Singleton pattern — a single shared instance loads and caches the PAF cost
+ * mappings from cost-mappings.json, providing lookup methods for the UI layer.
+ *
+ * @see <a href="https://refactoring.guru/design-patterns/singleton">Singleton — Refactoring Guru</a>
+ */
 public final class CostMapper {
 
     private static final CostMapper INSTANCE = new CostMapper();
@@ -45,46 +55,12 @@ public final class CostMapper {
         return smellsById.get(smellId);
     }
 
-    public @Nullable SmellInfo getSmellInfoByDisplayName(@NotNull String displayName) {
-        String smellId = displayNameToSmellId.get(displayName);
-        if (smellId == null) return null;
-        return smellsById.get(smellId);
-    }
-
     public @Nullable PafCost getCost(@NotNull String costId) {
         return costsById.get(costId);
     }
 
-    public @NotNull Map<String, PafCost> getAllCosts() {
-        return Collections.unmodifiableMap(costsById);
-    }
-
-    public @NotNull Map<String, List<CostMapping>> getAllMappings() {
-        return Collections.unmodifiableMap(mappingsBySmellId);
-    }
-
     public @Nullable String getSmellIdForDisplayName(@NotNull String displayName) {
         return displayNameToSmellId.get(displayName);
-    }
-
-    public @NotNull Set<String> getAffectedCostIds(@NotNull String smellId) {
-        Set<String> ids = new LinkedHashSet<>();
-        for (CostMapping m : getMappingsForSmell(smellId)) {
-            ids.add(m.costId());
-        }
-        return ids;
-    }
-
-    public @NotNull List<CostMapping> getPrimaryMappingsForSmell(@NotNull String smellId) {
-        return getMappingsForSmell(smellId).stream()
-                .filter(m -> "Primary".equals(m.priority()))
-                .toList();
-    }
-
-    public @NotNull List<CostMapping> getSecondaryMappingsForSmell(@NotNull String smellId) {
-        return getMappingsForSmell(smellId).stream()
-                .filter(m -> "Secondary".equals(m.priority()))
-                .toList();
     }
 
     private void initDisplayNameMapping() {
@@ -124,6 +100,7 @@ public final class CostMapper {
             }
 
             JsonArray costsArray = root.getAsJsonArray("pafCosts");
+            if (costsArray == null) return;
             for (JsonElement el : costsArray) {
                 JsonObject obj = el.getAsJsonObject();
                 PafCost cost = new PafCost(
@@ -136,6 +113,7 @@ public final class CostMapper {
             }
 
             JsonArray mappingsArray = root.getAsJsonArray("smellCostMappings");
+            if (mappingsArray == null) return;
             for (JsonElement el : mappingsArray) {
                 JsonObject obj = el.getAsJsonObject();
                 CostMapping mapping = new CostMapping(
@@ -153,7 +131,7 @@ public final class CostMapper {
                         .computeIfAbsent(mapping.smellId(), k -> new ArrayList<>())
                         .add(mapping);
             }
-        } catch (Exception e) {
+        } catch (IOException | com.google.gson.JsonParseException e) {
             // Silently fail — cost data is supplementary
         }
     }

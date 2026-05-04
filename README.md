@@ -6,9 +6,9 @@
 ![Vue 3](https://img.shields.io/badge/Vue.js-3-42b883?style=flat-square&logo=vue.js&logoColor=white)
 ![Build](https://img.shields.io/github/actions/workflow/status/NouniTheodora/ux-sniffer/build.yml?style=flat-square&label=build)
 
-UXSniffer is a WebStorm / IntelliJ IDEA plugin that detects UX-related code smells in Vue.js 3 (Composition API) applications. It performs static analysis directly inside the IDE, presenting findings as inspections with clear explanations to help developers reduce UX debt.
+UXSniffer is a WebStorm / IntelliJ IDEA plugin that detects UX-related code smells in Vue.js 3 (Composition API) applications and maps each smell to its associated quality costs using the PAF (Prevention-Appraisal-Failure) cost model. It performs static analysis directly inside the IDE, presenting findings as inspections with clear explanations, refactoring suggestions, and cost impact analysis to help developers understand and reduce UX debt.
 
-Thresholds are based on empirical research (95th percentile metrics from ReactSniffer) and are fully configurable per project through the IDE's inspection settings.
+Thresholds are based on empirical research (95th percentile metrics from ReactSniffer) and are fully configurable per project through the IDE's inspection settings. The PAF cost mappings link 12 detected smells to 11 quality cost categories (Internal Failure and Appraisal) through 54 research-based causation relationships.
 
 <!-- Plugin description -->
 UXSniffer detects UX-related code smells in Vue.js 3 (Composition API) projects and surfaces them as IDE inspections with research-based thresholds.

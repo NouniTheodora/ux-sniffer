@@ -1,4 +1,4 @@
-package com.github.nounitheodora.uxsniffer.costs;
+package com.github.nounitheodora.uxsniffer.quality;
 
 import org.jetbrains.annotations.NotNull;
 

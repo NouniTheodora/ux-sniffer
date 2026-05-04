@@ -1,24 +1,42 @@
-package com.github.nounitheodora.uxsniffer.toolWindow;
+package com.github.nounitheodora.uxsniffer.report;
 
-import com.github.nounitheodora.uxsniffer.costs.CostMapper;
-import com.github.nounitheodora.uxsniffer.costs.CostMapping;
-import com.github.nounitheodora.uxsniffer.costs.PafCost;
-import com.github.nounitheodora.uxsniffer.costs.SmellInfo;
+import com.github.nounitheodora.uxsniffer.quality.CostMapper;
+import com.github.nounitheodora.uxsniffer.quality.CostMapping;
+import com.github.nounitheodora.uxsniffer.quality.PafCost;
+import com.github.nounitheodora.uxsniffer.quality.SmellInfo;
 import com.github.nounitheodora.uxsniffer.scanner.SmellFinding;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-final class HtmlReportExporter {
+public final class HtmlReportExporter {
+
+    private static final Color[] CHART_COLORS = {
+            new Color(66, 184, 131),
+            new Color(100, 149, 237),
+            new Color(239, 83, 80),
+            new Color(255, 167, 38),
+            new Color(171, 71, 188),
+            new Color(38, 198, 218),
+            new Color(255, 112, 67),
+            new Color(102, 187, 106),
+            new Color(141, 110, 99),
+            new Color(236, 64, 122),
+            new Color(255, 202, 40),
+            new Color(120, 144, 156),
+    };
 
     private HtmlReportExporter() {}
 
-    static @NotNull String generate(@NotNull List<SmellFinding> findings, @NotNull String projectName) {
+    public static @NotNull String generate(@NotNull List<SmellFinding> findings, @NotNull String projectName) {
         CostMapper mapper = CostMapper.getInstance();
 
         Map<String, Integer> smellCounts = new LinkedHashMap<>();
@@ -77,7 +95,7 @@ final class HtmlReportExporter {
         StringBuilder colorsBuilder = new StringBuilder();
         for (int i = 0; i < sortedSmells.size(); i++) {
             if (i > 0) colorsBuilder.append(", ");
-            Color c = StatisticsPanel.getColorForIndex(i);
+            Color c = CHART_COLORS[i % CHART_COLORS.length];
             colorsBuilder.append(String.format("'rgba(%d, %d, %d, 0.8)'", c.getRed(), c.getGreen(), c.getBlue()));
         }
         String smellColors = colorsBuilder.toString();
@@ -314,6 +332,7 @@ final class HtmlReportExporter {
     }
 
     private static String escapeJs(String s) {
-        return s.replace("\\", "\\\\").replace("'", "\\'");
+        return s.replace("\\", "\\\\").replace("'", "\\'")
+                .replace("\n", "\\n").replace("\r", "\\r");
     }
 }
