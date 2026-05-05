@@ -27,6 +27,9 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.util.List;
@@ -82,13 +85,18 @@ class CostDetailPanel extends JPanel {
 
         String smellId = smellInfo != null ? smellInfo.smellId() : "";
         String severity = smellInfo != null ? smellInfo.severity() : "Unknown";
-        JBLabel header = new JBLabel(String.format(
-                "<html><b style='font-size:12px'>%s</b> <font color='gray'>[%s]</font>" +
-                " &nbsp; Severity: <b>%s</b></html>",
-                finding.smellName(), smellId, severity));
-        header.setAlignmentX(Component.LEFT_ALIGNMENT);
-        header.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-        panel.add(header);
+
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+
+        JBLabel nameLabel = new JBLabel(String.format(
+                "<html><b style='font-size:12px'>%s</b> <font color='gray'>[%s]</font></html>",
+                finding.smellName(), smellId));
+        headerPanel.add(nameLabel);
+        headerPanel.add(createSeverityChip(severity));
+
+        panel.add(headerPanel);
 
         if (smellInfo != null) {
             addSection(panel, "What is this smell?", smellInfo.definition());
@@ -135,8 +143,7 @@ class CostDetailPanel extends JPanel {
                     .filter(m -> "Secondary".equals(m.priority())).toList();
 
             if (!primary.isEmpty()) {
-                addCostSectionHeader(panel,
-                        "Direct costs — this smell directly causes or triggers these:",
+                addCostSectionHeader(panel, "Direct Costs", "This smell directly causes or triggers these costs",
                         new Color(220, 80, 60));
                 for (CostMapping m : primary) {
                     addCostCard(panel, mapper, m);
@@ -144,8 +151,7 @@ class CostDetailPanel extends JPanel {
             }
             if (!secondary.isEmpty()) {
                 panel.add(Box.createRigidArea(new Dimension(0, 10)));
-                addCostSectionHeader(panel,
-                        "Indirect costs — fixing this smell requires additional effort in these areas:",
+                addCostSectionHeader(panel, "Indirect Costs", "Fixing this smell requires additional effort in these areas",
                         new Color(60, 130, 200));
                 for (CostMapping m : secondary) {
                     addCostCard(panel, mapper, m);
@@ -272,6 +278,33 @@ class CostDetailPanel extends JPanel {
 
         panel.add(card);
         panel.add(Box.createRigidArea(new Dimension(0, 4)));
+    }
+
+    private @NotNull JBLabel createSeverityChip(@NotNull String severity) {
+        Color chipColor = switch (severity) {
+            case "High" -> new Color(220, 60, 50);
+            case "Medium" -> new Color(230, 160, 0);
+            default -> new Color(100, 140, 180);
+        };
+
+        JBLabel chip = new JBLabel(severity) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(chipColor.getRed(), chipColor.getGreen(), chipColor.getBlue(), 25));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                g2.setColor(chipColor);
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        chip.setForeground(chipColor);
+        chip.setFont(chip.getFont().deriveFont(Font.BOLD, 11f));
+        chip.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
+        chip.setOpaque(false);
+        return chip;
     }
 
     private @NotNull Color getCategoryColor(@NotNull CostMapper mapper, @NotNull CostMapping mapping) {
