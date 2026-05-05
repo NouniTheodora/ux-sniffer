@@ -36,16 +36,18 @@ public final class HtmlReportExporter {
 
     private HtmlReportExporter() {}
 
-    public static @NotNull String generate(@NotNull List<SmellFinding> findings, @NotNull String projectName) {
+    public static @NotNull String generate(@NotNull List<SmellFinding> findings,
+                                               @NotNull String projectName,
+                                               @NotNull String projectBasePath) {
         CostMapper mapper = CostMapper.getInstance();
 
         Map<String, Integer> smellCounts = new LinkedHashMap<>();
-        Map<String, Integer> fileCounts = new LinkedHashMap<>();
+        Map<String, Integer> fileCountsByRelPath = new LinkedHashMap<>();
         Set<String> uniqueFiles = new HashSet<>();
 
         for (SmellFinding f : findings) {
             smellCounts.merge(f.smellName(), 1, Integer::sum);
-            fileCounts.merge(f.fileName(), 1, Integer::sum);
+            fileCountsByRelPath.merge(toRelativePath(f.filePath(), projectBasePath), 1, Integer::sum);
             uniqueFiles.add(f.filePath());
         }
 
@@ -53,7 +55,7 @@ public final class HtmlReportExporter {
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                 .collect(Collectors.toList());
 
-        List<Map.Entry<String, Integer>> sortedFiles = fileCounts.entrySet().stream()
+        List<Map.Entry<String, Integer>> sortedFiles = fileCountsByRelPath.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                 .collect(Collectors.toList());
 
@@ -167,12 +169,12 @@ public final class HtmlReportExporter {
         StringBuilder topFilesRows = new StringBuilder();
         int rank = 1;
         for (Map.Entry<String, Integer> entry : sortedFiles) {
-            String fileName = entry.getKey();
+            String relPath = entry.getKey();
             int failureCosts = 0;
             int appraisalCosts2 = 0;
 
             for (SmellFinding f : findings) {
-                if (!f.fileName().equals(fileName)) continue;
+                if (!toRelativePath(f.filePath(), projectBasePath).equals(relPath)) continue;
                 List<CostMapping> mappings = mapper.getMappingsForSmellByDisplayName(f.smellName());
                 for (CostMapping m : mappings) {
                     PafCost cost = mapper.getCost(m.costId());
@@ -186,7 +188,7 @@ public final class HtmlReportExporter {
 
             topFilesRows.append("<tr>")
                     .append("<td>").append(rank++).append("</td>")
-                    .append("<td>").append(escapeHtml(fileName)).append("</td>")
+                    .append("<td>").append(escapeHtml(relPath)).append("</td>")
                     .append("<td>").append(entry.getValue()).append("</td>")
                     .append("<td>").append(failureCosts).append("</td>")
                     .append("<td>").append(appraisalCosts2).append("</td>")
@@ -204,7 +206,7 @@ public final class HtmlReportExporter {
                     .append("<td>").append(escapeHtml(f.smellName()))
                     .append(smellId != null ? " <span class=\"smell-id\">[" + smellId + "]</span>" : "")
                     .append("</td>")
-                    .append("<td>").append(escapeHtml(f.fileName())).append("</td>")
+                    .append("<td>").append(escapeHtml(toRelativePath(f.filePath(), projectBasePath))).append("</td>")
                     .append("<td>").append(escapeHtml(f.message())).append("</td>")
                     .append("</tr>\n");
         }
@@ -260,8 +262,8 @@ public final class HtmlReportExporter {
                   </style>
                 </head>
                 <body>
-                  <h1>UXSniffer Report</h1>
-                  <p class="meta">Project: %s &middot; Generated: %s</p>
+                  <h1>UXSniffer Report — %s</h1>
+                  <p class="meta">Generated: %s</p>
 
                   <!-- Summary Cards -->
                   <div class="cards">
@@ -325,6 +327,13 @@ public final class HtmlReportExporter {
                 smellLabels, smellData, smellColors,
                 costLabels, costData, costColors2
         );
+    }
+
+    private static @NotNull String toRelativePath(@NotNull String absolutePath, @NotNull String basePath) {
+        if (!basePath.isEmpty() && absolutePath.startsWith(basePath + "/")) {
+            return absolutePath.substring(basePath.length() + 1);
+        }
+        return absolutePath;
     }
 
     private static String escapeHtml(String s) {

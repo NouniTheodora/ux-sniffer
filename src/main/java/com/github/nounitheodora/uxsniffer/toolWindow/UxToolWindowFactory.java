@@ -78,13 +78,16 @@ public class UxToolWindowFactory implements ToolWindowFactory {
 
         exportButton.addActionListener(e -> {
             String projectName = project.getName();
-            String html = HtmlReportExporter.generate(currentFindings, projectName);
+            com.intellij.openapi.vfs.VirtualFile projectDir = com.intellij.openapi.project.ProjectUtil.guessProjectDir(project);
+            String basePath = projectDir != null ? projectDir.getPath() : "";
+            String html = HtmlReportExporter.generate(currentFindings, projectName, basePath);
 
             FileSaverDescriptor descriptor = new FileSaverDescriptor(
                     "Export UXSniffer Report", "Save HTML report", "html");
             FileSaverDialog dialog = FileChooserFactory.getInstance()
                     .createSaveFileDialog(descriptor, project);
-            VirtualFileWrapper wrapper = dialog.save((com.intellij.openapi.vfs.VirtualFile) null, "UXSniffer_Report.html");
+            String defaultFileName = "UXSniffer_Report_" + projectName.replaceAll("[^a-zA-Z0-9._-]", "_") + ".html";
+            VirtualFileWrapper wrapper = dialog.save((com.intellij.openapi.vfs.VirtualFile) null, defaultFileName);
             if (wrapper != null) {
                 try {
                     Files.writeString(wrapper.getFile().toPath(), html, StandardCharsets.UTF_8);
