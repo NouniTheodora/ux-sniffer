@@ -18,7 +18,7 @@
         <toolWindow
             id="UXSniffer"
             anchor="bottom"
-            factoryClass="com.github.nounitheodora.uxsniffer.toolWindow.UxToolWindowFactory"/>
+            factoryClass="com.github.nounitheodora.uxsniffer.toolwindow.UxToolWindowFactory"/>
 
         <!-- Vue.js UX smell inspections -->
         <localInspection
