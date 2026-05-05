@@ -39,7 +39,7 @@ The plugin includes a dedicated **tool window** (bottom panel, tab labelled "UXS
 
 1. Open any Vue.js project in WebStorm.
 2. Open the **UXSniffer** tool window from the bottom panel (or via `View → Tool Windows → UXSniffer`).
-3. Click **Scan Project**. The plugin scans every `.vue` file in the project for all 12 UX smells.
+3. Click **Scan Project**. The plugin scans every `.vue` file in the project for all 12 UX smells (files matched by `.uxsnifferignore` are skipped — see below).
 4. The tool window has two tabs:
    - **Findings** — sortable table with columns: Smell, File, Message. Double-click any row to navigate to the file. Selecting a row opens a **detail panel** below the table with two tabs:
      - *Overview & Fix* — smell definition, severity, and suggested refactoring approach.
@@ -57,6 +57,33 @@ The plugin includes a dedicated **tool window** (bottom panel, tab labelled "UXS
    
    The report opens in your default browser automatically.
 
+### Ignoring files (`.uxsnifferignore`)
+
+You can exclude files from the project-wide scan by creating a `.uxsnifferignore` file in your project root. The syntax is the same as `.gitignore` — one glob pattern per line, with `#` for comments and blank lines ignored.
+
+**Example `.uxsnifferignore`:**
+
+```gitignore
+# Ignore test fixtures
+src/test/**/*.vue
+
+# Ignore legacy code
+src/legacy/*.vue
+
+# Ignore a specific file
+src/components/DeprecatedWidget.vue
+
+# Ignore by filename (matches anywhere)
+App.vue
+```
+
+Supported patterns:
+- `*` — matches any characters within a single path segment
+- `**` — matches zero or more path segments
+- `?` — matches a single character
+
+The file is re-read on every scan, so changes take effect immediately without restarting the IDE. The ignore file can be committed to version control so the whole team shares the same exclusions.
+
 ### How it works (architecture)
 
 The tool window uses `UxAnalysisService` (a Facade over the analysis subsystem) to trigger a project-wide scan. Internally, `ProjectScanner` walks all `.vue` files and runs each of the 12 inspections' `analyze()` methods against the file content. The scan runs on a background thread to keep the IDE responsive, then results are displayed on the EDT.
@@ -65,6 +92,7 @@ The tool window uses `UxAnalysisService` (a Facade over the analysis subsystem) 
 [Scan Project button]
   → UxAnalysisService.scanProject()        (Facade)
     → ProjectScanner.scan()                 (walks .vue files)
+      → IgnoreFileParser: reads .uxsnifferignore, skips matched files
       → each AbstractVueSmellInspection.analyze(fileText)
         → SmellFinding(smellName, filePath, fileName, message)
   → FindingsPanel: sortable table + tabbed detail panel

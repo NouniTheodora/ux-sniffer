@@ -50,7 +50,7 @@ class FindingsPanel extends JPanel {
         table.getColumnModel().getColumn(1).setPreferredWidth(160);
         table.getColumnModel().getColumn(2).setPreferredWidth(460);
 
-        costDetailPanel = new CostDetailPanel();
+        costDetailPanel = new CostDetailPanel(project);
         addDoubleClickNavigation(table, project);
         addSelectionListener(table);
 

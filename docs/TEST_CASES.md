@@ -70,6 +70,81 @@ The tool window appears in the **bottom panel** of the IDE with the tab label **
 
 ---
 
+## Ignore Files (`.uxsnifferignore`)
+
+**What it does:** Allows users to exclude specific files or directories from the project-wide scan by placing a `.uxsnifferignore` file in the project root. Uses glob pattern syntax (same as `.gitignore`).
+
+### Test case — no ignore file (default behaviour)
+
+1. Run `./gradlew runIde`.
+2. Open a project with `.vue` files that trigger smells. Ensure there is **no** `.uxsnifferignore` file in the project root.
+3. Open the **UXSniffer** tool window and click **Scan Project**.
+4. Expected: all `.vue` files are scanned and findings appear as normal.
+
+### Test case — ignore a specific file by name
+
+1. Create a `.uxsnifferignore` file in the project root with the content:
+   ```
+   LargeFile_tooManyLines.vue
+   ```
+2. Click **Scan Project**.
+3. Expected: no findings from `LargeFile_tooManyLines.vue` appear in the results. Findings from other files still appear.
+
+### Test case — ignore files by glob pattern
+
+1. Create a `.uxsnifferignore` file with:
+   ```
+   src/test/**/*.vue
+   ```
+2. Click **Scan Project**.
+3. Expected: no `.vue` files under `src/test/` (or any subdirectory) are scanned. Files outside that path are scanned normally.
+
+### Test case — ignore with wildcard in filename
+
+1. Create a `.uxsnifferignore` file with:
+   ```
+   *_clean.vue
+   ```
+2. Click **Scan Project**.
+3. Expected: all files ending in `_clean.vue` are skipped. Files like `LargeFile_tooManyLines.vue` still appear.
+
+### Test case — comments and blank lines
+
+1. Create a `.uxsnifferignore` file with:
+   ```
+   # This is a comment
+   
+   LargeFile_tooManyLines.vue
+   
+   # Another comment
+   ```
+2. Click **Scan Project**.
+3. Expected: only `LargeFile_tooManyLines.vue` is ignored. Comments and blank lines are not treated as patterns.
+
+### Test case — changes take effect without restart
+
+1. Run a scan — note the findings.
+2. Create or edit `.uxsnifferignore` to add a file that produced findings.
+3. Click **Scan Project** again (without restarting the IDE).
+4. Expected: the newly ignored file no longer appears in the results.
+
+### Test case — empty ignore file
+
+1. Create an empty `.uxsnifferignore` file (0 bytes).
+2. Click **Scan Project**.
+3. Expected: all files are scanned normally — same as if the file did not exist.
+
+### Test case — ignore file with only comments
+
+1. Create a `.uxsnifferignore` file with only comments:
+   ```
+   # Nothing to ignore yet
+   ```
+2. Click **Scan Project**.
+3. Expected: all files are scanned normally.
+
+---
+
 ## Findings Detail Panel (Tabbed)
 
 **What it shows:** When you select a finding in the Findings table, a tabbed detail panel appears below the table with two tabs: "Overview & Fix" (smell definition and refactoring) and "Cost Impact" (PAF quality costs triggered by the smell).

@@ -1,7 +1,7 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <!-- The plugin's manifest — the single most important config file. It tells IntelliJ: -->
 <!--  - What the plugin is (id, name, vendor)-->
-<!--  - What it depends on (com.intellij.modules.platform = core IDE APIs; JavaScript = JS/Vue PSI support) -->
+<!--  - What it depends on (com.intellij.modules.platform = core IDE APIs; JavaScript = JS/TS PSI support) -->
 <!--  - What it contributes to the IDE (right now: one tool window) -->
 <idea-plugin>
     <id>com.github.nounitheodora.uxsniffer</id>
@@ -20,16 +20,16 @@
             anchor="bottom"
             factoryClass="com.github.nounitheodora.uxsniffer.toolwindow.UxToolWindowFactory"/>
 
-        <!-- Vue.js UX smell inspections -->
+        <!-- UX smell inspections -->
         <localInspection
             language="HTML"
-            displayName="Large Vue.js file"
+            displayName="Large file"
             enabledByDefault="true"
             level="WARNING"
             implementationClass="com.github.nounitheodora.uxsniffer.inspections.LargeFileInspection"/>
         <localInspection
             language="HTML"
-            displayName="Large Vue.js component"
+            displayName="Large component"
             enabledByDefault="true"
             level="WARNING"
             implementationClass="com.github.nounitheodora.uxsniffer.inspections.LargeComponentInspection"/>

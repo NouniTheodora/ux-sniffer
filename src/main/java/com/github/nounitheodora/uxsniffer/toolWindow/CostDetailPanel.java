@@ -5,6 +5,10 @@ import com.github.nounitheodora.uxsniffer.quality.CostMapping;
 import com.github.nounitheodora.uxsniffer.quality.PafCost;
 import com.github.nounitheodora.uxsniffer.quality.SmellInfo;
 import com.github.nounitheodora.uxsniffer.scanner.SmellFinding;
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
@@ -12,22 +16,29 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.util.List;
 
 class CostDetailPanel extends JPanel {
 
+    private final Project project;
     private final JBLabel emptyLabel;
     private final JTabbedPane detailTabs;
 
-    CostDetailPanel() {
+    CostDetailPanel(@NotNull Project project) {
+        this.project = project;
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
 
@@ -84,9 +95,7 @@ class CostDetailPanel extends JPanel {
             addSection(panel, "Suggested refactoring", smellInfo.refactoring());
         }
 
-        addSection(panel, "Detected in",
-                String.format("<b>%s</b><br><font color='gray'>%s</font>",
-                        finding.fileName(), finding.filePath()));
+        addDetectedInSection(panel, finding);
 
         panel.add(Box.createVerticalGlue());
 
@@ -153,6 +162,60 @@ class CostDetailPanel extends JPanel {
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.add(scroll, BorderLayout.CENTER);
         return wrapper;
+    }
+
+    private @NotNull String getRelativePath(@NotNull String absolutePath) {
+        VirtualFile projectDir = ProjectUtil.guessProjectDir(project);
+        if (projectDir != null) {
+            String basePath = projectDir.getPath();
+            if (absolutePath.startsWith(basePath + "/")) {
+                return absolutePath.substring(basePath.length() + 1);
+            }
+        }
+        return absolutePath;
+    }
+
+    private void addDetectedInSection(@NotNull JPanel panel, @NotNull SmellFinding finding) {
+        JBLabel titleLabel = new JBLabel("Detected in");
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 11f));
+        titleLabel.setForeground(new Color(80, 80, 80));
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 3, 0));
+        panel.add(titleLabel);
+
+        String relativePath = getRelativePath(finding.filePath());
+
+        JPanel pathPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+        pathPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JBLabel pathLabel = new JBLabel(String.format(
+                "<html><font color='gray'>%s</font></html>", relativePath));
+        pathLabel.setFont(pathLabel.getFont().deriveFont(Font.PLAIN, 12f));
+        pathPanel.add(pathLabel);
+
+        JBLabel copiedLabel = new JBLabel("Copied!");
+        copiedLabel.setForeground(new Color(66, 184, 131));
+        copiedLabel.setFont(copiedLabel.getFont().deriveFont(Font.BOLD, 11f));
+        copiedLabel.setVisible(false);
+
+        JButton copyButton = new JButton(AllIcons.Actions.Copy);
+        copyButton.setToolTipText("Copy path to clipboard");
+        copyButton.setBorderPainted(false);
+        copyButton.setContentAreaFilled(false);
+        copyButton.setPreferredSize(new Dimension(20, 20));
+        copyButton.addActionListener(e -> {
+            StringSelection selection = new StringSelection(relativePath);
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+            copiedLabel.setVisible(true);
+            Timer timer = new Timer(2000, evt -> copiedLabel.setVisible(false));
+            timer.setRepeats(false);
+            timer.start();
+        });
+        pathPanel.add(copyButton);
+        pathPanel.add(copiedLabel);
+
+        pathPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
+        panel.add(pathPanel);
     }
 
     private void addSection(@NotNull JPanel panel, @NotNull String title, @NotNull String htmlContent) {

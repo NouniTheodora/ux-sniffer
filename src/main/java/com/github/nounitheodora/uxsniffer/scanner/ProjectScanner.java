@@ -36,10 +36,12 @@ public final class ProjectScanner {
 
     public @NotNull List<SmellFinding> scan() {
         List<SmellFinding> findings = new ArrayList<>();
+        IgnoreFileParser ignoreParser = new IgnoreFileParser(project);
         Collection<VirtualFile> vueFiles = FilenameIndex.getAllFilesByExt(
                 project, "vue", GlobalSearchScope.projectScope(project));
 
         for (VirtualFile vf : vueFiles) {
+            if (ignoreParser.isIgnored(vf)) continue;
             String text;
             try {
                 text = new String(vf.contentsToByteArray(), StandardCharsets.UTF_8);
