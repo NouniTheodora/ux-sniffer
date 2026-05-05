@@ -12,6 +12,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public final class ProjectScanner {
+    private static final List<String> EXCLUDED_FILE_SUFFIXES = List.of(
+            ".spec.ts", ".test.ts", ".spec.js", ".test.js",
+            ".spec.vue", ".test.vue", ".d.ts"
+    );
+
+    private static final List<String> EXCLUDED_DIRECTORY_SEGMENTS = List.of(
+            "__tests__", "__test__", "__mocks__",
+            "node_modules", "dist", "build", ".output", ".nuxt", ".vite",
+            "styles", "css", "scss", "assets"
+    );
 
     private final Project project;
 
@@ -41,7 +51,7 @@ public final class ProjectScanner {
 
         Collection<VirtualFile> vueFiles = FilenameIndex.getAllFilesByExt(project, "vue", scope);
         for (VirtualFile vf : vueFiles) {
-            if (ignoreParser.isIgnored(vf)) continue;
+            if (isExcludedFile(vf) || ignoreParser.isIgnored(vf)) continue;
             String text = readFile(vf);
             if (text == null) continue;
 
@@ -56,7 +66,7 @@ public final class ProjectScanner {
 
         Collection<VirtualFile> tsFiles = FilenameIndex.getAllFilesByExt(project, "ts", scope);
         for (VirtualFile vf : tsFiles) {
-            if (ignoreParser.isIgnored(vf)) continue;
+            if (isExcludedFile(vf) || ignoreParser.isIgnored(vf)) continue;
             String text = readFile(vf);
             if (text == null) continue;
 
@@ -71,6 +81,18 @@ public final class ProjectScanner {
         }
 
         return findings;
+    }
+
+    private static boolean isExcludedFile(@NotNull VirtualFile vf) {
+        String name = vf.getName().toLowerCase();
+        for (String suffix : EXCLUDED_FILE_SUFFIXES) {
+            if (name.endsWith(suffix)) return true;
+        }
+        String path = vf.getPath().toLowerCase();
+        for (String segment : EXCLUDED_DIRECTORY_SEGMENTS) {
+            if (path.contains("/" + segment + "/")) return true;
+        }
+        return false;
     }
 
     private static String readFile(@NotNull VirtualFile vf) {

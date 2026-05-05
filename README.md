@@ -39,7 +39,18 @@ The plugin includes a dedicated **tool window** (bottom panel, tab labelled "UXS
 
 1. Open any Vue.js project in WebStorm.
 2. Open the **UXSniffer** tool window from the bottom panel (or via `View → Tool Windows → UXSniffer`).
-3. Click **Scan Project**. The plugin scans every `.vue` and `.ts` file in the project (files matched by `.uxsnifferignore` are skipped — see below). All 12 smells are checked on `.vue` files; the 4 TypeScript-applicable smells (Large File, Any Type, Non-Null Assertion, Enum Implicit Values) are also checked on plain `.ts` files.
+3. Click **Scan Project**. The plugin scans every `.vue` and `.ts` file in the project. All 12 smells are checked on `.vue` files; the 4 TypeScript-applicable smells (Large File, Any Type, Non-Null Assertion, Enum Implicit Values) are also checked on plain `.ts` files.
+
+   The following files are **automatically excluded** from scanning:
+   - Test files: `*.spec.ts`, `*.test.ts`, `*.spec.js`, `*.test.js`, `*.spec.vue`, `*.test.vue`
+   - Type declarations: `*.d.ts`
+   - Test directories: `__tests__/`, `__test__/`, `__mocks__/`
+   - Build output: `dist/`, `build/`, `.output/`
+   - Framework caches: `.nuxt/`, `.vite/`
+   - Style directories: `styles/`, `css/`, `scss/`, `assets/`
+   - Dependencies: `node_modules/`
+   
+   Additional exclusions can be configured via `.uxsnifferignore` (see below).
 4. The tool window has two tabs:
    - **Findings** — sortable table with columns: Smell, File, Message. Double-click any row to navigate to the file. Selecting a row opens a **detail panel** below the table with two tabs:
      - *Overview & Fix* — smell definition, severity, and suggested refactoring approach.
@@ -92,6 +103,7 @@ The tool window uses `UxAnalysisService` (a Facade over the analysis subsystem) 
 [Scan Project button]
   → UxAnalysisService.scanProject()        (Facade)
     → ProjectScanner.scan()                 (walks .vue + .ts files)
+      → skips test files (*.spec.ts, *.test.ts, __tests__/, etc.)
       → IgnoreFileParser: reads .uxsnifferignore, skips matched files
       → .vue files: each inspection's analyze(fileText)
       → .ts files: inspections with supportsTypeScript() → analyzeTypeScript(fileText)
