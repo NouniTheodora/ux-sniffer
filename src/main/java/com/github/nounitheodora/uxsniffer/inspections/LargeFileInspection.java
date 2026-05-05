@@ -52,6 +52,14 @@ public class LargeFileInspection extends AbstractVueSmellInspection {
     }
 
     @Override
+    public boolean supportsTypeScript() { return true; }
+
+    @Override
+    public @Nullable String analyzeTypeScript(@NotNull String fileText) {
+        return analyze(fileText);
+    }
+
+    @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
         return new PsiElementVisitor() {
             @Override

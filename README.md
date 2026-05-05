@@ -6,7 +6,7 @@
 ![Vue 3](https://img.shields.io/badge/Vue.js-3-42b883?style=flat-square&logo=vue.js&logoColor=white)
 ![Build](https://img.shields.io/github/actions/workflow/status/NouniTheodora/ux-sniffer/build.yml?style=flat-square&label=build)
 
-UXSniffer is a WebStorm / IntelliJ IDEA plugin that detects UX-related code smells in Vue.js 3 (Composition API) applications and maps each smell to its associated quality costs using the PAF (Prevention-Appraisal-Failure) cost model. It performs static analysis directly inside the IDE, presenting findings as inspections with clear explanations, refactoring suggestions, and cost impact analysis to help developers understand and reduce UX debt.
+UXSniffer is a WebStorm / IntelliJ IDEA plugin that detects UX-related code smells in Vue.js 3 (Composition API) applications and plain TypeScript files, and maps each smell to its associated quality costs using the PAF (Prevention-Appraisal-Failure) cost model. It performs static analysis directly inside the IDE, presenting findings as inspections with clear explanations, refactoring suggestions, and cost impact analysis to help developers understand and reduce UX debt.
 
 Thresholds are based on empirical research (95th percentile metrics from ReactSniffer) and are fully configurable per project through the IDE's inspection settings. The PAF cost mappings link 12 detected smells to 11 quality cost categories (Internal Failure and Appraisal) through 54 research-based causation relationships.
 
@@ -39,7 +39,7 @@ The plugin includes a dedicated **tool window** (bottom panel, tab labelled "UXS
 
 1. Open any Vue.js project in WebStorm.
 2. Open the **UXSniffer** tool window from the bottom panel (or via `View → Tool Windows → UXSniffer`).
-3. Click **Scan Project**. The plugin scans every `.vue` file in the project for all 12 UX smells (files matched by `.uxsnifferignore` are skipped — see below).
+3. Click **Scan Project**. The plugin scans every `.vue` and `.ts` file in the project (files matched by `.uxsnifferignore` are skipped — see below). All 12 smells are checked on `.vue` files; the 4 TypeScript-applicable smells (Large File, Any Type, Non-Null Assertion, Enum Implicit Values) are also checked on plain `.ts` files.
 4. The tool window has two tabs:
    - **Findings** — sortable table with columns: Smell, File, Message. Double-click any row to navigate to the file. Selecting a row opens a **detail panel** below the table with two tabs:
      - *Overview & Fix* — smell definition, severity, and suggested refactoring approach.
@@ -86,14 +86,15 @@ The file is re-read on every scan, so changes take effect immediately without re
 
 ### How it works (architecture)
 
-The tool window uses `UxAnalysisService` (a Facade over the analysis subsystem) to trigger a project-wide scan. Internally, `ProjectScanner` walks all `.vue` files and runs each of the 12 inspections' `analyze()` methods against the file content. The scan runs on a background thread to keep the IDE responsive, then results are displayed on the EDT.
+The tool window uses `UxAnalysisService` (a Facade over the analysis subsystem) to trigger a project-wide scan. Internally, `ProjectScanner` walks all `.vue` and `.ts` files and runs the applicable inspections against each. The scan runs on a background thread to keep the IDE responsive, then results are displayed on the EDT.
 
 ```
 [Scan Project button]
   → UxAnalysisService.scanProject()        (Facade)
-    → ProjectScanner.scan()                 (walks .vue files)
+    → ProjectScanner.scan()                 (walks .vue + .ts files)
       → IgnoreFileParser: reads .uxsnifferignore, skips matched files
-      → each AbstractVueSmellInspection.analyze(fileText)
+      → .vue files: each inspection's analyze(fileText)
+      → .ts files: inspections with supportsTypeScript() → analyzeTypeScript(fileText)
         → SmellFinding(smellName, filePath, fileName, message)
   → FindingsPanel: sortable table + tabbed detail panel
     → CostMapper: loads cost-mappings.json, resolves smell → costs
@@ -135,20 +136,20 @@ The mappings are stored in `src/main/resources/data/cost-mappings.json` and load
 
 ## Detected UX Smells
 
-| # | Smell | What it checks |
-|---|---|---|
-| 1 | **Large File** | `.vue` file LOC > 218 or imports > 20 |
-| 2 | **Large Component** | Script block LOC > 128 or functions > 4 |
-| 3 | **Too Many Props** | `defineProps()` with > 13 props |
-| 4 | **Direct DOM Manipulation** | `document.*` calls instead of template refs |
-| 5 | **Force Update** | `$forceUpdate()` or `location.reload()` |
-| 6 | **Props in Initial State** | `ref(props.x)` instead of `computed()` |
-| 7 | **Uncontrolled Component** | `<input ref="x">` without `v-model` or `:value` |
-| 8 | **Inheritance Instead of Composition** | `extends:` in component options |
-| 9 | **Any Type** | `: any` type annotations in TypeScript |
-| 10 | **Non-Null Assertions** | `!.` operator bypassing null checks |
-| 11 | **Multiple Booleans for State** | > 4 boolean `ref()` declarations |
-| 12 | **Enum Implicit Values** | `enum` without explicit values |
+| # | Smell | What it checks | File types |
+|---|---|---|---|
+| 1 | **Large File** | LOC > 218 or imports > 20 | `.vue`, `.ts` |
+| 2 | **Large Component** | Script block LOC > 128 or functions > 4 | `.vue` |
+| 3 | **Too Many Props** | `defineProps()` with > 13 props | `.vue` |
+| 4 | **Direct DOM Manipulation** | `document.*` calls instead of template refs | `.vue` |
+| 5 | **Force Update** | `$forceUpdate()` or `location.reload()` | `.vue` |
+| 6 | **Props in Initial State** | `ref(props.x)` instead of `computed()` | `.vue` |
+| 7 | **Uncontrolled Component** | `<input ref="x">` without `v-model` or `:value` | `.vue` |
+| 8 | **Inheritance Instead of Composition** | `extends:` in component options | `.vue` |
+| 9 | **Any Type** | `: any` type annotations in TypeScript | `.vue`, `.ts` |
+| 10 | **Non-Null Assertions** | `!.` operator bypassing null checks | `.vue`, `.ts` |
+| 11 | **Multiple Booleans for State** | > 4 boolean `ref()` declarations | `.vue` |
+| 12 | **Enum Implicit Values** | `enum` without explicit values | `.vue`, `.ts` |
 
 Smells 1–8 are based on Ferreira & Valente (2022). Smells 9–12 are based on Nunes et al. (2025).
 

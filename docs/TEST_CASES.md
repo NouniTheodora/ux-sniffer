@@ -145,6 +145,73 @@ The tool window appears in the **bottom panel** of the IDE with the tab label **
 
 ---
 
+## TypeScript File Scanning
+
+**What it does:** In addition to `.vue` files, the scanner also checks plain `.ts` files for the four TypeScript-applicable smells: Large File, Any Type, Non-Null Assertion, and Enum Implicit Values. The remaining 8 Vue-specific smells are only checked on `.vue` files.
+
+### Test case — `.ts` files are scanned
+
+1. Run `./gradlew runIde`.
+2. Open a project that contains `.ts` files with TypeScript smells (e.g., a file with `: any` annotations or an enum without explicit values).
+3. Open the **UXSniffer** tool window and click **Scan Project**.
+4. Expected: findings from `.ts` files appear in the results table alongside `.vue` file findings.
+
+### Test case — only applicable smells on `.ts` files
+
+1. Create a `.ts` file that contains `defineProps()` or `$forceUpdate()` (Vue-specific patterns).
+2. Click **Scan Project**.
+3. Expected: no findings are reported for Vue-specific smells on `.ts` files. Only Large File, Any Type, Non-Null Assertion, and Enum Implicit Values can appear.
+
+### Test case — Any Type detected in `.ts` file
+
+1. Create a file `example.ts` with content:
+   ```typescript
+   const data: any = fetchData();
+   function process(input: any): any { return input; }
+   ```
+2. Click **Scan Project**.
+3. Expected: a finding for "Any type usage" appears for `example.ts` with a count of 3 usages.
+
+### Test case — Non-Null Assertion detected in `.ts` file
+
+1. Create a file `example.ts` with content:
+   ```typescript
+   const items = [1, 2, 3];
+   const found = items.find(x => x > 2);
+   console.log(found!.toString());
+   ```
+2. Click **Scan Project**.
+3. Expected: a finding for "Non-null assertion" appears for `example.ts`.
+
+### Test case — Enum Implicit Values detected in `.ts` file
+
+1. Create a file `example.ts` with content:
+   ```typescript
+   enum Status { Active, Inactive, Pending }
+   ```
+2. Click **Scan Project**.
+3. Expected: a finding for "Enum with implicit values" appears for `example.ts`.
+
+### Test case — Large File detected in `.ts` file
+
+1. Create a `.ts` file that exceeds 218 lines of code or has more than 20 import statements.
+2. Click **Scan Project**.
+3. Expected: a finding for "Large file" appears for the `.ts` file.
+
+### Test case — `.uxsnifferignore` applies to `.ts` files
+
+1. Create a `.uxsnifferignore` file with a pattern that matches a `.ts` file (e.g., `**/*.ts` or a specific filename).
+2. Click **Scan Project**.
+3. Expected: the matched `.ts` files are excluded from the scan.
+
+### Test case — clean `.ts` files produce no findings
+
+1. Create a `.ts` file with proper types, no `: any`, no `!.`, and enums with explicit values.
+2. Click **Scan Project**.
+3. Expected: no findings are reported for this file.
+
+---
+
 ## Findings Detail Panel (Tabbed)
 
 **What it shows:** When you select a finding in the Findings table, a tabbed detail panel appears below the table with two tabs: "Overview & Fix" (smell definition and refactoring) and "Cost Impact" (PAF quality costs triggered by the smell).
@@ -325,7 +392,7 @@ The tool window appears in the **bottom panel** of the IDE with the tab label **
 
 ## Smell 1 — Large File
 
-**What it detects:** A `.vue` file that has too many lines of code or too many imports.
+**What it detects:** A `.vue` or `.ts` file that has too many lines of code or too many imports.
 
 | Metric | Threshold | Condition |
 |---|---|---|
@@ -678,7 +745,7 @@ The warning message includes the name of the extended component, extracted dynam
 
 ## Smell 9 — Any Type
 
-**What it detects:** Usage of the `any` type in TypeScript Vue components (`<script setup lang="ts">`). Applies to type annotations (`: any`), generic parameters (`<any>`), and composite types (`, any`).
+**What it detects:** Usage of the `any` type in TypeScript Vue components (`<script setup lang="ts">`) and plain `.ts` files. Applies to type annotations (`: any`), generic parameters (`<any>`), and composite types (`, any`).
 
 ### Test file: `AnyType_clean.vue`
 - **Expected result:** No warnings.
@@ -697,7 +764,7 @@ The warning message includes the name of the extended component, extracted dynam
 
 ## Smell 10 — Non-Null Assertions
 
-**What it detects:** Usage of the non-null assertion operator (`!.`) in TypeScript Vue components (`<script setup lang="ts">`). This operator tells TypeScript a value is not null/undefined without performing a runtime check.
+**What it detects:** Usage of the non-null assertion operator (`!.`) in TypeScript Vue components (`<script setup lang="ts">`) and plain `.ts` files. This operator tells TypeScript a value is not null/undefined without performing a runtime check.
 
 ### Test file: `NonNullAssertion_clean.vue`
 - **Expected result:** No warnings.
@@ -742,7 +809,7 @@ Max boolean refs:  [ 4 ]
 
 ## Smell 12 — Enum Implicit Values
 
-**What it detects:** TypeScript enums whose members do not have explicit values assigned. When members are reordered, all auto-generated values shift, causing silent runtime inconsistencies.
+**What it detects:** TypeScript enums (in `.vue` or `.ts` files) whose members do not have explicit values assigned. When members are reordered, all auto-generated values shift, causing silent runtime inconsistencies.
 
 ### Test file: `EnumImplicit_clean.vue`
 - **Expected result:** No warnings.
@@ -761,19 +828,19 @@ Max boolean refs:  [ 4 ]
 
 ## Thresholds reference
 
-| Smell | Metric | Threshold | Source |
-|---|---|---|---|
-| Large File | Lines of code | 218 | Ferreira & Valente, 2022 (95th percentile) |
-| Large File | Import count | 20 | Ferreira & Valente, 2022 (95th percentile) |
-| Large Component | Script LOC | 128 | Ferreira & Valente, 2022 (95th percentile) |
-| Large Component | Function count | 4 | Ferreira & Valente, 2022 (95th percentile) |
-| Too Many Props | Prop count | 13 | Ferreira & Valente, 2022 (95th percentile) |
-| Direct DOM Manipulation | Any DOM API call | 1 | Any occurrence |
-| Force Update | Any forceUpdate/reload call | 1 | Any occurrence |
-| Props in Initial State | ref(props.x) pattern | 1 | Any occurrence |
-| Uncontrolled Component | input with ref, no v-model | 1 | Any occurrence |
-| Inheritance | extends: in options | 1 | Any occurrence |
-| Any Type | `: any` annotation | 1 | Nunes et al., 2025 (any occurrence) |
-| Non-Null Assertions | `!.` operator | 1 | Nunes et al., 2025 (any occurrence) |
-| Multiple Booleans for State | Boolean ref count | 4 | Nunes et al., 2025 |
-| Enum Implicit Values | Enum without explicit values | 1 | Nunes et al., 2025 (any occurrence) |
+| Smell | Metric | Threshold | File types | Source |
+|---|---|---|---|---|
+| Large File | Lines of code | 218 | `.vue`, `.ts` | Ferreira & Valente, 2022 (95th percentile) |
+| Large File | Import count | 20 | `.vue`, `.ts` | Ferreira & Valente, 2022 (95th percentile) |
+| Large Component | Script LOC | 128 | `.vue` | Ferreira & Valente, 2022 (95th percentile) |
+| Large Component | Function count | 4 | `.vue` | Ferreira & Valente, 2022 (95th percentile) |
+| Too Many Props | Prop count | 13 | `.vue` | Ferreira & Valente, 2022 (95th percentile) |
+| Direct DOM Manipulation | Any DOM API call | 1 | `.vue` | Any occurrence |
+| Force Update | Any forceUpdate/reload call | 1 | `.vue` | Any occurrence |
+| Props in Initial State | ref(props.x) pattern | 1 | `.vue` | Any occurrence |
+| Uncontrolled Component | input with ref, no v-model | 1 | `.vue` | Any occurrence |
+| Inheritance | extends: in options | 1 | `.vue` | Any occurrence |
+| Any Type | `: any` annotation | 1 | `.vue`, `.ts` | Nunes et al., 2025 (any occurrence) |
+| Non-Null Assertions | `!.` operator | 1 | `.vue`, `.ts` | Nunes et al., 2025 (any occurrence) |
+| Multiple Booleans for State | Boolean ref count | 4 | `.vue` | Nunes et al., 2025 |
+| Enum Implicit Values | Enum without explicit values | 1 | `.vue`, `.ts` | Nunes et al., 2025 (any occurrence) |

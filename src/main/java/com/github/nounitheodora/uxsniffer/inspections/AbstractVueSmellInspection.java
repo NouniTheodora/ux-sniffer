@@ -26,6 +26,18 @@ public abstract class AbstractVueSmellInspection extends LocalInspectionTool {
         return null;
     }
 
+    /**
+     * Analyzes a raw TypeScript file (not wrapped in a .vue component).
+     * Override in inspections that apply to plain .ts files.
+     */
+    public @Nullable String analyzeTypeScript(@NotNull String fileText) {
+        return null;
+    }
+
+    public boolean supportsTypeScript() {
+        return false;
+    }
+
     @Override
     public @NotNull String getGroupDisplayName() {
         return "Vue.js UX Smells";

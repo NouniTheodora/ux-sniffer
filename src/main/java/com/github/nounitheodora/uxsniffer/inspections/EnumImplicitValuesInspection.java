@@ -53,6 +53,15 @@ public class EnumImplicitValuesInspection extends AbstractVueSmellInspection {
         };
     }
 
+    @Override
+    public boolean supportsTypeScript() { return true; }
+
+    @Override
+    public @Nullable String analyzeTypeScript(@NotNull String fileText) {
+        List<String> found = detectImplicitEnums(fileText);
+        return found.isEmpty() ? null : buildMessage(found);
+    }
+
     @NotNull List<String> detectImplicitEnums(@NotNull String scriptContent) {
         List<String> found = new ArrayList<>();
         Matcher matcher = ENUM_DECLARATION.matcher(scriptContent);

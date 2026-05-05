@@ -37,30 +37,47 @@ public final class ProjectScanner {
     public @NotNull List<SmellFinding> scan() {
         List<SmellFinding> findings = new ArrayList<>();
         IgnoreFileParser ignoreParser = new IgnoreFileParser(project);
-        Collection<VirtualFile> vueFiles = FilenameIndex.getAllFilesByExt(
-                project, "vue", GlobalSearchScope.projectScope(project));
+        GlobalSearchScope scope = GlobalSearchScope.projectScope(project);
 
+        Collection<VirtualFile> vueFiles = FilenameIndex.getAllFilesByExt(project, "vue", scope);
         for (VirtualFile vf : vueFiles) {
             if (ignoreParser.isIgnored(vf)) continue;
-            String text;
-            try {
-                text = new String(vf.contentsToByteArray(), StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                continue;
-            }
-
-            String filePath = vf.getPath();
-            String fileName = vf.getName();
+            String text = readFile(vf);
+            if (text == null) continue;
 
             for (AbstractVueSmellInspection inspection : INSPECTIONS) {
                 String message = inspection.analyze(text);
                 if (message != null) {
                     findings.add(new SmellFinding(
-                            inspection.getDisplayName(), filePath, fileName, message));
+                            inspection.getDisplayName(), vf.getPath(), vf.getName(), message));
+                }
+            }
+        }
+
+        Collection<VirtualFile> tsFiles = FilenameIndex.getAllFilesByExt(project, "ts", scope);
+        for (VirtualFile vf : tsFiles) {
+            if (ignoreParser.isIgnored(vf)) continue;
+            String text = readFile(vf);
+            if (text == null) continue;
+
+            for (AbstractVueSmellInspection inspection : INSPECTIONS) {
+                if (!inspection.supportsTypeScript()) continue;
+                String message = inspection.analyzeTypeScript(text);
+                if (message != null) {
+                    findings.add(new SmellFinding(
+                            inspection.getDisplayName(), vf.getPath(), vf.getName(), message));
                 }
             }
         }
 
         return findings;
+    }
+
+    private static String readFile(@NotNull VirtualFile vf) {
+        try {
+            return new String(vf.contentsToByteArray(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            return null;
+        }
     }
 }

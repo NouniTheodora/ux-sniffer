@@ -52,6 +52,15 @@ public class AnyTypeInspection extends AbstractVueSmellInspection {
         };
     }
 
+    @Override
+    public boolean supportsTypeScript() { return true; }
+
+    @Override
+    public @Nullable String analyzeTypeScript(@NotNull String fileText) {
+        int count = countAnyUsages(fileText);
+        return count == 0 ? null : buildMessage(count);
+    }
+
     int countAnyUsages(@NotNull String scriptContent) {
         int count = 0;
         for (String line : scriptContent.split("\n", -1)) {

@@ -52,6 +52,15 @@ public class NonNullAssertionInspection extends AbstractVueSmellInspection {
         };
     }
 
+    @Override
+    public boolean supportsTypeScript() { return true; }
+
+    @Override
+    public @Nullable String analyzeTypeScript(@NotNull String fileText) {
+        int count = countNonNullAssertions(fileText);
+        return count == 0 ? null : buildMessage(count);
+    }
+
     int countNonNullAssertions(@NotNull String scriptContent) {
         int count = 0;
         for (String line : scriptContent.split("\n", -1)) {
