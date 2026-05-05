@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
+import javax.swing.UIManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -239,35 +240,46 @@ class CostDetailPanel extends JPanel {
         panel.add(contentLabel);
     }
 
-    private void addCostSectionHeader(@NotNull JPanel panel, @NotNull String text, @NotNull Color color) {
-        JBLabel header = new JBLabel(String.format("<html><font color='#555555'>%s</font></html>", text));
-        header.setFont(header.getFont().deriveFont(Font.ITALIC, 11f));
-        header.setAlignmentX(Component.LEFT_ALIGNMENT);
-        header.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, color),
-                BorderFactory.createEmptyBorder(0, 0, 6, 0)));
-        panel.add(header);
-        panel.add(Box.createRigidArea(new Dimension(0, 6)));
+    private void addCostSectionHeader(@NotNull JPanel panel, @NotNull String title,
+                                       @NotNull String description, @NotNull Color color) {
+        JBLabel titleLabel = new JBLabel(title);
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 12f));
+        titleLabel.setForeground(UIManager.getColor("Label.foreground"));
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(titleLabel);
+
+        JBLabel desc = new JBLabel(String.format("<html><font color='#777777'>%s</font></html>", description));
+        desc.setFont(desc.getFont().deriveFont(Font.PLAIN, 11f));
+        desc.setAlignmentX(Component.LEFT_ALIGNMENT);
+        desc.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
+        panel.add(desc);
+
+        panel.add(Box.createRigidArea(new Dimension(0, 8)));
     }
 
     private void addCostCard(@NotNull JPanel panel, @NotNull CostMapper mapper, @NotNull CostMapping mapping) {
+        Color categoryColor = getCategoryColor(mapper, mapping);
+        PafCost cost = mapper.getCost(mapping.costId());
+        String categoryLabel = cost != null ? cost.pafCategory() : "Unknown";
+
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 3, 0, 0, getCategoryColor(mapper, mapping)),
+                BorderFactory.createMatteBorder(0, 3, 0, 0, categoryColor),
                 BorderFactory.createEmptyBorder(6, 8, 6, 8)
         ));
         card.setAlignmentX(Component.LEFT_ALIGNMENT);
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
 
-        PafCost cost = mapper.getCost(mapping.costId());
-        String categoryLabel = cost != null ? cost.pafCategory() : "Unknown";
+        JPanel titleRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+        titleRow.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JBLabel header = new JBLabel(String.format(
-                "<html><b>%s</b> [%s] <font color='gray'>— %s</font></html>",
-                mapping.costName(), mapping.costId(), categoryLabel));
-        header.setAlignmentX(Component.LEFT_ALIGNMENT);
-        card.add(header);
+        JBLabel nameLabel = new JBLabel(String.format(
+                "<html><b>%s</b> <font color='gray'>[%s]</font></html>",
+                mapping.costName(), mapping.costId()));
+        titleRow.add(nameLabel);
+        titleRow.add(createChip(categoryLabel, categoryColor));
+        card.add(titleRow);
 
         JBLabel logic = new JBLabel(String.format("<html><div style='width:480px'>%s</div></html>",
                 mapping.causationLogic()));
@@ -280,14 +292,8 @@ class CostDetailPanel extends JPanel {
         panel.add(Box.createRigidArea(new Dimension(0, 4)));
     }
 
-    private @NotNull JBLabel createSeverityChip(@NotNull String severity) {
-        Color chipColor = switch (severity) {
-            case "High" -> new Color(220, 60, 50);
-            case "Medium" -> new Color(230, 160, 0);
-            default -> new Color(100, 140, 180);
-        };
-
-        JBLabel chip = new JBLabel(severity) {
+    private @NotNull JBLabel createChip(@NotNull String text, @NotNull Color chipColor) {
+        JBLabel chip = new JBLabel(text) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -305,6 +311,15 @@ class CostDetailPanel extends JPanel {
         chip.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
         chip.setOpaque(false);
         return chip;
+    }
+
+    private @NotNull JBLabel createSeverityChip(@NotNull String severity) {
+        Color chipColor = switch (severity) {
+            case "High" -> new Color(220, 60, 50);
+            case "Medium" -> new Color(230, 160, 0);
+            default -> new Color(100, 140, 180);
+        };
+        return createChip(severity, chipColor);
     }
 
     private @NotNull Color getCategoryColor(@NotNull CostMapper mapper, @NotNull CostMapping mapping) {
