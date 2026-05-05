@@ -11,14 +11,14 @@
       "smellName": "Large Component",
       "definition": "This smell appears when a component grows too large in terms of size and complexity, such as having too many props, attributes, methods, and/or lines of code. Small and clean components are better for readability and maintainability; extracting complex UI parts into separate components is recommended.",
       "severity": "Context dependent",
-      "refactoring": "Extract logic into Vue composables (use* functions). Split the component into smaller, focused child components. Move utility functions to separate helper files. Each component should have a single, clear responsibility."
+      "refactoring": "Extract logic into reusable utility functions (e.g. Vue composables - use* functions). Split the component into smaller, focused child components. Move utility functions to separate helper files. Each component should have a single, clear responsibility."
     },
     {
       "smellId": "S18",
       "smellName": "Too Many Props",
       "definition": "This smell appears when too many properties are passed to a single component, making it harder to understand and evolve. It relates to traditional smells such as Long Parameter List / Large Class. Frequent prop changes can worsen the problem because each change may trigger a view update.",
       "severity": "Medium",
-      "refactoring": "Group related props into a single object prop (e.g. replace individual address fields with an 'address' object). Split the component into smaller ones with fewer, more focused props. Use provide/inject for deeply-passed data."
+      "refactoring": "Group related props into a single object prop (e.g. replace individual address fields with an 'address' object). Split the component into smaller ones with fewer, more focused props. Use dependency injection (e.g. Vue provide/inject) for deeply-passed data."
     },
     {
       "smellId": "S19",
@@ -387,8 +387,8 @@
       "costId": "C11",
       "costName": "Cost for Performing Design Reviews",
       "relationshipType": "Triggers appraisal for",
-      "causationLogic": "Direct DOM manipulation signals a poor React design choice because UI updates bypass the intended state/props flow, so teams need a design review to decide how the interaction should be reimplemented in React terms.",
-      "triggerCondition": "When direct DOM calls are identified in React components",
+      "causationLogic": "Direct DOM manipulation signals a poor design choice because UI updates bypass the intended state/props flow, so teams need a design review to decide how the interaction should be reimplemented using framework-managed rendering.",
+      "triggerCondition": "When direct DOM calls are identified in frontend components",
       "priority": "Primary"
     },
     {
@@ -398,7 +398,7 @@
       "costId": "C01",
       "costName": "Necessary Rework",
       "relationshipType": "Causes",
-      "causationLogic": "Replacing direct DOM access with React-based state, props, or refs usually requires restructuring component logic and rewriting update behavior.",
+      "causationLogic": "Replacing direct DOM access with framework-managed state, props, or refs usually requires restructuring component logic and rewriting update behavior.",
       "triggerCondition": "After the smell is identified in component code",
       "priority": "Primary"
     },
@@ -410,7 +410,7 @@
       "costName": "Cost for Performing Regression Testing",
       "relationshipType": "Triggers appraisal for",
       "causationLogic": "Because removing direct DOM manipulation can change how the UI updates and reacts to events, regression testing is needed to verify that the refactored component still behaves correctly.",
-      "triggerCondition": "After refactoring DOM manipulation into React-based logic",
+      "triggerCondition": "After refactoring DOM manipulation into framework-managed logic",
       "priority": "Primary"
     },
     {
