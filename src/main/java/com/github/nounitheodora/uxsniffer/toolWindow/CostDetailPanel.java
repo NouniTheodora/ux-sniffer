@@ -203,6 +203,14 @@ class CostDetailPanel extends JPanel {
         copiedLabel.setFont(copiedLabel.getFont().deriveFont(Font.BOLD, 11f));
         copiedLabel.setVisible(false);
 
+        pathPanel.add(createCopyButton(relativePath, copiedLabel));
+        pathPanel.add(copiedLabel);
+
+        pathPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
+        panel.add(pathPanel);
+    }
+
+    private @NotNull JButton createCopyButton(@NotNull String relativePath, @NotNull JBLabel copiedLabel) {
         JButton copyButton = new JButton(AllIcons.Actions.Copy);
         copyButton.setToolTipText("Copy path to clipboard");
         copyButton.setBorderPainted(false);
@@ -216,11 +224,7 @@ class CostDetailPanel extends JPanel {
             timer.setRepeats(false);
             timer.start();
         });
-        pathPanel.add(copyButton);
-        pathPanel.add(copiedLabel);
-
-        pathPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
-        panel.add(pathPanel);
+        return copyButton;
     }
 
     private void addSection(@NotNull JPanel panel, @NotNull String title, @NotNull String htmlContent) {

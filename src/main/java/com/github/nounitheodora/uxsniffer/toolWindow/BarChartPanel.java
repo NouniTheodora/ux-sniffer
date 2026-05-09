@@ -15,8 +15,8 @@ import java.util.Map;
 
 class BarChartPanel extends JPanel {
 
-    private final List<Map.Entry<String, Integer>> data;
-    private final Color[] colors;
+    private final transient List<Map.Entry<String, Integer>> data;
+    private final transient Color[] colors;
     private static final int BAR_HEIGHT = 26;
     private static final int BAR_GAP = 6;
     private static final int LABEL_WIDTH = 380;

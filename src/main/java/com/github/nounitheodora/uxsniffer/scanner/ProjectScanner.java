@@ -51,27 +51,40 @@ public final class ProjectScanner {
 
         Collection<VirtualFile> vueFiles = FilenameIndex.getAllFilesByExt(project, "vue", scope);
         for (VirtualFile vf : vueFiles) {
-            if (isExcludedFile(vf) || ignoreParser.isIgnored(vf)) continue;
-            String text = readFile(vf);
-            if (text == null) continue;
-
-            for (AbstractVueSmellInspection inspection : INSPECTIONS) {
-                String message = inspection.analyze(text);
-                if (message != null) {
-                    findings.add(new SmellFinding(
-                            inspection.getDisplayName(), vf.getPath(), vf.getName(), message));
-                }
-            }
+            scanVueFile(vf, ignoreParser, findings);
         }
 
         Collection<VirtualFile> tsFiles = FilenameIndex.getAllFilesByExt(project, "ts", scope);
         for (VirtualFile vf : tsFiles) {
-            if (isExcludedFile(vf) || ignoreParser.isIgnored(vf)) continue;
-            String text = readFile(vf);
-            if (text == null) continue;
+            scanTypeScriptFile(vf, ignoreParser, findings);
+        }
 
-            for (AbstractVueSmellInspection inspection : INSPECTIONS) {
-                if (!inspection.supportsTypeScript()) continue;
+        return findings;
+    }
+
+    private static void scanVueFile(@NotNull VirtualFile vf, @NotNull IgnoreFileParser ignoreParser,
+                                    @NotNull List<SmellFinding> findings) {
+        if (isExcludedFile(vf) || ignoreParser.isIgnored(vf)) return;
+        String text = readFile(vf);
+        if (text == null) return;
+
+        for (AbstractVueSmellInspection inspection : INSPECTIONS) {
+            String message = inspection.analyze(text);
+            if (message != null) {
+                findings.add(new SmellFinding(
+                        inspection.getDisplayName(), vf.getPath(), vf.getName(), message));
+            }
+        }
+    }
+
+    private static void scanTypeScriptFile(@NotNull VirtualFile vf, @NotNull IgnoreFileParser ignoreParser,
+                                           @NotNull List<SmellFinding> findings) {
+        if (isExcludedFile(vf) || ignoreParser.isIgnored(vf)) return;
+        String text = readFile(vf);
+        if (text == null) return;
+
+        for (AbstractVueSmellInspection inspection : INSPECTIONS) {
+            if (inspection.supportsTypeScript()) {
                 String message = inspection.analyzeTypeScript(text);
                 if (message != null) {
                     findings.add(new SmellFinding(
@@ -79,8 +92,6 @@ public final class ProjectScanner {
                 }
             }
         }
-
-        return findings;
     }
 
     private static boolean isExcludedFile(@NotNull VirtualFile vf) {
