@@ -81,26 +81,36 @@ public class DirectDomInspection extends AbstractVueSmellInspection {
             String trimmed = line.trim();
             if (trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*")) continue;
 
-            for (String method : DOCUMENT_METHODS) {
-                if (trimmed.contains("document." + method + "(") && seen.add(method)) {
-                    found.add(method);
-                }
-            }
-
-            for (String method : DOM_MUTATION_METHODS) {
-                if (trimmed.contains("." + method + "(") && seen.add(method)) {
-                    found.add(method);
-                }
-            }
-
-            for (String prop : DOM_PROPERTIES) {
-                if (trimmed.contains("." + prop) && seen.add(prop)) {
-                    found.add(prop);
-                }
-            }
+            detectDocumentMethods(trimmed, found, seen);
+            detectMutationMethods(trimmed, found, seen);
+            detectDomProperties(trimmed, found, seen);
         }
 
         return found;
+    }
+
+    private void detectDocumentMethods(@NotNull String line, @NotNull List<String> found, @NotNull Set<String> seen) {
+        for (String method : DOCUMENT_METHODS) {
+            if (line.contains("document." + method + "(") && seen.add(method)) {
+                found.add(method);
+            }
+        }
+    }
+
+    private void detectMutationMethods(@NotNull String line, @NotNull List<String> found, @NotNull Set<String> seen) {
+        for (String method : DOM_MUTATION_METHODS) {
+            if (line.contains("." + method + "(") && seen.add(method)) {
+                found.add(method);
+            }
+        }
+    }
+
+    private void detectDomProperties(@NotNull String line, @NotNull List<String> found, @NotNull Set<String> seen) {
+        for (String prop : DOM_PROPERTIES) {
+            if (line.contains("." + prop) && seen.add(prop)) {
+                found.add(prop);
+            }
+        }
     }
 
     @NotNull String buildMessage(@NotNull List<String> apis) {
