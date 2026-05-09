@@ -57,11 +57,11 @@ public class ForceUpdateInspection extends AbstractVueSmellInspection {
             if (trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*")) continue;
 
             if (!hasForceUpdate && trimmed.contains(FORCE_UPDATE_PATTERN)) {
-                found.add("$forceUpdate()");
+                found.add(FORCE_UPDATE_PATTERN);
                 hasForceUpdate = true;
             }
             if (!hasReload && trimmed.contains(LOCATION_RELOAD_PATTERN)) {
-                found.add("location.reload()");
+                found.add(LOCATION_RELOAD_PATTERN);
                 hasReload = true;
             }
         }
@@ -72,7 +72,7 @@ public class ForceUpdateInspection extends AbstractVueSmellInspection {
     @NotNull String buildMessage(@NotNull List<String> apis) {
         if (apis.size() == 1) {
             String api = apis.getFirst();
-            if (api.equals("$forceUpdate()")) {
+            if (api.equals(FORCE_UPDATE_PATTERN)) {
                 return UxSnifferBundle.message("inspection.force.update.forceUpdate");
             }
             return UxSnifferBundle.message("inspection.force.update.reload");
