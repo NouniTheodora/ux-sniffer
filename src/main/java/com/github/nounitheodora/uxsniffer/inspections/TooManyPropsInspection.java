@@ -2,8 +2,10 @@ package com.github.nounitheodora.uxsniffer.inspections;
 
 import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.util.JDOMExternalizerUtil;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
+import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +16,19 @@ public class TooManyPropsInspection extends AbstractVueSmellInspection {
 
     public static final int DEFAULT_PROPS_THRESHOLD = 13;
 
-    public int propsThreshold = DEFAULT_PROPS_THRESHOLD;
+    private int propsThreshold = DEFAULT_PROPS_THRESHOLD;
+
+    @Override
+    public void readSettings(@NotNull Element element) {
+        super.readSettings(element);
+        propsThreshold = readIntField(element, "propsThreshold", DEFAULT_PROPS_THRESHOLD);
+    }
+
+    @Override
+    public void writeSettings(@NotNull Element element) {
+        super.writeSettings(element);
+        JDOMExternalizerUtil.writeField(element, "propsThreshold", String.valueOf(propsThreshold));
+    }
 
     @Override
     public @NotNull String getDisplayName() {

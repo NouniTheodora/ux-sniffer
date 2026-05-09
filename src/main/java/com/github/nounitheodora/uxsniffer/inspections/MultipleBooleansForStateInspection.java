@@ -2,8 +2,10 @@ package com.github.nounitheodora.uxsniffer.inspections;
 
 import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.util.JDOMExternalizerUtil;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
+import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +17,19 @@ public class MultipleBooleansForStateInspection extends AbstractVueSmellInspecti
 
     public static final int DEFAULT_BOOLEAN_THRESHOLD = 4;
 
-    public int booleanThreshold = DEFAULT_BOOLEAN_THRESHOLD;
+    private int booleanThreshold = DEFAULT_BOOLEAN_THRESHOLD;
+
+    @Override
+    public void readSettings(@NotNull Element element) {
+        super.readSettings(element);
+        booleanThreshold = readIntField(element, "booleanThreshold", DEFAULT_BOOLEAN_THRESHOLD);
+    }
+
+    @Override
+    public void writeSettings(@NotNull Element element) {
+        super.writeSettings(element);
+        JDOMExternalizerUtil.writeField(element, "booleanThreshold", String.valueOf(booleanThreshold));
+    }
 
     static final Pattern BOOLEAN_REF_PATTERN = Pattern.compile(
             "\\bref\\s*\\(\\s*(true|false)\\s*\\)");

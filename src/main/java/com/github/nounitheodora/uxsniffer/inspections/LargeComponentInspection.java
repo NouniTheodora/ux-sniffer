@@ -2,8 +2,10 @@ package com.github.nounitheodora.uxsniffer.inspections;
 
 import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.util.JDOMExternalizerUtil;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
+import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,8 +17,22 @@ public class LargeComponentInspection extends AbstractVueSmellInspection {
     public static final int DEFAULT_SCRIPT_LOC_THRESHOLD = 128;
     public static final int DEFAULT_FUNCTIONS_THRESHOLD = 4;
 
-    public int scriptLocThreshold = DEFAULT_SCRIPT_LOC_THRESHOLD;
-    public int functionsThreshold = DEFAULT_FUNCTIONS_THRESHOLD;
+    private int scriptLocThreshold = DEFAULT_SCRIPT_LOC_THRESHOLD;
+    private int functionsThreshold = DEFAULT_FUNCTIONS_THRESHOLD;
+
+    @Override
+    public void readSettings(@NotNull Element element) {
+        super.readSettings(element);
+        scriptLocThreshold = readIntField(element, "scriptLocThreshold", DEFAULT_SCRIPT_LOC_THRESHOLD);
+        functionsThreshold = readIntField(element, "functionsThreshold", DEFAULT_FUNCTIONS_THRESHOLD);
+    }
+
+    @Override
+    public void writeSettings(@NotNull Element element) {
+        super.writeSettings(element);
+        JDOMExternalizerUtil.writeField(element, "scriptLocThreshold", String.valueOf(scriptLocThreshold));
+        JDOMExternalizerUtil.writeField(element, "functionsThreshold", String.valueOf(functionsThreshold));
+    }
 
     @Override
     public @NotNull String getDisplayName() {
@@ -107,4 +123,5 @@ public class LargeComponentInspection extends AbstractVueSmellInspection {
                !trimmedLine.contains("watch(") &&
                !trimmedLine.contains("watchEffect(");
     }
+
 }

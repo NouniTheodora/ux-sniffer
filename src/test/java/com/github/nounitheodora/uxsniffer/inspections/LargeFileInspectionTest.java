@@ -127,8 +127,8 @@ public class LargeFileInspectionTest {
 
         String content = sb.toString();
         String message = inspection.buildMessage(content,
-                inspection.countLines(content) > inspection.locThreshold,
-                inspection.countImports(content) > inspection.importsThreshold);
+                inspection.countLines(content) > LargeFileInspection.DEFAULT_LOC_THRESHOLD,
+                inspection.countImports(content) > LargeFileInspection.DEFAULT_IMPORTS_THRESHOLD);
 
         assertTrue("Combined message should mention lines", message.contains("lines"));
         assertTrue("Combined message should mention imports", message.contains("imports"));

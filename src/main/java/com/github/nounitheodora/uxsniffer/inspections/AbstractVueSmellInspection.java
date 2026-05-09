@@ -3,8 +3,10 @@ package com.github.nounitheodora.uxsniffer.inspections;
 import com.intellij.codeInspection.LocalInspectionTool;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.util.JDOMExternalizerUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -106,5 +108,15 @@ public abstract class AbstractVueSmellInspection extends LocalInspectionTool {
             }
         }
         return null;
+    }
+
+    protected static int readIntField(@NotNull Element element, @NotNull String name, int defaultValue) {
+        String value = JDOMExternalizerUtil.readField(element, name);
+        if (value == null) return defaultValue;
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 }
