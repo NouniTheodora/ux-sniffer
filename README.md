@@ -58,7 +58,7 @@ The plugin includes a dedicated **tool window** (bottom panel, tab labelled "UXS
    - **Statistics** — tabbed dashboard with three views:
      - *Smell Distribution* — horizontal bar chart showing how many times each smell type was detected.
      - *Quality Costs* — PAF cost analysis with Internal Failure / Appraisal summary cards and a cost-by-category bar chart.
-     - *Files* — sortable table ranking files by total cost exposure (columns: Smells, Failure Costs, Appraisal Costs, Total Costs).
+     - *Files* — sortable table ranking files by number of detected UX smells (columns: Smells, Failure Costs, Appraisal Costs, Total Costs).
 5. Click **Export Report** to generate a self-contained HTML report with:
    - Summary cards (Total Smells, Files Affected, Smell Types, Internal Failure Costs, Appraisal Costs)
    - Interactive Chart.js charts: doughnut for smell distribution + horizontal bar for quality cost breakdown
@@ -67,6 +67,14 @@ The plugin includes a dedicated **tool window** (bottom panel, tab labelled "UXS
    - Complete findings table with smell IDs
    
    The report opens in your default browser automatically.
+
+6. Click **Export JSON** to generate a structured JSON report suitable for programmatic analysis and cross-project comparison. The JSON includes:
+   - Project metadata (name, base path, timestamp)
+   - Summary with smell counts per type and unique files affected
+   - Every finding with smell ID, severity, refactoring suggestion, and PAF cost impact
+   - Per-file analysis sorted by smell count with total cost mapping counts
+   
+   This format is designed for merging results across multiple projects — scan each project, export the JSON, then combine the files for cross-project statistics.
 
 ### Ignoring files (`.uxsnifferignore`)
 
@@ -123,6 +131,12 @@ The tool window uses `UxAnalysisService` (a Facade over the analysis subsystem) 
     → Smell details cards with definitions, refactoring, cost badges
     → Files ranked by cost exposure table
     → Opens in default browser
+
+[Export JSON button]
+  → JsonReportExporter.generate(findings)
+    → CostMapper: resolves smell IDs, severities, cost mappings
+    → Structured JSON with project metadata, findings, file analysis
+    → Designed for cross-project merging and statistical analysis
 ```
 
 ### PAF Cost Impact
