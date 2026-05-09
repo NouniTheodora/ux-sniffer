@@ -48,7 +48,7 @@ public class EnumImplicitValuesInspection extends AbstractVueSmellInspection {
                 List<String> found = detectImplicitEnums(script);
                 if (found.isEmpty()) return;
 
-                holder.registerProblem(file, buildMessage(found), ProblemHighlightType.WARNING);
+                registerProblemOnFile(holder, file, buildMessage(found));
             }
         };
     }

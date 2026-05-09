@@ -38,13 +38,14 @@ public class UncontrolledComponentInspection extends AbstractVueSmellInspection 
             public void visitFile(@NotNull PsiFile file) {
                 if (!isVueFile(file)) return;
 
-                String template = extractTemplateContent(file.getText());
+                String text = file.getText();
+                String template = extractTemplateContent(text);
                 if (template.isEmpty()) return;
 
                 List<String> found = detectUncontrolled(template);
                 if (found.isEmpty()) return;
 
-                holder.registerProblem(file, buildMessage(found), ProblemHighlightType.WARNING);
+                registerProblemOnFile(holder, file, buildMessage(found));
             }
         };
     }

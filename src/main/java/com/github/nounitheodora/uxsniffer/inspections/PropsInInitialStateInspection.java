@@ -47,13 +47,14 @@ public class PropsInInitialStateInspection extends AbstractVueSmellInspection {
             public void visitFile(@NotNull PsiFile file) {
                 if (!isVueFile(file)) return;
 
-                String script = extractScriptContent(file.getText());
+                String text = file.getText();
+                String script = extractScriptContent(text);
                 if (script.isEmpty()) return;
 
                 List<String> found = detectPropsInState(script);
                 if (found.isEmpty()) return;
 
-                holder.registerProblem(file, buildMessage(found), ProblemHighlightType.WARNING);
+                registerProblemOnFile(holder, file, buildMessage(found));
             }
         };
     }

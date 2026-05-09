@@ -1,6 +1,8 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
 import com.intellij.codeInspection.LocalInspectionTool;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
@@ -46,6 +48,11 @@ public abstract class AbstractVueSmellInspection extends LocalInspectionTool {
     @Override
     public boolean isEnabledByDefault() {
         return true;
+    }
+
+    protected void registerProblemOnFile(@NotNull ProblemsHolder holder, @NotNull PsiFile file,
+                                           @NotNull String message) {
+        holder.registerProblem(file, message, ProblemHighlightType.WARNING);
     }
 
     protected boolean isVueFile(@NotNull PsiFile file) {

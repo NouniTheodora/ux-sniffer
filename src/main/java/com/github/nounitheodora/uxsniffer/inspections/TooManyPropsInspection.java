@@ -50,13 +50,14 @@ public class TooManyPropsInspection extends AbstractVueSmellInspection {
             public void visitFile(@NotNull PsiFile file) {
                 if (!isVueFile(file)) return;
 
-                String script = extractScriptContent(file.getText());
+                String text = file.getText();
+                String script = extractScriptContent(text);
                 if (script.isEmpty()) return;
 
                 int props = countProps(script);
                 if (props <= propsThreshold) return;
 
-                holder.registerProblem(file, buildMessage(props), ProblemHighlightType.WARNING);
+                registerProblemOnFile(holder, file, buildMessage(props));
             }
         };
     }

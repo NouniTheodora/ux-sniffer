@@ -72,8 +72,7 @@ public class LargeFileInspection extends AbstractVueSmellInspection {
 
                 if (!locExceeded && !importsExceeded) return;
 
-                holder.registerProblem(file, buildMessage(text, locExceeded, importsExceeded),
-                        ProblemHighlightType.WARNING);
+                registerProblemOnFile(holder, file, buildMessage(text, locExceeded, importsExceeded));
             }
         };
     }

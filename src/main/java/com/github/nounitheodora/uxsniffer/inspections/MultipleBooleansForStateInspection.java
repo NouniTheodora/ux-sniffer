@@ -61,7 +61,7 @@ public class MultipleBooleansForStateInspection extends AbstractVueSmellInspecti
                 int count = countBooleanRefs(script);
                 if (count <= booleanThreshold) return;
 
-                holder.registerProblem(file, buildMessage(count), ProblemHighlightType.WARNING);
+                registerProblemOnFile(holder, file, buildMessage(count));
             }
         };
     }

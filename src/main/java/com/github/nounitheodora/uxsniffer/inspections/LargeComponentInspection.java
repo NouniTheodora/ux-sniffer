@@ -68,9 +68,8 @@ public class LargeComponentInspection extends AbstractVueSmellInspection {
 
                 if (!locExceeded && !fnExceeded) return;
 
-                holder.registerProblem(file,
-                        buildMessage(script, locExceeded, fnExceeded),
-                        ProblemHighlightType.WARNING);
+                registerProblemOnFile(holder, file,
+                        buildMessage(script, locExceeded, fnExceeded));
             }
         };
     }

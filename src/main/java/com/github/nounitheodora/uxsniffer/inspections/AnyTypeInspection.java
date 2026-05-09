@@ -47,7 +47,7 @@ public class AnyTypeInspection extends AbstractVueSmellInspection {
                 int count = countAnyUsages(script);
                 if (count == 0) return;
 
-                holder.registerProblem(file, buildMessage(count), ProblemHighlightType.WARNING);
+                registerProblemOnFile(holder, file, buildMessage(count));
             }
         };
     }

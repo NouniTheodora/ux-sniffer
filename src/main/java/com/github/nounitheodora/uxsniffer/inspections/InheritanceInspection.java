@@ -37,13 +37,14 @@ public class InheritanceInspection extends AbstractVueSmellInspection {
             public void visitFile(@NotNull PsiFile file) {
                 if (!isVueFile(file)) return;
 
-                String script = extractScriptContent(file.getText());
+                String text = file.getText();
+                String script = extractScriptContent(text);
                 if (script.isEmpty()) return;
 
                 String component = detectExtends(script);
                 if (component == null) return;
 
-                holder.registerProblem(file, buildMessage(component), ProblemHighlightType.WARNING);
+                registerProblemOnFile(holder, file, buildMessage(component));
             }
         };
     }
