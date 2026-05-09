@@ -1,7 +1,6 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
 import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
-import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
@@ -82,7 +81,7 @@ public class PropsInInitialStateInspection extends AbstractVueSmellInspection {
 
     @NotNull String buildMessage(@NotNull List<String> propNames) {
         if (propNames.size() == 1) {
-            return UxSnifferBundle.message("inspection.props.initial.state.single", propNames.get(0), propNames.get(0));
+            return UxSnifferBundle.message("inspection.props.initial.state.single", propNames.getFirst(), propNames.getFirst());
         }
         return UxSnifferBundle.message("inspection.props.initial.state.multiple", formatPropList(propNames));
     }

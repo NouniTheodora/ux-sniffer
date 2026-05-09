@@ -53,11 +53,11 @@ public final class HtmlReportExporter {
 
         List<Map.Entry<String, Integer>> sortedSmells = smellCounts.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .collect(Collectors.toList());
+                .toList();
 
         List<Map.Entry<String, Integer>> sortedFiles = fileCountsByRelPath.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .collect(Collectors.toList());
+                .toList();
 
         // Cost calculations
         Map<String, Integer> costHits = new LinkedHashMap<>();
@@ -82,7 +82,7 @@ public final class HtmlReportExporter {
 
         List<Map.Entry<String, Integer>> sortedCosts = costHits.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .collect(Collectors.toList());
+                .toList();
 
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 

@@ -1,7 +1,6 @@
 package com.github.nounitheodora.uxsniffer.inspections;
 
 import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
-import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
@@ -72,7 +71,7 @@ public class ForceUpdateInspection extends AbstractVueSmellInspection {
 
     @NotNull String buildMessage(@NotNull List<String> apis) {
         if (apis.size() == 1) {
-            String api = apis.get(0);
+            String api = apis.getFirst();
             if (api.equals("$forceUpdate()")) {
                 return UxSnifferBundle.message("inspection.force.update.forceUpdate");
             }
