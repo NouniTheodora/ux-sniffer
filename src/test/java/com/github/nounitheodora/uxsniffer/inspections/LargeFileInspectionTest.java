@@ -18,16 +18,14 @@ public class LargeFileInspectionTest {
 
     @Test
     public void testCountLines_belowThreshold() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < LargeFileInspection.DEFAULT_LOC_THRESHOLD; i++) sb.append("// line\n");
-        assertTrue(inspection.countLines(sb.toString()) <= LargeFileInspection.DEFAULT_LOC_THRESHOLD);
+        String content = "// line\n".repeat(LargeFileInspection.DEFAULT_LOC_THRESHOLD);
+        assertTrue(inspection.countLines(content) <= LargeFileInspection.DEFAULT_LOC_THRESHOLD);
     }
 
     @Test
     public void testCountLines_exceedsThreshold() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < LargeFileInspection.DEFAULT_LOC_THRESHOLD + 5; i++) sb.append("// line\n");
-        assertTrue(inspection.countLines(sb.toString()) > LargeFileInspection.DEFAULT_LOC_THRESHOLD);
+        String content = "// line\n".repeat(LargeFileInspection.DEFAULT_LOC_THRESHOLD + 5);
+        assertTrue(inspection.countLines(content) > LargeFileInspection.DEFAULT_LOC_THRESHOLD);
     }
 
     // --- countImports ---
