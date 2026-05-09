@@ -29,9 +29,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 class StatisticsPanel extends JPanel {
+
+    private static final String INTERNAL_FAILURE = "Internal Failure";
+    private static final String DISABLED_FG = "Label.disabledForeground";
 
     static final Color[] CHART_COLORS = {
             new Color(66, 184, 131),
@@ -57,7 +59,7 @@ class StatisticsPanel extends JPanel {
         setLayout(new BorderLayout());
         emptyLabel = new JBLabel("Run a scan to see statistics.");
         emptyLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        emptyLabel.setForeground(UIManager.getColor("Label.disabledForeground"));
+        emptyLabel.setForeground(UIManager.getColor(DISABLED_FG));
         add(emptyLabel, BorderLayout.CENTER);
     }
 
@@ -83,11 +85,11 @@ class StatisticsPanel extends JPanel {
 
         List<Map.Entry<String, Integer>> sortedSmells = smellCounts.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .collect(Collectors.toList());
+                .toList();
 
         List<Map.Entry<String, Integer>> sortedFiles = fileCounts.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .collect(Collectors.toList());
+                .toList();
 
         // Summary cards at the top (always visible)
         JPanel summaryPanel = new JPanel(new GridLayout(1, 3, 12, 0));
@@ -100,7 +102,7 @@ class StatisticsPanel extends JPanel {
         // Tabbed content
         JTabbedPane tabs = new JTabbedPane(SwingConstants.TOP);
         tabs.addTab("Smell Distribution", buildSmellDistributionTab(sortedSmells));
-        tabs.addTab("Quality Costs", buildCostAnalysisTab(findings, smellCounts));
+        tabs.addTab("Quality Costs", buildCostAnalysisTab(smellCounts));
         tabs.addTab("Files (" + sortedFiles.size() + ")", buildFilesTab(findings, sortedFiles));
 
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -143,23 +145,31 @@ class StatisticsPanel extends JPanel {
 
         panel.add(Box.createVerticalGlue());
 
-        JPanel wrapper = new JPanel(new BorderLayout());
-        JBScrollPane scroll = new JBScrollPane(panel);
-        scroll.setBorder(null);
-        scroll.getVerticalScrollBar().setUnitIncrement(16);
-        wrapper.add(scroll, BorderLayout.CENTER);
-        return wrapper;
+        return wrapInScrollPane(panel);
     }
 
     // ─── Tab 2: Quality Costs ────────────────────────────────────────────────────
 
-    private @NotNull JPanel buildCostAnalysisTab(@NotNull List<SmellFinding> findings,
-                                                  @NotNull Map<String, Integer> smellCounts) {
+    private @NotNull JPanel buildCostAnalysisTab(@NotNull Map<String, Integer> smellCounts) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        // Explanation
+        addCostDescription(panel);
+
+        CostMapper mapper = CostMapper.getInstance();
+        int[] costTotals = computeCostTotals(mapper, smellCounts);
+        Map<String, Integer> costHits = computeCostHits(mapper, smellCounts);
+
+        addPafSummaryCards(panel, costTotals[0], costTotals[1]);
+        addCostBreakdownChart(panel, mapper, costHits);
+
+        panel.add(Box.createVerticalGlue());
+
+        return wrapInScrollPane(panel);
+    }
+
+    private void addCostDescription(@NotNull JPanel panel) {
         JBLabel description = new JBLabel(
                 "<html><font color='#555555'>Each detected smell triggers quality costs based on the " +
                 "PAF (Prevention-Appraisal-Failure) model. <b>Internal Failure</b> costs represent " +
@@ -169,44 +179,56 @@ class StatisticsPanel extends JPanel {
         description.setAlignmentX(Component.LEFT_ALIGNMENT);
         description.setBorder(BorderFactory.createEmptyBorder(0, 0, 14, 0));
         panel.add(description);
+    }
 
-        CostMapper mapper = CostMapper.getInstance();
-
-        // Calculate cost hits
-        Map<String, Integer> costHits = new LinkedHashMap<>();
+    private static int[] computeCostTotals(@NotNull CostMapper mapper,
+                                            @NotNull Map<String, Integer> smellCounts) {
         int internalFailureHits = 0;
         int appraisalHits = 0;
 
         for (Map.Entry<String, Integer> smellEntry : smellCounts.entrySet()) {
-            String displayName = smellEntry.getKey();
             int occurrences = smellEntry.getValue();
-            List<CostMapping> mappings = mapper.getMappingsForSmellByDisplayName(displayName);
-
+            List<CostMapping> mappings = mapper.getMappingsForSmellByDisplayName(smellEntry.getKey());
             for (CostMapping m : mappings) {
-                costHits.merge(m.costId(), occurrences, Integer::sum);
                 PafCost cost = mapper.getCost(m.costId());
-                if (cost != null) {
-                    if ("Internal Failure".equals(cost.pafCategory())) {
-                        internalFailureHits += occurrences;
-                    } else {
-                        appraisalHits += occurrences;
-                    }
+                if (cost == null) continue;
+                if (INTERNAL_FAILURE.equals(cost.pafCategory())) {
+                    internalFailureHits += occurrences;
+                } else {
+                    appraisalHits += occurrences;
                 }
             }
         }
+        return new int[]{internalFailureHits, appraisalHits};
+    }
 
-        // PAF category cards
+    private static @NotNull Map<String, Integer> computeCostHits(@NotNull CostMapper mapper,
+                                                                   @NotNull Map<String, Integer> smellCounts) {
+        Map<String, Integer> costHits = new LinkedHashMap<>();
+        for (Map.Entry<String, Integer> smellEntry : smellCounts.entrySet()) {
+            int occurrences = smellEntry.getValue();
+            List<CostMapping> mappings = mapper.getMappingsForSmellByDisplayName(smellEntry.getKey());
+            for (CostMapping m : mappings) {
+                costHits.merge(m.costId(), occurrences, Integer::sum);
+            }
+        }
+        return costHits;
+    }
+
+    private void addPafSummaryCards(@NotNull JPanel panel, int internalFailureHits, int appraisalHits) {
         JPanel pafSummary = new JPanel(new GridLayout(1, 2, 12, 0));
         pafSummary.setMaximumSize(new Dimension(Integer.MAX_VALUE, 75));
         pafSummary.setAlignmentX(Component.LEFT_ALIGNMENT);
-        pafSummary.add(createColoredCard("Internal Failure",
+        pafSummary.add(createColoredCard(INTERNAL_FAILURE,
                 internalFailureHits + " occurrence(s) require rework", INTERNAL_FAILURE_COLOR));
         pafSummary.add(createColoredCard("Appraisal",
                 appraisalHits + " occurrence(s) require reviews/testing", APPRAISAL_COLOR));
         panel.add(pafSummary);
         panel.add(Box.createRigidArea(new Dimension(0, 16)));
+    }
 
-        // Cost breakdown chart
+    private void addCostBreakdownChart(@NotNull JPanel panel, @NotNull CostMapper mapper,
+                                        @NotNull Map<String, Integer> costHits) {
         JBLabel chartLabel = new JBLabel("Cost breakdown by category");
         chartLabel.setFont(chartLabel.getFont().deriveFont(Font.BOLD, 12f));
         chartLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -223,7 +245,7 @@ class StatisticsPanel extends JPanel {
 
         List<Map.Entry<String, Integer>> sortedCosts = costHits.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .collect(Collectors.toList());
+                .toList();
 
         List<Map.Entry<String, Integer>> costChartData = new ArrayList<>();
         Color[] costColors = new Color[sortedCosts.size()];
@@ -234,7 +256,7 @@ class StatisticsPanel extends JPanel {
                     ? cost.costName() + " [" + cost.costId() + "]"
                     : entry.getKey();
             costChartData.add(Map.entry(label, entry.getValue()));
-            costColors[i] = cost != null && "Internal Failure".equals(cost.pafCategory())
+            costColors[i] = cost != null && INTERNAL_FAILURE.equals(cost.pafCategory())
                     ? INTERNAL_FAILURE_COLOR : APPRAISAL_COLOR;
         }
 
@@ -245,15 +267,6 @@ class StatisticsPanel extends JPanel {
             costScroll.setBorder(BorderFactory.createEmptyBorder());
             panel.add(costScroll);
         }
-
-        panel.add(Box.createVerticalGlue());
-
-        JPanel wrapper = new JPanel(new BorderLayout());
-        JBScrollPane scroll = new JBScrollPane(panel);
-        scroll.setBorder(null);
-        scroll.getVerticalScrollBar().setUnitIncrement(16);
-        wrapper.add(scroll, BorderLayout.CENTER);
-        return wrapper;
     }
 
     // ─── Tab 3: Files ────────────────────────────────────────────────────────────
@@ -264,50 +277,14 @@ class StatisticsPanel extends JPanel {
         panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         JBLabel description = new JBLabel(
-                "<html><font color='#555555'>Files ranked by total quality cost exposure. " +
-                "A file with few smells can still have high cost exposure if those smells " +
-                "trigger many cost categories. Sort by any column to prioritize your refactoring effort.</font></html>");
+                "<html><font color='#555555'>Files ranked by number of detected UX smells. " +
+                "Cost columns show the associated quality cost exposure for each file. " +
+                "Sort by any column to prioritize your refactoring effort.</font></html>");
         description.setFont(description.getFont().deriveFont(Font.PLAIN, 11f));
         description.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
         panel.add(description, BorderLayout.NORTH);
 
-        String[] columns = {"#", "File", "Smells", "Failure Costs", "Appraisal Costs", "Total Costs"};
-        DefaultTableModel filesModel = new DefaultTableModel(columns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) { return false; }
-
-            @Override
-            public Class<?> getColumnClass(int column) {
-                if (column == 1) return String.class;
-                return Integer.class;
-            }
-        };
-
-        CostMapper costMapper = CostMapper.getInstance();
-        int rank = 1;
-        for (Map.Entry<String, Integer> entry : sortedFiles) {
-            String fileName = entry.getKey();
-            int failureCosts = 0;
-            int appraisalCosts = 0;
-
-            for (SmellFinding f : findings) {
-                if (!f.fileName().equals(fileName)) continue;
-                List<CostMapping> mappings = costMapper.getMappingsForSmellByDisplayName(f.smellName());
-                for (CostMapping m : mappings) {
-                    PafCost cost = costMapper.getCost(m.costId());
-                    if (cost != null && "Internal Failure".equals(cost.pafCategory())) {
-                        failureCosts++;
-                    } else {
-                        appraisalCosts++;
-                    }
-                }
-            }
-
-            filesModel.addRow(new Object[]{
-                    rank++, fileName, entry.getValue(),
-                    failureCosts, appraisalCosts, failureCosts + appraisalCosts
-            });
-        }
+        DefaultTableModel filesModel = buildFilesTableModel(findings, sortedFiles);
 
         JBTable filesTable = new JBTable(filesModel);
         filesTable.getColumnModel().getColumn(0).setPreferredWidth(30);
@@ -327,7 +304,64 @@ class StatisticsPanel extends JPanel {
         return panel;
     }
 
+    private static @NotNull DefaultTableModel buildFilesTableModel(
+            @NotNull List<SmellFinding> findings,
+            @NotNull List<Map.Entry<String, Integer>> sortedFiles) {
+        String[] columns = {"#", "File", "Smells", "Failure Costs", "Appraisal Costs", "Total Costs"};
+        DefaultTableModel filesModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+
+            @Override
+            public Class<?> getColumnClass(int column) {
+                if (column == 1) return String.class;
+                return Integer.class;
+            }
+        };
+
+        CostMapper costMapper = CostMapper.getInstance();
+        int rank = 1;
+        for (Map.Entry<String, Integer> entry : sortedFiles) {
+            String fileName = entry.getKey();
+            int[] costs = computeFileCosts(costMapper, findings, fileName);
+            filesModel.addRow(new Object[]{
+                    rank++, fileName, entry.getValue(),
+                    costs[0], costs[1], costs[0] + costs[1]
+            });
+        }
+        return filesModel;
+    }
+
+    private static int[] computeFileCosts(@NotNull CostMapper costMapper,
+                                           @NotNull List<SmellFinding> findings,
+                                           @NotNull String fileName) {
+        int failureCosts = 0;
+        int appraisalCosts = 0;
+        for (SmellFinding f : findings) {
+            if (!f.fileName().equals(fileName)) continue;
+            List<CostMapping> mappings = costMapper.getMappingsForSmellByDisplayName(f.smellName());
+            for (CostMapping m : mappings) {
+                PafCost cost = costMapper.getCost(m.costId());
+                if (cost != null && INTERNAL_FAILURE.equals(cost.pafCategory())) {
+                    failureCosts++;
+                } else {
+                    appraisalCosts++;
+                }
+            }
+        }
+        return new int[]{failureCosts, appraisalCosts};
+    }
+
     // ─── Shared helpers ──────────────────────────────────────────────────────────
+
+    private static @NotNull JPanel wrapInScrollPane(@NotNull JPanel panel) {
+        JPanel wrapper = new JPanel(new BorderLayout());
+        JBScrollPane scroll = new JBScrollPane(panel);
+        scroll.setBorder(null);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        wrapper.add(scroll, BorderLayout.CENTER);
+        return wrapper;
+    }
 
     private JPanel createSummaryCard(String title, String value) {
         JPanel card = new JPanel(new BorderLayout(0, 2));
@@ -336,7 +370,7 @@ class StatisticsPanel extends JPanel {
                 BorderFactory.createEmptyBorder(8, 12, 8, 12)));
 
         JBLabel titleLabel = new JBLabel(title);
-        titleLabel.setForeground(UIManager.getColor("Label.disabledForeground"));
+        titleLabel.setForeground(UIManager.getColor(DISABLED_FG));
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.PLAIN, 11f));
         card.add(titleLabel, BorderLayout.NORTH);
 
@@ -356,7 +390,7 @@ class StatisticsPanel extends JPanel {
                         BorderFactory.createEmptyBorder(8, 12, 8, 12))));
 
         JBLabel titleLabel = new JBLabel(title);
-        titleLabel.setForeground(UIManager.getColor("Label.disabledForeground"));
+        titleLabel.setForeground(UIManager.getColor(DISABLED_FG));
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.PLAIN, 11f));
         card.add(titleLabel, BorderLayout.NORTH);
 
