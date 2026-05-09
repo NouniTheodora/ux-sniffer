@@ -128,14 +128,10 @@ class StatisticsPanel extends JPanel {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        JBLabel description = new JBLabel(
-                "<html><font color='#555555'>This chart shows how many times each smell type was " +
+        panel.add(createDescriptionLabel(
+                "This chart shows how many times each smell type was " +
                 "detected across the project. Smells that appear more often may indicate " +
-                "systemic issues in the codebase.</font></html>");
-        description.setFont(description.getFont().deriveFont(Font.PLAIN, 11f));
-        description.setAlignmentX(Component.LEFT_ALIGNMENT);
-        description.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
-        panel.add(description);
+                "systemic issues in the codebase.", 12));
 
         BarChartPanel barChart = new BarChartPanel(sortedSmells, CHART_COLORS);
         JBScrollPane chartScroll = new JBScrollPane(barChart);
@@ -146,6 +142,14 @@ class StatisticsPanel extends JPanel {
         panel.add(Box.createVerticalGlue());
 
         return wrapInScrollPane(panel);
+    }
+
+    private static @NotNull JBLabel createDescriptionLabel(@NotNull String text, int bottomPadding) {
+        JBLabel label = new JBLabel("<html><font color='#555555'>" + text + "</font></html>");
+        label.setFont(label.getFont().deriveFont(Font.PLAIN, 11f));
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        label.setBorder(BorderFactory.createEmptyBorder(0, 0, bottomPadding, 0));
+        return label;
     }
 
     // ─── Tab 2: Quality Costs ────────────────────────────────────────────────────
@@ -170,15 +174,11 @@ class StatisticsPanel extends JPanel {
     }
 
     private void addCostDescription(@NotNull JPanel panel) {
-        JBLabel description = new JBLabel(
-                "<html><font color='#555555'>Each detected smell triggers quality costs based on the " +
+        panel.add(createDescriptionLabel(
+                "Each detected smell triggers quality costs based on the " +
                 "PAF (Prevention-Appraisal-Failure) model. <b>Internal Failure</b> costs represent " +
                 "rework needed before release. <b>Appraisal</b> costs represent the effort for " +
-                "reviews, testing, and verification that the smell demands.</font></html>");
-        description.setFont(description.getFont().deriveFont(Font.PLAIN, 11f));
-        description.setAlignmentX(Component.LEFT_ALIGNMENT);
-        description.setBorder(BorderFactory.createEmptyBorder(0, 0, 14, 0));
-        panel.add(description);
+                "reviews, testing, and verification that the smell demands.", 14));
     }
 
     private static int[] computeCostTotals(@NotNull CostMapper mapper,
@@ -276,13 +276,11 @@ class StatisticsPanel extends JPanel {
         JPanel panel = new JPanel(new BorderLayout(0, 8));
         panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        JBLabel description = new JBLabel(
-                "<html><font color='#555555'>Files ranked by number of detected UX smells. " +
+        panel.add(createDescriptionLabel(
+                "Files ranked by number of detected UX smells. " +
                 "Cost columns show the associated quality cost exposure for each file. " +
-                "Sort by any column to prioritize your refactoring effort.</font></html>");
-        description.setFont(description.getFont().deriveFont(Font.PLAIN, 11f));
-        description.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
-        panel.add(description, BorderLayout.NORTH);
+                "Sort by any column to prioritize your refactoring effort.", 8),
+                BorderLayout.NORTH);
 
         DefaultTableModel filesModel = buildFilesTableModel(findings, sortedFiles);
 
