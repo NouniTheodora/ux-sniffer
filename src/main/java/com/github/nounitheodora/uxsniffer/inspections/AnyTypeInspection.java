@@ -22,7 +22,7 @@ public class AnyTypeInspection extends AbstractVueSmellInspection {
 
     @Override
     public @Nullable String analyze(@NotNull String fileText) {
-        if (!isTypeScriptSetup(fileText)) return null;
+        if (isNotTypeScriptSetup(fileText)) return null;
         String script = extractScriptContent(fileText);
         if (script.isEmpty()) return null;
         int count = countAnyUsages(script);
@@ -38,7 +38,7 @@ public class AnyTypeInspection extends AbstractVueSmellInspection {
                 if (!isVueFile(file)) return;
 
                 String text = file.getText();
-                if (!isTypeScriptSetup(text)) return;
+                if (isNotTypeScriptSetup(text)) return;
 
                 String script = extractScriptContent(text);
                 if (script.isEmpty()) return;

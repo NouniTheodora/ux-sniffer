@@ -23,7 +23,7 @@ public class EnumImplicitValuesInspection extends AbstractVueSmellInspection {
 
     @Override
     public @Nullable String analyze(@NotNull String fileText) {
-        if (!isTypeScriptSetup(fileText)) return null;
+        if (isNotTypeScriptSetup(fileText)) return null;
         String script = extractScriptContent(fileText);
         if (script.isEmpty()) return null;
         List<String> found = detectImplicitEnums(script);
@@ -39,7 +39,7 @@ public class EnumImplicitValuesInspection extends AbstractVueSmellInspection {
                 if (!isVueFile(file)) return;
 
                 String text = file.getText();
-                if (!isTypeScriptSetup(text)) return;
+                if (isNotTypeScriptSetup(text)) return;
 
                 String script = extractScriptContent(text);
                 if (script.isEmpty()) return;
@@ -82,8 +82,7 @@ public class EnumImplicitValuesInspection extends AbstractVueSmellInspection {
             String trimmed = line.trim();
             if (trimmed.isEmpty() || trimmed.startsWith("//") || trimmed.startsWith("*")) continue;
             String member = trimmed.replace(",", "").trim();
-            if (member.isEmpty()) continue;
-            if (member.matches("\\w+") && !member.contains("=")) {
+            if (!member.isEmpty() && member.matches("\\w+") && !member.contains("=")) {
                 return true;
             }
         }

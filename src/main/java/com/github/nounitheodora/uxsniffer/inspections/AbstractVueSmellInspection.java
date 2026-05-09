@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class AbstractVueSmellInspection extends LocalInspectionTool {
 
+    @Override
     public abstract @NotNull String getDisplayName();
 
     /**
@@ -79,14 +80,14 @@ public abstract class AbstractVueSmellInspection extends LocalInspectionTool {
         return text.substring(contentStart + 1, scriptEnd);
     }
 
-    protected boolean isTypeScriptSetup(@NotNull String text) {
+    protected boolean isNotTypeScriptSetup(@NotNull String text) {
         int scriptStart = text.indexOf("<script");
-        if (scriptStart < 0) return false;
+        if (scriptStart < 0) return true;
         int tagEnd = text.indexOf('>', scriptStart);
-        if (tagEnd < 0) return false;
+        if (tagEnd < 0) return true;
         String tag = text.substring(scriptStart, tagEnd);
-        return tag.contains("setup") &&
-               (tag.contains("lang=\"ts\"") || tag.contains("lang=\"typescript\""));
+        return !tag.contains("setup") ||
+               (!tag.contains("lang=\"ts\"") && !tag.contains("lang=\"typescript\""));
     }
 
     /**

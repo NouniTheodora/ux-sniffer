@@ -37,7 +37,7 @@ import java.util.List;
 
 class CostDetailPanel extends JPanel {
 
-    private final Project project;
+    private final transient Project project;
     private final JBLabel emptyLabel;
     private final JTabbedPane detailTabs;
 
@@ -144,16 +144,14 @@ class CostDetailPanel extends JPanel {
                     .filter(m -> "Secondary".equals(m.priority())).toList();
 
             if (!primary.isEmpty()) {
-                addCostSectionHeader(panel, "Direct Costs", "This smell directly causes or triggers these costs",
-                        new Color(220, 80, 60));
+                addCostSectionHeader(panel, "Direct Costs", "This smell directly causes or triggers these costs");
                 for (CostMapping m : primary) {
                     addCostCard(panel, mapper, m);
                 }
             }
             if (!secondary.isEmpty()) {
                 panel.add(Box.createRigidArea(new Dimension(0, 10)));
-                addCostSectionHeader(panel, "Indirect Costs", "Fixing this smell requires additional effort in these areas",
-                        new Color(60, 130, 200));
+                addCostSectionHeader(panel, "Indirect Costs", "Fixing this smell requires additional effort in these areas");
                 for (CostMapping m : secondary) {
                     addCostCard(panel, mapper, m);
                 }
@@ -241,7 +239,7 @@ class CostDetailPanel extends JPanel {
     }
 
     private void addCostSectionHeader(@NotNull JPanel panel, @NotNull String title,
-                                       @NotNull String description, @NotNull Color color) {
+                                       @NotNull String description) {
         JBLabel titleLabel = new JBLabel(title);
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 12f));
         titleLabel.setForeground(UIManager.getColor("Label.foreground"));
