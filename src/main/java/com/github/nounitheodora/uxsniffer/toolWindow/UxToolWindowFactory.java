@@ -1,6 +1,7 @@
 package com.github.nounitheodora.uxsniffer.toolwindow;
 
 import com.github.nounitheodora.uxsniffer.report.HtmlReportExporter;
+import com.github.nounitheodora.uxsniffer.report.JsonReportExporter;
 import com.github.nounitheodora.uxsniffer.scanner.SmellFinding;
 import com.github.nounitheodora.uxsniffer.services.UxAnalysisService;
 import com.intellij.ide.BrowserUtil;
@@ -48,9 +49,12 @@ public class UxToolWindowFactory implements ToolWindowFactory {
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton scanButton = new JButton("Scan Project");
         JButton exportButton = new JButton("Export Report");
+        JButton exportJsonButton = new JButton("Export JSON");
         exportButton.setEnabled(false);
+        exportJsonButton.setEnabled(false);
         toolbar.add(scanButton);
         toolbar.add(exportButton);
+        toolbar.add(exportJsonButton);
         mainPanel.add(toolbar, BorderLayout.SOUTH);
 
         List<SmellFinding> currentFindings = new ArrayList<>();
@@ -58,6 +62,7 @@ public class UxToolWindowFactory implements ToolWindowFactory {
         scanButton.addActionListener(e -> {
             scanButton.setEnabled(false);
             exportButton.setEnabled(false);
+            exportJsonButton.setEnabled(false);
             findingsPanel.setScanning();
             statisticsPanel.reset();
             currentFindings.clear();
@@ -72,6 +77,7 @@ public class UxToolWindowFactory implements ToolWindowFactory {
                     statisticsPanel.update(findings);
                     scanButton.setEnabled(true);
                     exportButton.setEnabled(!findings.isEmpty());
+                    exportJsonButton.setEnabled(!findings.isEmpty());
                 });
             });
         });
@@ -95,6 +101,29 @@ public class UxToolWindowFactory implements ToolWindowFactory {
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(mainPanel,
                             "Failed to save report: " + ex.getMessage(),
+                            "Export Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        exportJsonButton.addActionListener(e -> {
+            String projectName = project.getName();
+            com.intellij.openapi.vfs.VirtualFile projectDir = com.intellij.openapi.project.ProjectUtil.guessProjectDir(project);
+            String basePath = projectDir != null ? projectDir.getPath() : "";
+            String json = JsonReportExporter.generate(currentFindings, projectName, basePath);
+
+            FileSaverDescriptor descriptor = new FileSaverDescriptor(
+                    "Export UXSniffer JSON Report", "Save JSON report", "json");
+            FileSaverDialog dialog = FileChooserFactory.getInstance()
+                    .createSaveFileDialog(descriptor, project);
+            String defaultFileName = "UXSniffer_" + projectName.replaceAll("[^a-zA-Z0-9._-]", "_") + ".json";
+            VirtualFileWrapper wrapper = dialog.save((com.intellij.openapi.vfs.VirtualFile) null, defaultFileName);
+            if (wrapper != null) {
+                try {
+                    Files.writeString(wrapper.getFile().toPath(), json, StandardCharsets.UTF_8);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(mainPanel,
+                            "Failed to save JSON report: " + ex.getMessage(),
                             "Export Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
