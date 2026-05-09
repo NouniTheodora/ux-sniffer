@@ -73,14 +73,14 @@
       "smellId": "S30",
       "smellName": "Non-Null Assertions",
       "definition": "This smell appears when the non-null assertion operator (!) is used to tell TypeScript a value is not null or undefined. However, non-null assertions do not eliminate potential runtime errors. If the expression returns undefined and code attempts to read a property of it, a runtime error will occur.",
-      "severity": "High",
+      "severity": "Context dependent",
       "refactoring": "Use optional chaining (?.) and nullish coalescing (??) to safely access potentially null values. Add proper null checks (if/guard clauses) before accessing properties. Design APIs to return non-nullable types where possible."
     },
     {
       "smellId": "S31",
       "smellName": "Enum Implicit Values",
       "definition": "This smell appears when enums are defined without explicit constant values. TypeScript infers sequential numbers starting from zero. When a new member is added, all subsequent values shift, causing inconsistencies at runtime if something depends on these values (e.g. persisted data). The solution is to assign explicit values to enum members.",
-      "severity": "High",
+      "severity": "Context dependent",
       "refactoring": "Assign explicit string literal values to all enum members (e.g. Status.Active = 'active'). String enums are immune to reordering issues and produce readable serialized values. Alternatively, use a const object with 'as const' for even more control."
     },
     {
