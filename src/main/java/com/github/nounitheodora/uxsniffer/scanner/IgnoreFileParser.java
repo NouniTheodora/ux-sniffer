@@ -1,10 +1,12 @@
 package com.github.nounitheodora.uxsniffer.scanner;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
@@ -15,6 +17,7 @@ import java.util.List;
 
 final class IgnoreFileParser {
 
+    private static final Logger LOG = Logger.getInstance(IgnoreFileParser.class);
     private static final String IGNORE_FILE_NAME = ".uxsnifferignore";
 
     private final List<PathMatcher> matchers = new ArrayList<>();
@@ -35,7 +38,8 @@ final class IgnoreFileParser {
                 if (trimmed.isEmpty() || trimmed.startsWith("#")) continue;
                 matchers.add(FileSystems.getDefault().getPathMatcher("glob:" + trimmed));
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            LOG.warn("Failed to read " + IGNORE_FILE_NAME, e);
         }
     }
 
@@ -43,8 +47,13 @@ final class IgnoreFileParser {
         if (matchers.isEmpty()) return false;
 
         String filePath = file.getPath();
-        String relativePath = basePath.isEmpty() ? filePath
-                : filePath.startsWith(basePath + "/") ? filePath.substring(basePath.length() + 1) : filePath;
+        String separator = File.separator;
+        String relativePath;
+        if (!basePath.isEmpty() && filePath.startsWith(basePath + separator)) {
+            relativePath = filePath.substring(basePath.length() + 1);
+        } else {
+            relativePath = filePath;
+        }
 
         java.nio.file.Path path = Paths.get(relativePath);
         String fileName = file.getName();
