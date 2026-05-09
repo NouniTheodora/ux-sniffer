@@ -15,6 +15,9 @@
 
     <extensions defaultExtensionNs="com.intellij">
 
+        <applicationService
+            serviceImplementation="com.github.nounitheodora.uxsniffer.quality.CostMapper"/>
+
         <toolWindow
             id="UXSniffer"
             anchor="bottom"

@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.github.nounitheodora.uxsniffer.UxSnifferBundle;
+import com.intellij.openapi.application.ApplicationManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,28 +18,20 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Singleton pattern — a single shared instance loads and caches the PAF cost
- * mappings from cost-mappings.json, providing lookup methods for the UI layer.
- *
- * @see <a href="https://refactoring.guru/design-patterns/singleton">Singleton — Refactoring Guru</a>
- */
 public final class CostMapper {
-
-    private static final CostMapper INSTANCE = new CostMapper();
 
     private final Map<String, SmellInfo> smellsById = new LinkedHashMap<>();
     private final Map<String, PafCost> costsById = new LinkedHashMap<>();
     private final Map<String, List<CostMapping>> mappingsBySmellId = new LinkedHashMap<>();
     private final Map<String, String> displayNameToSmellId = new LinkedHashMap<>();
 
-    private CostMapper() {
+    public CostMapper() {
         initDisplayNameMapping();
         loadJson();
     }
 
     public static @NotNull CostMapper getInstance() {
-        return INSTANCE;
+        return ApplicationManager.getApplication().getService(CostMapper.class);
     }
 
     public @NotNull List<CostMapping> getMappingsForSmell(@NotNull String smellId) {
@@ -84,55 +77,61 @@ public final class CostMapper {
             JsonObject root = JsonParser.parseReader(
                     new InputStreamReader(is, StandardCharsets.UTF_8)).getAsJsonObject();
 
-            JsonArray smellsArray = root.getAsJsonArray("smells");
-            if (smellsArray != null) {
-                for (JsonElement el : smellsArray) {
-                    JsonObject obj = el.getAsJsonObject();
-                    SmellInfo info = new SmellInfo(
-                            obj.get("smellId").getAsString(),
-                            obj.get("smellName").getAsString(),
-                            obj.get("definition").getAsString(),
-                            obj.get("severity").getAsString(),
-                            obj.get("refactoring").getAsString()
-                    );
-                    smellsById.put(info.smellId(), info);
-                }
-            }
-
-            JsonArray costsArray = root.getAsJsonArray("pafCosts");
-            if (costsArray == null) return;
-            for (JsonElement el : costsArray) {
-                JsonObject obj = el.getAsJsonObject();
-                PafCost cost = new PafCost(
-                        obj.get("costId").getAsString(),
-                        obj.get("costName").getAsString(),
-                        obj.get("pafCategory").getAsString(),
-                        obj.get("definition").getAsString()
-                );
-                costsById.put(cost.costId(), cost);
-            }
-
-            JsonArray mappingsArray = root.getAsJsonArray("smellCostMappings");
-            if (mappingsArray == null) return;
-            for (JsonElement el : mappingsArray) {
-                JsonObject obj = el.getAsJsonObject();
-                CostMapping mapping = new CostMapping(
-                        obj.get("mappingId").getAsString(),
-                        obj.get("smellId").getAsString(),
-                        obj.get("smellName").getAsString(),
-                        obj.get("costId").getAsString(),
-                        obj.get("costName").getAsString(),
-                        obj.get("relationshipType").getAsString(),
-                        obj.get("causationLogic").getAsString(),
-                        obj.get("triggerCondition").getAsString(),
-                        obj.get("priority").getAsString()
-                );
-                mappingsBySmellId
-                        .computeIfAbsent(mapping.smellId(), k -> new ArrayList<>())
-                        .add(mapping);
-            }
+            parseSmells(root.getAsJsonArray("smells"));
+            parseCosts(root.getAsJsonArray("pafCosts"));
+            parseMappings(root.getAsJsonArray("smellCostMappings"));
         } catch (IOException | com.google.gson.JsonParseException e) {
             // Silently fail — cost data is supplementary
+        }
+    }
+
+    private void parseSmells(@Nullable JsonArray smellsArray) {
+        if (smellsArray == null) return;
+        for (JsonElement el : smellsArray) {
+            JsonObject obj = el.getAsJsonObject();
+            SmellInfo info = new SmellInfo(
+                    obj.get("smellId").getAsString(),
+                    obj.get("smellName").getAsString(),
+                    obj.get("definition").getAsString(),
+                    obj.get("severity").getAsString(),
+                    obj.get("refactoring").getAsString()
+            );
+            smellsById.put(info.smellId(), info);
+        }
+    }
+
+    private void parseCosts(@Nullable JsonArray costsArray) {
+        if (costsArray == null) return;
+        for (JsonElement el : costsArray) {
+            JsonObject obj = el.getAsJsonObject();
+            PafCost cost = new PafCost(
+                    obj.get("costId").getAsString(),
+                    obj.get("costName").getAsString(),
+                    obj.get("pafCategory").getAsString(),
+                    obj.get("definition").getAsString()
+            );
+            costsById.put(cost.costId(), cost);
+        }
+    }
+
+    private void parseMappings(@Nullable JsonArray mappingsArray) {
+        if (mappingsArray == null) return;
+        for (JsonElement el : mappingsArray) {
+            JsonObject obj = el.getAsJsonObject();
+            CostMapping mapping = new CostMapping(
+                    obj.get("mappingId").getAsString(),
+                    obj.get("smellId").getAsString(),
+                    obj.get("smellName").getAsString(),
+                    obj.get("costId").getAsString(),
+                    obj.get("costName").getAsString(),
+                    obj.get("relationshipType").getAsString(),
+                    obj.get("causationLogic").getAsString(),
+                    obj.get("triggerCondition").getAsString(),
+                    obj.get("priority").getAsString()
+            );
+            mappingsBySmellId
+                    .computeIfAbsent(mapping.smellId(), k -> new ArrayList<>())
+                    .add(mapping);
         }
     }
 }
