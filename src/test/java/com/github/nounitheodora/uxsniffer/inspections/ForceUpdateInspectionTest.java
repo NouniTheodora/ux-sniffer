@@ -47,7 +47,7 @@ public class ForceUpdateInspectionTest {
         public void testDetectForceUpdate() {
             List<String> found = inspection.detectForceUpdates(script);
             assertEquals(1, found.size());
-            assertEquals(expectedItem, found.get(0));
+            assertEquals(expectedItem, found.getFirst());
         }
     }
 

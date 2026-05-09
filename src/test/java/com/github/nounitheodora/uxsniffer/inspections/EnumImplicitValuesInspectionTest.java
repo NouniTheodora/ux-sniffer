@@ -15,7 +15,7 @@ public class EnumImplicitValuesInspectionTest {
         String script = "\nenum Color {\n  Red,\n  Green,\n  Blue,\n}\n";
         List<String> found = inspection.detectImplicitEnums(script);
         assertEquals(1, found.size());
-        assertEquals("Color", found.get(0));
+        assertEquals("Color", found.getFirst());
     }
 
     @Test
@@ -53,7 +53,7 @@ public class EnumImplicitValuesInspectionTest {
         String script = "\nenum Color {\n  Red = 'Red',\n  Green = 'Green',\n}\n\nenum Size {\n  Small,\n  Large,\n}\n";
         List<String> found = inspection.detectImplicitEnums(script);
         assertEquals(1, found.size());
-        assertEquals("Size", found.get(0));
+        assertEquals("Size", found.getFirst());
     }
 
     @Test

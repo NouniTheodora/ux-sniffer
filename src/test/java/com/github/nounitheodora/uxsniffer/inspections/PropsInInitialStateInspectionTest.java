@@ -18,7 +18,7 @@ public class PropsInInitialStateInspectionTest {
                 "const name = ref(props.initialName)\n";
         List<String> found = inspection.detectPropsInState(script);
         assertEquals(1, found.size());
-        assertEquals("initialName", found.get(0));
+        assertEquals("initialName", found.getFirst());
     }
 
     @Test
@@ -26,7 +26,7 @@ public class PropsInInitialStateInspectionTest {
         String script = "\nconst name = ref( props.title )\n";
         List<String> found = inspection.detectPropsInState(script);
         assertEquals(1, found.size());
-        assertEquals("title", found.get(0));
+        assertEquals("title", found.getFirst());
     }
 
     @Test
@@ -44,7 +44,7 @@ public class PropsInInitialStateInspectionTest {
         String script = "\nconst state = reactive({ name: props.userName })\n";
         List<String> found = inspection.detectPropsInState(script);
         assertEquals(1, found.size());
-        assertEquals("userName", found.get(0));
+        assertEquals("userName", found.getFirst());
     }
 
     @Test

@@ -15,11 +15,11 @@ import static org.junit.Assert.*;
 public class DirectDomInspectionTest {
 
     @RunWith(Parameterized.class)
-    public static class SingleApiDetection {
+    public static class SingleApiDetectionTest {
 
         private final DirectDomInspection inspection = new DirectDomInspection();
 
-        @Parameterized.Parameter(0)
+        @Parameterized.Parameter
         public String description;
 
         @Parameterized.Parameter(1)
@@ -98,7 +98,7 @@ public class DirectDomInspectionTest {
             String script = "\ndocument.getElementById('a')\ndocument.getElementById('b')\n";
             List<String> found = inspection.detectDomApis(script);
             assertEquals(1, found.size());
-            assertEquals("getElementById", found.get(0));
+            assertEquals("getElementById", found.getFirst());
         }
 
         @Test

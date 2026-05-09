@@ -191,7 +191,7 @@ public class AbstractVueSmellInspectionTest {
     private static class TestInspection extends AbstractVueSmellInspection {
         @Override
         public @NotNull String getDisplayName() {
-            return "Test Inspection";
+            return "Test inspection";
         }
     }
 }

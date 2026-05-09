@@ -64,7 +64,7 @@ public class UncontrolledComponentInspectionTest {
         String template = "\n  <input ref=\"nameInput\" type=\"text\" />\n";
         List<String> found = inspection.detectUncontrolled(template);
         assertEquals(1, found.size());
-        assertEquals("input", found.get(0));
+        assertEquals("input", found.getFirst());
     }
 
     @Test
@@ -72,7 +72,7 @@ public class UncontrolledComponentInspectionTest {
         String template = "\n  <textarea ref=\"msgInput\"></textarea>\n";
         List<String> found = inspection.detectUncontrolled(template);
         assertEquals(1, found.size());
-        assertEquals("textarea", found.get(0));
+        assertEquals("textarea", found.getFirst());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class UncontrolledComponentInspectionTest {
         String template = "\n  <select ref=\"roleSelect\">\n    <option>Admin</option>\n  </select>\n";
         List<String> found = inspection.detectUncontrolled(template);
         assertEquals(1, found.size());
-        assertEquals("select", found.get(0));
+        assertEquals("select", found.getFirst());
     }
 
     @Test
@@ -118,7 +118,7 @@ public class UncontrolledComponentInspectionTest {
         String template = "\n  <input ref=\"a\" type=\"text\" />\n  <input ref=\"b\" v-model=\"name\" />\n";
         List<String> found = inspection.detectUncontrolled(template);
         assertEquals(1, found.size());
-        assertEquals("input", found.get(0));
+        assertEquals("input", found.getFirst());
     }
 
     // --- buildMessage ---
