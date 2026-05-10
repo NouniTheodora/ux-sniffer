@@ -15,11 +15,11 @@ import static org.junit.Assert.*;
 public class AbstractVueSmellInspectionTest {
 
     @RunWith(Parameterized.class)
-    public static class IsNotTypeScriptSetup {
+    public static class IsNotTypeScriptSetupTest {
 
         private final TestInspection inspection = new TestInspection();
 
-        @Parameterized.Parameter(0)
+        @Parameterized.Parameter
         public String description;
 
         @Parameterized.Parameter(1)
@@ -45,7 +45,7 @@ public class AbstractVueSmellInspectionTest {
         }
     }
 
-    public static class NonParameterized {
+    public static class NonParameterizedTest {
 
         private final TestInspection inspection = new TestInspection();
 

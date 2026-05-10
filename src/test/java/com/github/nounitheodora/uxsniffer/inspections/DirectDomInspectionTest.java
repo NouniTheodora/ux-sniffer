@@ -51,7 +51,7 @@ public class DirectDomInspectionTest {
         }
     }
 
-    public static class NonParameterized {
+    public static class NonParameterizedTest {
 
         private final DirectDomInspection inspection = new DirectDomInspection();
 

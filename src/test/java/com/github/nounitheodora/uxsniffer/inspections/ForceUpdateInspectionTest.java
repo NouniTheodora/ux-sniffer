@@ -15,11 +15,11 @@ import static org.junit.Assert.*;
 public class ForceUpdateInspectionTest {
 
     @RunWith(Parameterized.class)
-    public static class DetectForceUpdates {
+    public static class DetectForceUpdatesTest {
 
         private final ForceUpdateInspection inspection = new ForceUpdateInspection();
 
-        @Parameterized.Parameter(0)
+        @Parameterized.Parameter
         public String description;
 
         @Parameterized.Parameter(1)
@@ -52,11 +52,11 @@ public class ForceUpdateInspectionTest {
     }
 
     @RunWith(Parameterized.class)
-    public static class DetectNoViolations {
+    public static class DetectNoViolationsTest {
 
         private final ForceUpdateInspection inspection = new ForceUpdateInspection();
 
-        @Parameterized.Parameter(0)
+        @Parameterized.Parameter
         public String description;
 
         @Parameterized.Parameter(1)
@@ -78,7 +78,7 @@ public class ForceUpdateInspectionTest {
         }
     }
 
-    public static class NonParameterized {
+    public static class NonParameterizedTest {
 
         private final ForceUpdateInspection inspection = new ForceUpdateInspection();
 
