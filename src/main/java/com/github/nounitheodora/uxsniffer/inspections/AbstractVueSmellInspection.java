@@ -64,6 +64,12 @@ public abstract class AbstractVueSmellInspection extends LocalInspectionTool {
         return vFile != null && "vue".equalsIgnoreCase(vFile.getExtension());
     }
 
+    protected boolean isTypeScriptFile(@NotNull PsiFile file) {
+        VirtualFile vFile = file.getVirtualFile();
+        if (vFile == null) vFile = file.getOriginalFile().getVirtualFile();
+        return vFile != null && "ts".equalsIgnoreCase(vFile.getExtension());
+    }
+
     protected int countLines(@NotNull String text) {
         String[] lines = text.split("\n", -1);
         if (lines.length > 0 && lines[lines.length - 1].isEmpty()) {

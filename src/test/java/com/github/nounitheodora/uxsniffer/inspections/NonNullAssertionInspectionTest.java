@@ -45,6 +45,25 @@ public class NonNullAssertionInspectionTest {
     }
 
     @Test
+    public void testSupportsTypeScript() {
+        assertTrue(inspection.supportsTypeScript());
+    }
+
+    @Test
+    public void testAnalyzeTypeScript_withAssertions() {
+        String ts = "const value = found!.name\nconst other = item!.value\n";
+        String result = inspection.analyzeTypeScript(ts);
+        assertNotNull(result);
+        assertTrue(result.contains("2"));
+    }
+
+    @Test
+    public void testAnalyzeTypeScript_noAssertions() {
+        String ts = "const value = item?.name ?? 'default'\n";
+        assertNull(inspection.analyzeTypeScript(ts));
+    }
+
+    @Test
     public void testBuildMessage_single() {
         String msg = inspection.buildMessage(1);
         assertEquals("Non-null assertion operator ('!') used. This may hide null/undefined errors at runtime. Use proper null checks instead.", msg);

@@ -51,6 +51,25 @@ public class AnyTypeInspectionTest {
     }
 
     @Test
+    public void testSupportsTypeScript() {
+        assertTrue(inspection.supportsTypeScript());
+    }
+
+    @Test
+    public void testAnalyzeTypeScript_withAny() {
+        String ts = "const data: any = null\nfunction process(input: any): string { return input }\n";
+        String result = inspection.analyzeTypeScript(ts);
+        assertNotNull(result);
+        assertTrue(result.contains("2"));
+    }
+
+    @Test
+    public void testAnalyzeTypeScript_noAny() {
+        String ts = "const data: string = 'hello'\nfunction process(input: number): string { return String(input) }\n";
+        assertNull(inspection.analyzeTypeScript(ts));
+    }
+
+    @Test
     public void testBuildMessage_single() {
         String msg = inspection.buildMessage(1);
         assertEquals("TypeScript 'any' type used. This disables type checking and may hide errors. Define explicit types instead.", msg);

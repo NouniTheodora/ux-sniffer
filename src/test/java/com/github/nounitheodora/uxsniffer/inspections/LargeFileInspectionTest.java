@@ -92,6 +92,38 @@ public class LargeFileInspectionTest {
         assertEquals(-1, inspection.findFirstImportOffset(content));
     }
 
+    // --- TypeScript support ---
+
+    @Test
+    public void testSupportsTypeScript() {
+        assertTrue(inspection.supportsTypeScript());
+    }
+
+    @Test
+    public void testAnalyzeTypeScript_largeFile() {
+        String ts = "// line\n".repeat(LargeFileInspection.DEFAULT_LOC_THRESHOLD + 5);
+        String result = inspection.analyzeTypeScript(ts);
+        assertNotNull(result);
+        assertTrue(result.contains("lines"));
+    }
+
+    @Test
+    public void testAnalyzeTypeScript_smallFile() {
+        String ts = "const x = 1\nconst y = 2\n";
+        assertNull(inspection.analyzeTypeScript(ts));
+    }
+
+    @Test
+    public void testAnalyzeTypeScript_tooManyImports() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < LargeFileInspection.DEFAULT_IMPORTS_THRESHOLD + 5; i++) {
+            sb.append("import { thing").append(i).append(" } from './module").append(i).append("'\n");
+        }
+        String result = inspection.analyzeTypeScript(sb.toString());
+        assertNotNull(result);
+        assertTrue(result.contains("imports"));
+    }
+
     // --- combined message (both violations) ---
 
     @Test

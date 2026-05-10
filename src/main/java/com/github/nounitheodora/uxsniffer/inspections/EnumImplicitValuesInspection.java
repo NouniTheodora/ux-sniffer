@@ -36,6 +36,11 @@ public class EnumImplicitValuesInspection extends AbstractVueSmellInspection {
         return new PsiElementVisitor() {
             @Override
             public void visitFile(@NotNull PsiFile file) {
+                if (isTypeScriptFile(file)) {
+                    String message = analyzeTypeScript(file.getText());
+                    if (message != null) registerProblemOnFile(holder, file, message);
+                    return;
+                }
                 if (!isVueFile(file)) return;
 
                 String text = file.getText();
