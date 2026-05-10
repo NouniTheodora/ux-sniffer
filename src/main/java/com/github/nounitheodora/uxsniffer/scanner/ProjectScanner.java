@@ -44,27 +44,32 @@ public final class ProjectScanner {
         this.project = project;
     }
 
-    public @NotNull List<SmellFinding> scan() {
+    public @NotNull ScanResult scan() {
         List<SmellFinding> findings = new ArrayList<>();
+        List<String> excludedFiles = new ArrayList<>();
         IgnoreFileParser ignoreParser = new IgnoreFileParser(project);
         GlobalSearchScope scope = GlobalSearchScope.projectScope(project);
 
         Collection<VirtualFile> vueFiles = FilenameIndex.getAllFilesByExt(project, "vue", scope);
         for (VirtualFile vf : vueFiles) {
-            scanVueFile(vf, ignoreParser, findings);
+            scanVueFile(vf, ignoreParser, findings, excludedFiles);
         }
 
         Collection<VirtualFile> tsFiles = FilenameIndex.getAllFilesByExt(project, "ts", scope);
         for (VirtualFile vf : tsFiles) {
-            scanTypeScriptFile(vf, ignoreParser, findings);
+            scanTypeScriptFile(vf, ignoreParser, findings, excludedFiles);
         }
 
-        return findings;
+        return new ScanResult(findings, excludedFiles);
     }
 
     private static void scanVueFile(@NotNull VirtualFile vf, @NotNull IgnoreFileParser ignoreParser,
-                                    @NotNull List<SmellFinding> findings) {
-        if (isExcludedFile(vf) || ignoreParser.isIgnored(vf)) return;
+                                    @NotNull List<SmellFinding> findings,
+                                    @NotNull List<String> excludedFiles) {
+        if (isExcludedFile(vf) || ignoreParser.isIgnored(vf)) {
+            excludedFiles.add(vf.getPath());
+            return;
+        }
         String text = readFile(vf);
         if (text == null) return;
 
@@ -78,8 +83,12 @@ public final class ProjectScanner {
     }
 
     private static void scanTypeScriptFile(@NotNull VirtualFile vf, @NotNull IgnoreFileParser ignoreParser,
-                                           @NotNull List<SmellFinding> findings) {
-        if (isExcludedFile(vf) || ignoreParser.isIgnored(vf)) return;
+                                           @NotNull List<SmellFinding> findings,
+                                           @NotNull List<String> excludedFiles) {
+        if (isExcludedFile(vf) || ignoreParser.isIgnored(vf)) {
+            excludedFiles.add(vf.getPath());
+            return;
+        }
         String text = readFile(vf);
         if (text == null) return;
 

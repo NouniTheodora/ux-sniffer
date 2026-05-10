@@ -2,6 +2,7 @@ package com.github.nounitheodora.uxsniffer.toolwindow;
 
 import com.github.nounitheodora.uxsniffer.report.HtmlReportExporter;
 import com.github.nounitheodora.uxsniffer.report.JsonReportExporter;
+import com.github.nounitheodora.uxsniffer.scanner.ScanResult;
 import com.github.nounitheodora.uxsniffer.scanner.SmellFinding;
 import com.github.nounitheodora.uxsniffer.services.UxAnalysisService;
 import com.intellij.ide.BrowserUtil;
@@ -58,6 +59,7 @@ public class UxToolWindowFactory implements ToolWindowFactory {
         mainPanel.add(toolbar, BorderLayout.SOUTH);
 
         List<SmellFinding> currentFindings = new ArrayList<>();
+        List<String> currentExcludedFiles = new ArrayList<>();
 
         scanButton.addActionListener(e -> {
             scanButton.setEnabled(false);
@@ -66,18 +68,20 @@ public class UxToolWindowFactory implements ToolWindowFactory {
             findingsPanel.setScanning();
             statisticsPanel.reset();
             currentFindings.clear();
+            currentExcludedFiles.clear();
 
             AppExecutorUtil.getAppExecutorService().submit(() -> {
-                List<SmellFinding> findings = ReadAction.compute(() ->
+                ScanResult result = ReadAction.compute(() ->
                         UxAnalysisService.getInstance(project).scanProject());
 
                 ApplicationManager.getApplication().invokeLater(() -> {
-                    currentFindings.addAll(findings);
-                    findingsPanel.update(findings);
-                    statisticsPanel.update(findings);
+                    currentFindings.addAll(result.findings());
+                    currentExcludedFiles.addAll(result.excludedFiles());
+                    findingsPanel.update(result.findings());
+                    statisticsPanel.update(result.findings());
                     scanButton.setEnabled(true);
-                    exportButton.setEnabled(!findings.isEmpty());
-                    exportJsonButton.setEnabled(!findings.isEmpty());
+                    exportButton.setEnabled(!result.findings().isEmpty());
+                    exportJsonButton.setEnabled(!result.findings().isEmpty());
                 });
             });
         });
@@ -86,7 +90,7 @@ public class UxToolWindowFactory implements ToolWindowFactory {
             String projectName = project.getName();
             com.intellij.openapi.vfs.VirtualFile projectDir = com.intellij.openapi.project.ProjectUtil.guessProjectDir(project);
             String basePath = projectDir != null ? projectDir.getPath() : "";
-            String html = HtmlReportExporter.generate(currentFindings, projectName, basePath);
+            String html = HtmlReportExporter.generate(currentFindings, projectName, basePath, currentExcludedFiles);
 
             FileSaverDescriptor descriptor = new FileSaverDescriptor(
                     "Export UXSniffer Report", "Save HTML report", "html");
@@ -110,7 +114,7 @@ public class UxToolWindowFactory implements ToolWindowFactory {
             String projectName = project.getName();
             com.intellij.openapi.vfs.VirtualFile projectDir = com.intellij.openapi.project.ProjectUtil.guessProjectDir(project);
             String basePath = projectDir != null ? projectDir.getPath() : "";
-            String json = JsonReportExporter.generate(currentFindings, projectName, basePath);
+            String json = JsonReportExporter.generate(currentFindings, projectName, basePath, currentExcludedFiles);
 
             FileSaverDescriptor descriptor = new FileSaverDescriptor(
                     "Export UXSniffer JSON Report", "Save JSON report", "json");

@@ -25,7 +25,8 @@ public final class JsonReportExporter {
 
     public static @NotNull String generate(@NotNull List<SmellFinding> findings,
                                            @NotNull String projectName,
-                                           @NotNull String projectBasePath) {
+                                           @NotNull String projectBasePath,
+                                           @NotNull List<String> excludedFiles) {
         CostMapper mapper = CostMapper.getInstance();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -37,8 +38,20 @@ public final class JsonReportExporter {
         report.put("summary", buildSummary(findings));
         report.put("findings", buildFindings(findings, projectBasePath, mapper));
         report.put("fileAnalysis", buildFileAnalysis(findings, projectBasePath, mapper));
+        report.put("excludedFiles", buildExcludedFiles(excludedFiles, projectBasePath));
 
         return gson.toJson(report);
+    }
+
+    private static @NotNull Map<String, Object> buildExcludedFiles(@NotNull List<String> excludedFiles,
+                                                                    @NotNull String basePath) {
+        Map<String, Object> section = new LinkedHashMap<>();
+        section.put("totalExcluded", excludedFiles.size());
+        section.put("files", excludedFiles.stream()
+                .map(f -> toRelativePath(f, basePath))
+                .sorted()
+                .toList());
+        return section;
     }
 
     private static @NotNull Map<String, Object> buildSummary(@NotNull List<SmellFinding> findings) {

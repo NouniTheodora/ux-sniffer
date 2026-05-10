@@ -23,7 +23,7 @@ public class JsonReportExporterTest extends BasePlatformTestCase {
     // --- empty findings ---
 
     public void testGenerate_emptyFindings() {
-        String json = JsonReportExporter.generate(List.of(), "TestProject", "/base");
+        String json = JsonReportExporter.generate(List.of(), "TestProject", "/base", List.of());
         JsonObject root = new Gson().fromJson(json, JsonObject.class);
 
         assertEquals("TestProject", root.get("project").getAsString());
@@ -35,7 +35,7 @@ public class JsonReportExporterTest extends BasePlatformTestCase {
     }
 
     public void testGenerate_emptyFindings_summaryZero() {
-        String json = JsonReportExporter.generate(List.of(), "P", "/base");
+        String json = JsonReportExporter.generate(List.of(), "P", "/base", List.of());
         JsonObject root = new Gson().fromJson(json, JsonObject.class);
         JsonObject summary = root.getAsJsonObject("summary");
 
@@ -48,7 +48,7 @@ public class JsonReportExporterTest extends BasePlatformTestCase {
     public void testGenerate_singleFinding() {
         SmellFinding finding = new SmellFinding(
                 "Large file", "/base/src/App.vue", "App.vue", "Too many lines");
-        String json = JsonReportExporter.generate(List.of(finding), "MyApp", "/base");
+        String json = JsonReportExporter.generate(List.of(finding), "MyApp", "/base", List.of());
         JsonObject root = new Gson().fromJson(json, JsonObject.class);
 
         assertEquals(1, root.get("totalFindings").getAsInt());
@@ -68,7 +68,7 @@ public class JsonReportExporterTest extends BasePlatformTestCase {
     public void testGenerate_relativePathStripping() {
         SmellFinding finding = new SmellFinding(
                 "Large file", "/project/root/src/views/Dashboard.vue", "Dashboard.vue", "msg");
-        String json = JsonReportExporter.generate(List.of(finding), "P", "/project/root");
+        String json = JsonReportExporter.generate(List.of(finding), "P", "/project/root", List.of());
         JsonObject root = new Gson().fromJson(json, JsonObject.class);
 
         JsonObject f = root.getAsJsonArray("findings").get(0).getAsJsonObject();
@@ -78,7 +78,7 @@ public class JsonReportExporterTest extends BasePlatformTestCase {
     public void testGenerate_noBasePathKeepsAbsolute() {
         SmellFinding finding = new SmellFinding(
                 "Large file", "/some/path/App.vue", "App.vue", "msg");
-        String json = JsonReportExporter.generate(List.of(finding), "P", "");
+        String json = JsonReportExporter.generate(List.of(finding), "P", "", List.of());
         JsonObject root = new Gson().fromJson(json, JsonObject.class);
 
         JsonObject f = root.getAsJsonArray("findings").get(0).getAsJsonObject();
@@ -90,7 +90,7 @@ public class JsonReportExporterTest extends BasePlatformTestCase {
     public void testGenerate_smellIdResolved() {
         SmellFinding finding = new SmellFinding(
                 "Large file", "/base/src/A.vue", "A.vue", "msg");
-        String json = JsonReportExporter.generate(List.of(finding), "P", "/base");
+        String json = JsonReportExporter.generate(List.of(finding), "P", "/base", List.of());
         JsonObject root = new Gson().fromJson(json, JsonObject.class);
 
         JsonObject f = root.getAsJsonArray("findings").get(0).getAsJsonObject();
@@ -103,7 +103,7 @@ public class JsonReportExporterTest extends BasePlatformTestCase {
     public void testGenerate_costImpactPresent() {
         SmellFinding finding = new SmellFinding(
                 "Large file", "/base/src/A.vue", "A.vue", "msg");
-        String json = JsonReportExporter.generate(List.of(finding), "P", "/base");
+        String json = JsonReportExporter.generate(List.of(finding), "P", "/base", List.of());
         JsonObject root = new Gson().fromJson(json, JsonObject.class);
 
         JsonObject f = root.getAsJsonArray("findings").get(0).getAsJsonObject();
@@ -126,7 +126,7 @@ public class JsonReportExporterTest extends BasePlatformTestCase {
                 new SmellFinding("Large file", "/base/B.vue", "B.vue", "msg2"),
                 new SmellFinding("Too many props", "/base/C.vue", "C.vue", "msg3")
         );
-        String json = JsonReportExporter.generate(findings, "P", "/base");
+        String json = JsonReportExporter.generate(findings, "P", "/base", List.of());
         JsonObject root = new Gson().fromJson(json, JsonObject.class);
 
         assertEquals(3, root.get("totalFindings").getAsInt());
@@ -147,7 +147,7 @@ public class JsonReportExporterTest extends BasePlatformTestCase {
                 new SmellFinding("Too many props", "/base/A.vue", "A.vue", "msg"),
                 new SmellFinding("Large file", "/base/B.vue", "B.vue", "msg")
         );
-        String json = JsonReportExporter.generate(findings, "P", "/base");
+        String json = JsonReportExporter.generate(findings, "P", "/base", List.of());
         JsonObject root = new Gson().fromJson(json, JsonObject.class);
 
         JsonArray fileAnalysis = root.getAsJsonArray("fileAnalysis");
@@ -166,7 +166,7 @@ public class JsonReportExporterTest extends BasePlatformTestCase {
                 new SmellFinding("Large file", "/base/A.vue", "A.vue", "msg1"),
                 new SmellFinding("Any type usage", "/base/A.vue", "A.vue", "msg2")
         );
-        String json = JsonReportExporter.generate(findings, "P", "/base");
+        String json = JsonReportExporter.generate(findings, "P", "/base", List.of());
         JsonObject root = new Gson().fromJson(json, JsonObject.class);
 
         JsonObject fileEntry = root.getAsJsonArray("fileAnalysis").get(0).getAsJsonObject();
@@ -179,7 +179,7 @@ public class JsonReportExporterTest extends BasePlatformTestCase {
     public void testGenerate_fileAnalysisTotalCostMappings() {
         SmellFinding finding = new SmellFinding(
                 "Large file", "/base/A.vue", "A.vue", "msg");
-        String json = JsonReportExporter.generate(List.of(finding), "P", "/base");
+        String json = JsonReportExporter.generate(List.of(finding), "P", "/base", List.of());
         JsonObject root = new Gson().fromJson(json, JsonObject.class);
 
         JsonObject fileEntry = root.getAsJsonArray("fileAnalysis").get(0).getAsJsonObject();
@@ -192,7 +192,7 @@ public class JsonReportExporterTest extends BasePlatformTestCase {
         List<SmellFinding> findings = List.of(
                 new SmellFinding("Large file", "/base/A.vue", "A.vue", "msg with \"quotes\" and 'apostrophes'")
         );
-        String json = JsonReportExporter.generate(findings, "Project \"Test\"", "/base");
+        String json = JsonReportExporter.generate(findings, "Project \"Test\"", "/base", List.of());
         JsonObject root = new Gson().fromJson(json, JsonObject.class);
         assertNotNull(root);
         assertEquals("Project \"Test\"", root.get("project").getAsString());
@@ -203,7 +203,7 @@ public class JsonReportExporterTest extends BasePlatformTestCase {
     public void testGenerate_unknownSmellNoMetadata() {
         SmellFinding finding = new SmellFinding(
                 "Unknown smell XYZ", "/base/A.vue", "A.vue", "msg");
-        String json = JsonReportExporter.generate(List.of(finding), "P", "/base");
+        String json = JsonReportExporter.generate(List.of(finding), "P", "/base", List.of());
         JsonObject root = new Gson().fromJson(json, JsonObject.class);
 
         JsonObject f = root.getAsJsonArray("findings").get(0).getAsJsonObject();
@@ -216,7 +216,7 @@ public class JsonReportExporterTest extends BasePlatformTestCase {
     // --- timestamp format ---
 
     public void testGenerate_timestampIsIsoFormat() {
-        String json = JsonReportExporter.generate(List.of(), "P", "/base");
+        String json = JsonReportExporter.generate(List.of(), "P", "/base", List.of());
         JsonObject root = new Gson().fromJson(json, JsonObject.class);
         String timestamp = root.get("timestamp").getAsString();
         assertTrue(timestamp.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*"));

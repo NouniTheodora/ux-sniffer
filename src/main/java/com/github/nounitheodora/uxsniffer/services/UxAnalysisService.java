@@ -1,12 +1,10 @@
 package com.github.nounitheodora.uxsniffer.services;
 
 import com.github.nounitheodora.uxsniffer.scanner.ProjectScanner;
-import com.github.nounitheodora.uxsniffer.scanner.SmellFinding;
+import com.github.nounitheodora.uxsniffer.scanner.ScanResult;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 /**
  * Facade pattern — provides a single, simplified entry point for all analysis
@@ -28,7 +26,7 @@ public final class UxAnalysisService {
         return project.getService(UxAnalysisService.class);
     }
 
-    public @NotNull List<SmellFinding> scanProject() {
+    public @NotNull ScanResult scanProject() {
         return scanner.scan();
     }
 }
