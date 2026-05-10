@@ -37,6 +37,10 @@ final class IgnoreFileParser {
                 String trimmed = line.trim();
                 if (trimmed.isEmpty() || trimmed.startsWith("#")) continue;
                 matchers.add(FileSystems.getDefault().getPathMatcher("glob:" + trimmed));
+                if (trimmed.endsWith("/**/*")) {
+                    String base = trimmed.substring(0, trimmed.length() - "/**/*".length());
+                    matchers.add(FileSystems.getDefault().getPathMatcher("glob:" + base + "/*"));
+                }
             }
         } catch (IOException e) {
             LOG.warn("Failed to read " + IGNORE_FILE_NAME, e);
